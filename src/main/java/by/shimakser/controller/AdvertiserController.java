@@ -3,9 +3,10 @@ package by.shimakser.controller;
 import by.shimakser.model.Advertiser;
 import by.shimakser.service.AdvertiserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class AdvertiserController {
@@ -28,8 +29,12 @@ public class AdvertiserController {
     }
 
     @GetMapping(value = "/advertisers")
-    public List<Advertiser> getAllAdvertisers() {
-        return advertiserService.getAll();
+    public Page<Advertiser> getAllAdvertisers(
+            @RequestParam Optional<Integer> page,
+            @RequestParam Optional<Integer> size,
+            @RequestParam Optional<String> sortBy
+    ) {
+        return advertiserService.getAll(page, size, sortBy);
     }
 
     @PutMapping(value = "/advertiser/{id}")

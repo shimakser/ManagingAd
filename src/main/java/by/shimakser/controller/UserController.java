@@ -1,11 +1,13 @@
 package by.shimakser.controller;
 
 import by.shimakser.model.User;
+import by.shimakser.repository.UserRepository;
 import by.shimakser.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class UserController {
@@ -28,8 +30,12 @@ public class UserController {
     }
 
     @GetMapping(value = "/users")
-    public List<User> getAllUsers() {
-        return userService.getAll();
+    public Page<User> getAllUsers(
+            @RequestParam Optional<Integer> page,
+            @RequestParam Optional<Integer> size,
+            @RequestParam Optional<String> sortBy
+    ) {
+        return userService.getAll(page, size, sortBy);
     }
 
     @PutMapping(value = "/user/{id}")

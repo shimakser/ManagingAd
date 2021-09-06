@@ -3,9 +3,11 @@ package by.shimakser.service;
 import by.shimakser.model.Campaign;
 import by.shimakser.repository.CampaignRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -19,9 +21,9 @@ public class CampaignService {
     }
 
     public void add(Campaign campaign) {
-        Campaign campaignByTitle = campaignRepository.findByCampaignTitle(campaign.getCampaignTitle());
+        Optional<Campaign> campaignByTitle = Optional.ofNullable(campaignRepository.findByCampaignTitle(campaign.getCampaignTitle()));
 
-        if (campaignByTitle == null) {
+        if (!campaignByTitle.isPresent()) {
             campaignRepository.save(campaign);
         }
     }
@@ -31,9 +33,16 @@ public class CampaignService {
         return campaignById.get();
     }
 
-    public List<Campaign> getAll() {
-        List<Campaign> allCampaigns = (List<Campaign>) campaignRepository.findAll();
-        return allCampaigns;
+    public Page<Campaign> getAll(
+            Optional<Integer> page,
+            Optional<Integer> size,
+            Optional<String> sortBy
+    ) {
+        return campaignRepository.findAll(
+                PageRequest.of(page.orElse(0),
+                        size.orElse(campaignRepository.findAll().size()),
+                        Sort.Direction.ASC, sortBy.orElse("id"))
+        );
     }
 
     public void update(Long id, Campaign newCampaign) {

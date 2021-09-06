@@ -4,6 +4,9 @@ import by.shimakser.model.Role;
 import by.shimakser.model.User;
 import by.shimakser.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -11,7 +14,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -29,7 +31,7 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> userByName = userRepository.findByUsername(username);
-        if (!userByName.isPresent()){
+        if (!userByName.isPresent()) {
             throw new UsernameNotFoundException(username + " was not found");
         }
         return new org.springframework.security.core.userdetails.User(
@@ -54,16 +56,22 @@ public class UserService implements UserDetailsService {
         return userById.get();
     }
 
-    public List<User> getAll() {
-        List<User> allUsers = (List<User>) userRepository.findAll();
-        return allUsers;
+    public Page<User> getAll(Optional<Integer> page,
+                             Optional<Integer> size,
+                             Optional<String> sortBy
+    ) {
+        return userRepository.findAll(
+                PageRequest.of(page.orElse(0),
+                        size.orElse(userRepository.findAll().size()),
+                        Sort.Direction.ASC, sortBy.orElse("id"))
+        );
     }
 
     public void update(Long id, User newUser) {
         Optional<User> userById = userRepository.findById(id);
         if (userById.isPresent()) {
             newUser.setId(id);
-            newUser.setRole(userById.get().getRole());
+            newUser.setPassword(bCryptPasswordEncoder.encode(userById.get().getPassword()));
             userRepository.save(newUser);
         }
     }

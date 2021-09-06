@@ -3,9 +3,11 @@ package by.shimakser.service;
 import by.shimakser.model.Advertiser;
 import by.shimakser.repository.AdvertiserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -19,9 +21,9 @@ public class AdvertiserService {
     }
 
     public void add(Advertiser advertiser) {
-        Advertiser advertiserByTitle = advertiserRepository.findByAdvertiserTitle(advertiser.getAdvertiserTitle());
+        Optional<Advertiser> advertiserByTitle = Optional.ofNullable(advertiserRepository.findByAdvertiserTitle(advertiser.getAdvertiserTitle()));
 
-        if (advertiserByTitle == null) {
+        if (!advertiserByTitle.isPresent()) {
             advertiserRepository.save(advertiser);
         }
     }
@@ -31,9 +33,16 @@ public class AdvertiserService {
         return advertiserById.get();
     }
 
-    public List<Advertiser> getAll() {
-        List<Advertiser> allAdvertisers = (List<Advertiser>) advertiserRepository.findAll();
-        return allAdvertisers;
+    public Page<Advertiser> getAll(
+            Optional<Integer> page,
+            Optional<Integer> size,
+            Optional<String> sortBy
+    ) {
+        return advertiserRepository.findAll(
+                PageRequest.of(page.orElse(0),
+                        size.orElse(advertiserRepository.findAll().size()),
+                        Sort.Direction.ASC, sortBy.orElse("id"))
+        );
     }
 
     public void update(Long id, Advertiser newAdvertiser) {

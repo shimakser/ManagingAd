@@ -1,7 +1,6 @@
 package by.shimakser.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import net.minidev.json.annotate.JsonIgnore;
 
 import javax.persistence.*;
 
@@ -15,12 +14,15 @@ public class User {
     private String userEmail;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "role_id")
     private Role role;
 
     public User(){}
+
+    public User(Long id) {
+        this.id = id;
+    }
 
     public User(String username, String userEmail, String password) {
         this.username = username;

@@ -3,9 +3,10 @@ package by.shimakser.controller;
 import by.shimakser.model.Campaign;
 import by.shimakser.service.CampaignService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class CampaignController {
@@ -28,8 +29,12 @@ public class CampaignController {
     }
 
     @GetMapping(value = "/campaigns")
-    public List<Campaign> getAllCampaigns() {
-        return campaignService.getAll();
+    public Page<Campaign> getAllCampaigns(
+            @RequestParam Optional<Integer> page,
+            @RequestParam Optional<Integer> size,
+            @RequestParam Optional<String> sortBy
+    ) {
+        return campaignService.getAll(page, size, sortBy);
     }
 
     @PutMapping(value = "/campaign/{id}")
