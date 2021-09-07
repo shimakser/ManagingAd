@@ -4,7 +4,6 @@ import by.shimakser.model.Role;
 import by.shimakser.model.User;
 import by.shimakser.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -14,7 +13,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -51,20 +53,20 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public User get(Long id) {
+    public List<Optional<User>> get(Long id) {
         Optional<User> userById = userRepository.findById(id);
-        return userById.get();
+        return Stream.of(userById).filter(u -> u.get().isUserDeleted() == Boolean.FALSE).collect(Collectors.toList());
     }
 
-    public Page<User> getAll(Optional<Integer> page,
+    public List<User> getAll(Optional<Integer> page,
                              Optional<Integer> size,
                              Optional<String> sortBy
     ) {
         return userRepository.findAll(
                 PageRequest.of(page.orElse(0),
                         size.orElse(userRepository.findAll().size()),
-                        Sort.Direction.ASC, sortBy.orElse("id"))
-        );
+                        Sort.Direction.ASC, sortBy.orElse("id")))
+                .stream().filter(user -> user.isUserDeleted() == Boolean.FALSE).collect(Collectors.toList());
     }
 
     public void update(Long id, User newUser) {
@@ -77,6 +79,18 @@ public class UserService implements UserDetailsService {
     }
 
     public void delete(Long id) {
-        userRepository.deleteById(id);
+        Optional<User> userById = userRepository.findById(id);
+        userById.get().setUserDeleted(Boolean.TRUE);
+        userRepository.save(userById.get());
+    }
+
+    public User getDeletedUser(Long id) {
+        Optional<User> deletedUserById = Optional.of(userRepository.findByIdAndUserDeletedTrue(id));
+        return deletedUserById.get();
+    }
+
+    public List<User> getDeletedUsers() {
+        List<User> deletedAllUsersById = userRepository.findAllByUserDeletedTrue();
+        return deletedAllUsersById;
     }
 }

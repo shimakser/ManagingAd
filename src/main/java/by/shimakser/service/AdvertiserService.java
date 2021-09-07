@@ -8,7 +8,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class AdvertiserService {
@@ -21,16 +24,17 @@ public class AdvertiserService {
     }
 
     public void add(Advertiser advertiser) {
-        Optional<Advertiser> advertiserByTitle = Optional.ofNullable(advertiserRepository.findByAdvertiserTitle(advertiser.getAdvertiserTitle()));
+        Optional<Advertiser> advertiserByTitle = Optional.ofNullable(advertiserRepository
+                .findByAdvertiserTitle(advertiser.getAdvertiserTitle()));
 
         if (!advertiserByTitle.isPresent()) {
             advertiserRepository.save(advertiser);
         }
     }
 
-    public Advertiser get(Long id) {
+    public List<Optional<Advertiser>> get(Long id) {
         Optional<Advertiser> advertiserById = advertiserRepository.findById(id);
-        return advertiserById.get();
+        return Stream.of(advertiserById).filter(a -> a.get().isAdvertiserDeleted() == Boolean.FALSE).collect(Collectors.toList());
     }
 
     public Page<Advertiser> getAll(
@@ -55,5 +59,16 @@ public class AdvertiserService {
 
     public void delete(Long id) {
         advertiserRepository.deleteById(id);
+    }
+
+    public Advertiser getDeletedAdvertiser(Long id) {
+        Optional<Advertiser> deletedAdvertiserById = Optional.of(advertiserRepository.
+                findByIdAndAdvertiserDeletedTrue(id));
+        return deletedAdvertiserById.get();
+    }
+
+    public List<Advertiser> getDeletedAdvertisers() {
+        List<Advertiser> deletedAllAdvertisersById = advertiserRepository.findAllByAdvertiserDeletedTrue();
+        return deletedAllAdvertisersById;
     }
 }

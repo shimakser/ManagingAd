@@ -1,12 +1,12 @@
 package by.shimakser.controller;
 
 import by.shimakser.model.User;
-import by.shimakser.repository.UserRepository;
 import by.shimakser.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -25,12 +25,12 @@ public class UserController {
     }
 
     @GetMapping(value = "/user/{id}")
-    public User getUserById(@PathVariable Long id) {
+    public List<Optional<User>> getUserById(@PathVariable Long id) {
         return userService.get(id);
     }
 
     @GetMapping(value = "/users")
-    public Page<User> getAllUsers(
+    public List<User> getAllUsers(
             @RequestParam Optional<Integer> page,
             @RequestParam Optional<Integer> size,
             @RequestParam Optional<String> sortBy
@@ -46,5 +46,15 @@ public class UserController {
     @DeleteMapping(value = "/user/{id}")
     public void deleteUserById(@PathVariable("id") Long id) {
         userService.delete(id);
+    }
+
+    @GetMapping(value = "/user/deleted/{id}")
+    public User getDeletedUserById(@PathVariable Long id) {
+        return userService.getDeletedUser(id);
+    }
+
+    @GetMapping(value = "/users/deleted")
+    public List<User> getAllDeletedUsers() {
+        return userService.getDeletedUsers();
     }
 }

@@ -1,11 +1,13 @@
 package by.shimakser.controller;
 
 import by.shimakser.model.Advertiser;
+import by.shimakser.model.User;
 import by.shimakser.service.AdvertiserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -24,7 +26,7 @@ public class AdvertiserController {
     }
 
     @GetMapping(value = "/advertiser/{id}")
-    public Advertiser getAdvertiserById(@PathVariable Long id) {
+    public List<Optional<Advertiser>> getAdvertiserById(@PathVariable Long id) {
         return advertiserService.get(id);
     }
 
@@ -45,5 +47,15 @@ public class AdvertiserController {
     @DeleteMapping(value = "/advertiser/{id}")
     public void deleteAdvertiserById(@PathVariable("id") Long id) {
         advertiserService.delete(id);
+    }
+
+    @GetMapping(value = "/advertiser/deleted/{id}")
+    public Advertiser getDeletedAdvertiserById(@PathVariable Long id) {
+        return advertiserService.getDeletedAdvertiser(id);
+    }
+
+    @GetMapping(value = "/advertisers/deleted")
+    public List<Advertiser> getAllDeletedAdvertisers() {
+        return advertiserService.getDeletedAdvertisers();
     }
 }

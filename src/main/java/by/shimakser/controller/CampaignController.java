@@ -1,11 +1,12 @@
 package by.shimakser.controller;
 
 import by.shimakser.model.Campaign;
+import by.shimakser.model.User;
 import by.shimakser.service.CampaignService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -24,12 +25,12 @@ public class CampaignController {
     }
 
     @GetMapping(value = "/campaign/{id}")
-    public Campaign getCampaignById(@PathVariable Long id) {
+    public List<Optional<Campaign>> getCampaignById(@PathVariable Long id) {
         return campaignService.get(id);
     }
 
     @GetMapping(value = "/campaigns")
-    public Page<Campaign> getAllCampaigns(
+    public List<Campaign> getAllCampaigns(
             @RequestParam Optional<Integer> page,
             @RequestParam Optional<Integer> size,
             @RequestParam Optional<String> sortBy
@@ -45,5 +46,15 @@ public class CampaignController {
     @DeleteMapping(value = "/campaign/{id}")
     public void deleteCampaignById(@PathVariable("id") Long id) {
         campaignService.delete(id);
+    }
+
+    @GetMapping(value = "/campaign/deleted/{id}")
+    public Campaign getDeletedCampaignById(@PathVariable Long id) {
+        return campaignService.getDeletedCampaign(id);
+    }
+
+    @GetMapping(value = "/campaigns/deleted")
+    public List<Campaign> getAllDeletedCampaigns() {
+        return campaignService.getDeletedCampaigns();
     }
 }

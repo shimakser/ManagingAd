@@ -18,6 +18,7 @@ public class Campaign {
     @ManyToOne
     @JoinColumn(name = "advertiser_id")
     private Advertiser advertiser;
+    private boolean campaignDeleted = Boolean.FALSE;
 
     public Campaign() {}
 
@@ -101,5 +102,13 @@ public class Campaign {
 
     public void setAdvertiser(Advertiser advertiser) {
         this.advertiser = advertiser;
+    }
+
+    public boolean isCampaignDeleted() {
+        return campaignDeleted;
+    }
+
+    public void setCampaignDeleted(boolean campaignDeleted) {
+        this.campaignDeleted = campaignDeleted;
     }
 }

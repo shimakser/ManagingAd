@@ -17,6 +17,7 @@ public class User {
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "role_id")
     private Role role;
+    private boolean userDeleted = Boolean.FALSE;
 
     public User(){}
 
@@ -68,5 +69,13 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public boolean isUserDeleted() {
+        return userDeleted;
+    }
+
+    public void setUserDeleted(boolean userDeleted) {
+        this.userDeleted = userDeleted;
     }
 }

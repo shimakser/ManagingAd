@@ -7,5 +7,6 @@ CREATE TABLE IF NOT EXISTS campaign (
     languages              varchar(50) not null,
     age                    varchar(32) not null,
     geolocation            varchar(50) not null,
-    advertiser_id          integer references advertiser(id)
+    advertiser_id          integer references advertiser(id),
+    campaign_deleted       boolean not null
 );

@@ -13,6 +13,7 @@ public class Advertiser {
     @ManyToOne
     @JoinColumn(name = "creator_id")
     private User creator;
+    private boolean advertiserDeleted = Boolean.FALSE;
 
     public Advertiser() {}
 
@@ -51,5 +52,13 @@ public class Advertiser {
 
     public void setCreator(User creator) {
         this.creator = creator;
+    }
+
+    public boolean isAdvertiserDeleted() {
+        return advertiserDeleted;
+    }
+
+    public void setAdvertiserDeleted(boolean advertiserDeleted) {
+        this.advertiserDeleted = advertiserDeleted;
     }
 }
