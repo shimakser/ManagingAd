@@ -14,9 +14,9 @@ public class User {
     private String userEmail;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
-    @Enumerated(EnumType.ORDINAL)
-    @Column(name = "role_id")
-    private Role role;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_role")
+    private Role userRole;
     private boolean userDeleted = Boolean.FALSE;
 
     public User(){}
@@ -63,12 +63,12 @@ public class User {
         this.password = password;
     }
 
-    public Role getRole() {
-        return role;
+    public Role getUserRole() {
+        return userRole;
     }
 
-    public void setRole(Role role) {
-        this.role = role;
+    public void setUserRole(Role role) {
+        this.userRole = role;
     }
 
     public boolean isUserDeleted() {

@@ -6,20 +6,18 @@ import by.shimakser.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
-public class UserService implements UserDetailsService {
+public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder bCryptPasswordEncoder;
@@ -30,25 +28,12 @@ public class UserService implements UserDetailsService {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> userByName = userRepository.findByUsername(username);
-        if (!userByName.isPresent()) {
-            throw new UsernameNotFoundException(username + " was not found");
-        }
-        return new org.springframework.security.core.userdetails.User(
-                userByName.get().getUsername(),
-                userByName.get().getPassword(),
-                AuthorityUtils.createAuthorityList(userByName.get().getRole().toString())
-        );
-    }
-
     public void add(User user) {
         Optional<User> userFromDBByEmail = userRepository.findByUserEmail(user.getUserEmail());
 
         if (!userFromDBByEmail.isPresent()) {
             user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-            user.setRole(Role.USER);
+            user.setUserRole(Role.USER);
             userRepository.save(user);
         }
     }
