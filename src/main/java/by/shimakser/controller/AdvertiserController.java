@@ -5,6 +5,7 @@ import by.shimakser.model.User;
 import by.shimakser.service.AdvertiserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,6 +31,7 @@ public class AdvertiserController {
         return advertiserService.get(id);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/advertisers")
     public Page<Advertiser> getAllAdvertisers(
             @RequestParam Optional<Integer> page,
@@ -49,11 +51,13 @@ public class AdvertiserController {
         advertiserService.delete(id);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/advertiser/deleted/{id}")
     public Advertiser getDeletedAdvertiserById(@PathVariable Long id) {
         return advertiserService.getDeletedAdvertiser(id);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/advertisers/deleted")
     public List<Advertiser> getAllDeletedAdvertisers() {
         return advertiserService.getDeletedAdvertisers();

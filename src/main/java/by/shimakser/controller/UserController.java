@@ -29,6 +29,7 @@ public class UserController {
         return userService.get(id);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/users")
     public List<User> getAllUsers(
             @RequestParam Optional<Integer> page,
@@ -48,11 +49,13 @@ public class UserController {
         userService.delete(id);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/user/deleted/{id}")
     public User getDeletedUserById(@PathVariable Long id) {
         return userService.getDeletedUser(id);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/users/deleted")
     public List<User> getAllDeletedUsers() {
         return userService.getDeletedUsers();
