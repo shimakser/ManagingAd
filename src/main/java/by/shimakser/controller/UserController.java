@@ -3,9 +3,12 @@ package by.shimakser.controller;
 import by.shimakser.model.User;
 import by.shimakser.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,18 +23,18 @@ public class UserController {
     }
 
     @PostMapping(value = "/user")
-    public void addUser(@RequestBody User user) {
-        userService.add(user);
+    public ResponseEntity<HttpStatus> addUser(@RequestBody User user) {
+        return userService.add(user);
     }
 
     @GetMapping(value = "/user/{id}")
-    public List<Optional<User>> getUserById(@PathVariable Long id) {
+    public ResponseEntity<List<User>> getUserById(@PathVariable Long id) {
         return userService.get(id);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/users")
-    public List<User> getAllUsers(
+    public ResponseEntity<List<User>> getAllUsers(
             @RequestParam Optional<Integer> page,
             @RequestParam Optional<Integer> size,
             @RequestParam Optional<String> sortBy
@@ -40,24 +43,25 @@ public class UserController {
     }
 
     @PutMapping(value = "/user/{id}")
-    public void updateUserById(@PathVariable("id") Long id, @RequestBody User user) {
-        userService.update(id, user);
+    public ResponseEntity<HttpStatus> updateUserById(@PathVariable("id") Long id, @RequestBody User newUser, Principal user) {
+        return userService.update(id, newUser, user);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping(value = "/user/{id}")
-    public void deleteUserById(@PathVariable("id") Long id) {
-        userService.delete(id);
+    public ResponseEntity<HttpStatus> deleteUserById(@PathVariable("id") Long id) {
+        return userService.delete(id);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/user/deleted/{id}")
-    public User getDeletedUserById(@PathVariable Long id) {
+    public ResponseEntity<User> getDeletedUserById(@PathVariable Long id) {
         return userService.getDeletedUser(id);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/users/deleted")
-    public List<User> getAllDeletedUsers() {
+    public ResponseEntity<List<User>> getAllDeletedUsers() {
         return userService.getDeletedUsers();
     }
 }

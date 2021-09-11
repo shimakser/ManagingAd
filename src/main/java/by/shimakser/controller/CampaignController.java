@@ -1,12 +1,14 @@
 package by.shimakser.controller;
 
 import by.shimakser.model.Campaign;
-import by.shimakser.model.User;
 import by.shimakser.service.CampaignService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,18 +23,18 @@ public class CampaignController {
     }
 
     @PostMapping(value = "/campaign")
-    public void addCampaign(@RequestBody Campaign campaign) {
-        campaignService.add(campaign);
+    public ResponseEntity<HttpStatus> addCampaign(@RequestBody Campaign campaign) {
+        return campaignService.add(campaign);
     }
 
     @GetMapping(value = "/campaign/{id}")
-    public List<Optional<Campaign>> getCampaignById(@PathVariable Long id) {
+    public ResponseEntity<List<Campaign>> getCampaignById(@PathVariable Long id) {
         return campaignService.get(id);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/campaigns")
-    public List<Campaign> getAllCampaigns(
+    public ResponseEntity<List<Campaign>> getAllCampaigns(
             @RequestParam Optional<Integer> page,
             @RequestParam Optional<Integer> size,
             @RequestParam Optional<String> sortBy
@@ -41,24 +43,24 @@ public class CampaignController {
     }
 
     @PutMapping(value = "/campaign/{id}")
-    public void updateCampaignById(@PathVariable("id") Long id, @RequestBody Campaign campaign) {
-        campaignService.update(id, campaign);
+    public ResponseEntity<HttpStatus> updateCampaignById(@PathVariable("id") Long id, @RequestBody Campaign campaign, Principal creator) {
+        return campaignService.update(id, campaign, creator);
     }
 
     @DeleteMapping(value = "/campaign/{id}")
-    public void deleteCampaignById(@PathVariable("id") Long id) {
-        campaignService.delete(id);
+    public ResponseEntity<HttpStatus> deleteCampaignById(@PathVariable("id") Long id, Principal creator) {
+        return campaignService.delete(id, creator);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/campaign/deleted/{id}")
-    public Campaign getDeletedCampaignById(@PathVariable Long id) {
+    public ResponseEntity<Campaign> getDeletedCampaignById(@PathVariable Long id) {
         return campaignService.getDeletedCampaign(id);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/campaigns/deleted")
-    public List<Campaign> getAllDeletedCampaigns() {
+    public ResponseEntity<List<Campaign>> getAllDeletedCampaigns() {
         return campaignService.getDeletedCampaigns();
     }
 }

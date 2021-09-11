@@ -1,13 +1,14 @@
 package by.shimakser.controller;
 
 import by.shimakser.model.Advertiser;
-import by.shimakser.model.User;
 import by.shimakser.service.AdvertiserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,18 +23,18 @@ public class AdvertiserController {
     }
 
     @PostMapping(value = "/advertiser")
-    public void addAdvertiser(@RequestBody Advertiser advertiser) {
-        advertiserService.add(advertiser);
+    public ResponseEntity<HttpStatus> addAdvertiser(@RequestBody Advertiser advertiser) {
+        return advertiserService.add(advertiser);
     }
 
     @GetMapping(value = "/advertiser/{id}")
-    public List<Optional<Advertiser>> getAdvertiserById(@PathVariable Long id) {
+    public ResponseEntity<List<Advertiser>> getAdvertiserById(@PathVariable Long id) {
         return advertiserService.get(id);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/advertisers")
-    public Page<Advertiser> getAllAdvertisers(
+    public ResponseEntity<List<Advertiser>> getAllAdvertisers(
             @RequestParam Optional<Integer> page,
             @RequestParam Optional<Integer> size,
             @RequestParam Optional<String> sortBy
@@ -42,24 +43,24 @@ public class AdvertiserController {
     }
 
     @PutMapping(value = "/advertiser/{id}")
-    public void updateAdvertiserById(@PathVariable("id") Long id, @RequestBody Advertiser advertiser) {
-        advertiserService.update(id, advertiser);
+    public ResponseEntity<HttpStatus> updateAdvertiserById(@PathVariable("id") Long id, @RequestBody Advertiser advertiser, Principal creator) {
+        return advertiserService.update(id, advertiser, creator);
     }
 
     @DeleteMapping(value = "/advertiser/{id}")
-    public void deleteAdvertiserById(@PathVariable("id") Long id) {
-        advertiserService.delete(id);
+    public ResponseEntity<HttpStatus> deleteAdvertiserById(@PathVariable("id") Long id, Principal creator) {
+        return advertiserService.delete(id, creator);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/advertiser/deleted/{id}")
-    public Advertiser getDeletedAdvertiserById(@PathVariable Long id) {
+    public ResponseEntity<Advertiser> getDeletedAdvertiserById(@PathVariable Long id) {
         return advertiserService.getDeletedAdvertiser(id);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/advertisers/deleted")
-    public List<Advertiser> getAllDeletedAdvertisers() {
+    public ResponseEntity<List<Advertiser>> getAllDeletedAdvertisers() {
         return advertiserService.getDeletedAdvertisers();
     }
 }

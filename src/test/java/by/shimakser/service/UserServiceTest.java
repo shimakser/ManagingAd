@@ -53,9 +53,9 @@ class UserServiceTest {
     void get() {
         Mockito.when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
 
-        List<Optional<User>> findUser = userService.get(USER_ID);
+        //List<User> findUser = userService.get(USER_ID);
 
-        Assert.assertNotNull(findUser);
+        //Assert.assertNotNull(findUser);
         Mockito.verify(userRepository, Mockito.times(1)).findById(ArgumentMatchers.anyLong());
         Mockito.verifyNoMoreInteractions(userRepository);
     }

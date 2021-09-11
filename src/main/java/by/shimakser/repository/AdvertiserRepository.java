@@ -5,10 +5,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface AdvertiserRepository extends JpaRepository<Advertiser, Long> {
-    Advertiser findByAdvertiserTitle(String title);
-    Advertiser findByIdAndAdvertiserDeletedTrue(Long id);
+    Optional<Advertiser> findByAdvertiserTitle(String title);
+    Optional<Advertiser> findByIdAndAdvertiserDeletedTrue(Long id);
     List<Advertiser> findAllByAdvertiserDeletedTrue();
 }

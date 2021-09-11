@@ -5,10 +5,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface CampaignRepository extends JpaRepository<Campaign, Long> {
-    Campaign findByCampaignTitle(String title);
-    Campaign findByIdAndCampaignDeletedTrue(Long id);
+    Optional<Campaign> findByCampaignTitle(String title);
+    Optional<Campaign> findByIdAndCampaignDeletedTrue(Long id);
     List<Campaign> findAllByCampaignDeletedTrue();
 }
