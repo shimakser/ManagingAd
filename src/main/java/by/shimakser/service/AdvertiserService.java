@@ -6,7 +6,6 @@ import by.shimakser.model.User;
 import by.shimakser.repository.AdvertiserRepository;
 import by.shimakser.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -56,15 +55,15 @@ public class AdvertiserService {
             Optional<Integer> size,
             Optional<String> sortBy
     ) {
-        Page<Advertiser> advertisers = advertiserRepository.findAll(
+        List<Advertiser> advertisers = advertiserRepository.findAll(
                 PageRequest.of(page.orElse(0),
-                        size.orElse(advertiserRepository.findAll().size()),
-                        Sort.Direction.ASC, sortBy.orElse("id"))
-        );
+                                size.orElse(advertiserRepository.findAll().size()),
+                                Sort.Direction.ASC, sortBy.orElse("id")))
+                        .stream().filter(campaign -> campaign.isAdvertiserDeleted() == Boolean.FALSE).collect(Collectors.toList());
         if (advertisers.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>((List<Advertiser>) advertisers, HttpStatus.OK);
+        return new ResponseEntity<>(advertisers, HttpStatus.OK);
     }
 
     public ResponseEntity<HttpStatus> update(Long id, Advertiser newAdvertiser, Principal creator) {

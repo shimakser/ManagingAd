@@ -3,23 +3,22 @@ package by.shimakser.service;
 import by.shimakser.model.Role;
 import by.shimakser.model.User;
 import by.shimakser.repository.UserRepository;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.Matchers;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -46,17 +45,15 @@ class UserServiceTest {
 
         Assert.assertTrue(user.getUserRole() == Role.USER);
         Mockito.verify(userRepository, Mockito.times(1)).save(user);
-
     }
 
     @Test
     void get() {
-        Mockito.when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
+        when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
 
-        //List<User> findUser = userService.get(USER_ID);
+        ResponseEntity<List<User>> findUser = userService.get(USER_ID);
 
-        //Assert.assertNotNull(findUser);
-        Mockito.verify(userRepository, Mockito.times(1)).findById(ArgumentMatchers.anyLong());
-        Mockito.verifyNoMoreInteractions(userRepository);
+        Assert.assertNotNull(findUser);
+        Assert.assertEquals(Arrays.asList(user), findUser.getBody());
     }
 }
