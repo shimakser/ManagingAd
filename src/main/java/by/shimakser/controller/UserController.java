@@ -2,12 +2,14 @@ package by.shimakser.controller;
 
 import by.shimakser.model.User;
 import by.shimakser.service.UserService;
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.rmi.AlreadyBoundException;
 import java.security.Principal;
 import java.sql.SQLException;
 import java.util.List;
@@ -24,20 +26,14 @@ public class UserController {
     }
 
     @PostMapping(value = "/user")
-    public ResponseEntity<HttpStatus> addUser(@RequestBody User user) {
-        boolean addingCheck = userService.add(user);
-        if (!addingCheck) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
+    public ResponseEntity<HttpStatus> addUser(@RequestBody User user) throws AlreadyBoundException  {
+        userService.add(user);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/user/{id}")
-    public ResponseEntity<List<User>> getUserById(@PathVariable Long id) {
+    public ResponseEntity<List<User>> getUserById(@PathVariable Long id) throws NotFoundException {
         List<User> user = userService.get(id);
-        if (user.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
@@ -54,32 +50,23 @@ public class UserController {
 
     @PutMapping(value = "/user/{id}")
     public ResponseEntity<HttpStatus> updateUserById(@PathVariable("id") Long id,
-                                                     @RequestBody User newUser, Principal user) throws SQLException {
-        boolean updatingCheck = userService.update(id, newUser, user);
-        if (!updatingCheck) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+                                                     @RequestBody User newUser, Principal user) throws NotFoundException {
+        userService.update(id, newUser, user);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping(value = "/user/{id}")
-    public ResponseEntity<HttpStatus> deleteUserById(@PathVariable("id") Long id) {
-        boolean deleteCheck = userService.delete(id);
-        if (!deleteCheck) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<HttpStatus> deleteUserById(@PathVariable("id") Long id) throws NotFoundException {
+        userService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/user/deleted/{id}")
-    public ResponseEntity<User> getDeletedUserById(@PathVariable Long id) {
-        Optional<User> user = userService.getDeletedUser(id);
-        if (!user.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(user.get(), HttpStatus.OK);
+    public ResponseEntity<User> getDeletedUserById(@PathVariable Long id) throws NotFoundException {
+        User user = userService.getDeletedUser(id);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
