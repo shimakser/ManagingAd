@@ -30,27 +30,24 @@ public class AdvertiserService {
         this.userRepository = userRepository;
     }
 
-    public ResponseEntity<HttpStatus> add(Advertiser advertiser) {
+    public boolean add(Advertiser advertiser) {
         Optional<Advertiser> advertiserByTitle = advertiserRepository
                 .findByAdvertiserTitle(advertiser.getAdvertiserTitle());
 
         if (advertiserByTitle.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
+            return false;
         }
         advertiserRepository.save(advertiser);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return true;
     }
 
-    public ResponseEntity<List<Advertiser>> get(Long id) {
+    public List<Advertiser> get(Long id) {
         Optional<Advertiser> advertiserById = advertiserRepository.findById(id);
         List<Advertiser> advertiser = Stream.of(advertiserById.get()).filter(a -> a.isAdvertiserDeleted() == Boolean.FALSE).collect(Collectors.toList());
-        if (advertiser.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(advertiser, HttpStatus.OK);
+        return advertiser;
     }
 
-    public ResponseEntity<List<Advertiser>> getAll(
+    public List<Advertiser> getAll(
             Optional<Integer> page,
             Optional<Integer> size,
             Optional<String> sortBy
@@ -60,43 +57,34 @@ public class AdvertiserService {
                                 size.orElse(advertiserRepository.findAll().size()),
                                 Sort.Direction.ASC, sortBy.orElse("id")))
                         .stream().filter(campaign -> campaign.isAdvertiserDeleted() == Boolean.FALSE).collect(Collectors.toList());
-        if (advertisers.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(advertisers, HttpStatus.OK);
+        return advertisers;
     }
 
-    public ResponseEntity<HttpStatus> update(Long id, Advertiser newAdvertiser, Principal creator) {
+    public boolean update(Long id, Advertiser newAdvertiser, Principal creator) {
         if (!findAdvertiserByIdAndUserByPrincipal(id, creator)) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return false;
         }
         newAdvertiser.setId(id);
         advertiserRepository.save(newAdvertiser);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return true;
     }
 
-    public ResponseEntity<HttpStatus> delete(Long id, Principal creator) {
+    public boolean delete(Long id, Principal creator) {
         if (!findAdvertiserByIdAndUserByPrincipal(id, creator)) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return false;
         }
         advertiserRepository.deleteById(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return true;
     }
 
-    public ResponseEntity<Advertiser> getDeletedAdvertiser(Long id) {
+    public Optional<Advertiser> getDeletedAdvertiser(Long id) {
         Optional<Advertiser> deletedAdvertiserById = advertiserRepository.findByIdAndAdvertiserDeletedTrue(id);
-        if (!deletedAdvertiserById.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(deletedAdvertiserById.get(), HttpStatus.OK);
+        return deletedAdvertiserById;
     }
 
-    public ResponseEntity<List<Advertiser>> getDeletedAdvertisers() {
+    public List<Advertiser> getDeletedAdvertisers() {
         List<Advertiser> deletedAllAdvertisersById = advertiserRepository.findAllByAdvertiserDeletedTrue();
-        if (deletedAllAdvertisersById.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(deletedAllAdvertisersById, HttpStatus.OK);
+        return deletedAllAdvertisersById;
     }
 
     public boolean findAdvertiserByIdAndUserByPrincipal(Long id, Principal user) {

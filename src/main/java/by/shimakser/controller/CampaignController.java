@@ -24,12 +24,20 @@ public class CampaignController {
 
     @PostMapping(value = "/campaign")
     public ResponseEntity<HttpStatus> addCampaign(@RequestBody Campaign campaign) {
-        return campaignService.add(campaign);
+        boolean addCheck = campaignService.add(campaign);
+        if (!addCheck) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/campaign/{id}")
     public ResponseEntity<List<Campaign>> getCampaignById(@PathVariable Long id) {
-        return campaignService.get(id);
+        List<Campaign> campaign = campaignService.get(id);
+        if (campaign.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(campaign, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -39,28 +47,48 @@ public class CampaignController {
             @RequestParam Optional<Integer> size,
             @RequestParam Optional<String> sortBy
     ) {
-        return campaignService.getAll(page, size, sortBy);
+        List<Campaign> campaigns = campaignService.getAll(page, size, sortBy);
+        if (campaigns.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(campaigns, HttpStatus.OK);
     }
 
     @PutMapping(value = "/campaign/{id}")
     public ResponseEntity<HttpStatus> updateCampaignById(@PathVariable("id") Long id, @RequestBody Campaign campaign, Principal creator) {
-        return campaignService.update(id, campaign, creator);
+        boolean updatingCheck = campaignService.update(id, campaign, creator);
+        if (!updatingCheck) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/campaign/{id}")
     public ResponseEntity<HttpStatus> deleteCampaignById(@PathVariable("id") Long id, Principal creator) {
-        return campaignService.delete(id, creator);
+        boolean deleteCheck = campaignService.delete(id, creator);
+        if (!deleteCheck) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/campaign/deleted/{id}")
     public ResponseEntity<Campaign> getDeletedCampaignById(@PathVariable Long id) {
-        return campaignService.getDeletedCampaign(id);
+        Optional<Campaign> campaign = campaignService.getDeletedCampaign(id);
+        if (!campaign.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(campaign.get(), HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/campaigns/deleted")
     public ResponseEntity<List<Campaign>> getAllDeletedCampaigns() {
-        return campaignService.getDeletedCampaigns();
+        List<Campaign> campaigns = campaignService.getDeletedCampaigns();
+        if (!campaigns.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(campaigns, HttpStatus.OK);
     }
 }

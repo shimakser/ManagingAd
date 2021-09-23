@@ -51,9 +51,9 @@ class UserServiceTest {
     void get() {
         when(userRepository.findById(USER_ID)).thenReturn(Optional.of(user));
 
-        ResponseEntity<List<User>> findUser = userService.get(USER_ID);
+        List<User> findUser = userService.get(USER_ID);
 
         Assert.assertNotNull(findUser);
-        Assert.assertEquals(Arrays.asList(user), findUser.getBody());
+        Assert.assertEquals(Arrays.asList(user), findUser);
     }
 }

@@ -29,28 +29,25 @@ public class UserService {
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
-    public ResponseEntity<HttpStatus> add(User user) {
+    public boolean add(User user) {
         Optional<User> userFromDBByEmail = userRepository.findByUserEmail(user.getUserEmail());
 
         if (userFromDBByEmail.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
+            return false;
         }
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         user.setUserRole(Role.USER);
         userRepository.save(user);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return true;
     }
 
-    public ResponseEntity<List<User>> get(Long id) {
+    public List<User> get(Long id) {
         Optional<User> userById = userRepository.findById(id);
         List<User> user = Stream.of(userById.get()).filter(u -> u.isUserDeleted() == Boolean.FALSE).collect(Collectors.toList());
-        if (user.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return user;
     }
 
-    public ResponseEntity<List<User>> getAll(Optional<Integer> page,
+    public List<User> getAll(Optional<Integer> page,
                                              Optional<Integer> size,
                                              Optional<String> sortBy
     ) {
@@ -59,18 +56,14 @@ public class UserService {
                                 size.orElse(userRepository.findAll().size()),
                                 Sort.Direction.ASC, sortBy.orElse("id")))
                 .stream().filter(user -> user.isUserDeleted() == Boolean.FALSE).collect(Collectors.toList());
-        if (users.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(users, HttpStatus.OK);
+        return users;
     }
 
-    public ResponseEntity<HttpStatus> update(Long id, User newUser, Principal user) {
+    public boolean update(Long id, User newUser, Principal user) {
         Optional<User> userById = userRepository.findById(id);
         if (!userById.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return false;
         }
-
         Optional<User> principalUser = userRepository.findByUsername(user.getName());
         if (principalUser.get().getUserRole().equals(Role.ADMIN)
                 || principalUser.get().getId().equals(id)) {
@@ -78,33 +71,27 @@ public class UserService {
             newUser.setPassword(bCryptPasswordEncoder.encode(userById.get().getPassword()));
             userRepository.save(newUser);
         }
-        return new ResponseEntity<>(HttpStatus.OK);
+        return true;
 
     }
 
-    public ResponseEntity<HttpStatus> delete(Long id) {
+    public boolean delete(Long id) {
         Optional<User> userById = userRepository.findById(id);
         if (!userById.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return false;
         }
         userById.get().setUserDeleted(Boolean.TRUE);
         userRepository.save(userById.get());
-        return new ResponseEntity<>(HttpStatus.OK);
+        return true;
     }
 
-    public ResponseEntity<User> getDeletedUser(Long id) {
+    public Optional<User> getDeletedUser(Long id) {
         Optional<User> deletedUserById = Optional.of(userRepository.findByIdAndUserDeletedTrue(id));
-        if (!deletedUserById.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(deletedUserById.get(), HttpStatus.OK);
+        return deletedUserById;
     }
 
-    public ResponseEntity<List<User>> getDeletedUsers() {
+    public List<User> getDeletedUsers() {
         List<User> deletedAllUsersById = userRepository.findAllByUserDeletedTrue();
-        if (deletedAllUsersById.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(deletedAllUsersById, HttpStatus.OK);
+        return deletedAllUsersById;
     }
 }

@@ -30,27 +30,24 @@ public class CampaignService {
         this.userRepository = userRepository;
     }
 
-    public ResponseEntity<HttpStatus> add(Campaign campaign) {
+    public boolean add(Campaign campaign) {
         Optional<Campaign> campaignByTitle = campaignRepository
                 .findByCampaignTitle(campaign.getCampaignTitle());
 
         if (campaignByTitle.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
+            return false;
         }
         campaignRepository.save(campaign);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return true;
     }
 
-    public ResponseEntity<List<Campaign>> get(Long id) {
+    public List<Campaign> get(Long id) {
         Optional<Campaign> campaignById = campaignRepository.findById(id);
-        List<Campaign> campaigns = Stream.of(campaignById.get()).filter(c -> c.isCampaignDeleted() == Boolean.FALSE).collect(Collectors.toList());
-        if (campaigns.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(campaigns, HttpStatus.OK);
+        List<Campaign> campaign = Stream.of(campaignById.get()).filter(c -> c.isCampaignDeleted() == Boolean.FALSE).collect(Collectors.toList());
+        return campaign;
     }
 
-    public ResponseEntity<List<Campaign>> getAll(
+    public List<Campaign> getAll(
             Optional<Integer> page,
             Optional<Integer> size,
             Optional<String> sortBy
@@ -60,43 +57,34 @@ public class CampaignService {
                                 size.orElse(campaignRepository.findAll().size()),
                                 Sort.Direction.ASC, sortBy.orElse("id")))
                 .stream().filter(campaign -> campaign.isCampaignDeleted() == Boolean.FALSE).collect(Collectors.toList());
-        if (campaigns.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(campaigns, HttpStatus.OK);
+        return campaigns;
     }
 
-    public ResponseEntity<HttpStatus> update(Long id, Campaign newCampaign, Principal creator) {
-        if (findCampaignByIdAndUserByPrincipal(id, creator)) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    public boolean update(Long id, Campaign newCampaign, Principal creator) {
+        if (!findCampaignByIdAndUserByPrincipal(id, creator)) {
+            return false;
         }
         newCampaign.setId(id);
         campaignRepository.save(newCampaign);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return true;
     }
 
-    public ResponseEntity<HttpStatus> delete(Long id, Principal creator) {
-        if (findCampaignByIdAndUserByPrincipal(id, creator)) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    public boolean delete(Long id, Principal creator) {
+        if (!findCampaignByIdAndUserByPrincipal(id, creator)) {
+            return false;
         }
         campaignRepository.deleteById(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return true;
     }
 
-    public ResponseEntity<Campaign> getDeletedCampaign(Long id) {
+    public Optional<Campaign> getDeletedCampaign(Long id) {
         Optional<Campaign> deletedCampaignById = campaignRepository.findByIdAndCampaignDeletedTrue(id);
-        if (!deletedCampaignById.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(deletedCampaignById.get(), HttpStatus.OK);
+        return  deletedCampaignById;
     }
 
-    public ResponseEntity<List<Campaign>> getDeletedCampaigns() {
+    public List<Campaign> getDeletedCampaigns() {
         List<Campaign> deletedAllCampaignsById = campaignRepository.findAllByCampaignDeletedTrue();
-        if (deletedAllCampaignsById.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(deletedAllCampaignsById, HttpStatus.OK);
+        return deletedAllCampaignsById;
     }
 
     public boolean findCampaignByIdAndUserByPrincipal(Long id, Principal user) {

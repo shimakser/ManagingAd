@@ -24,12 +24,20 @@ public class UserController {
 
     @PostMapping(value = "/user")
     public ResponseEntity<HttpStatus> addUser(@RequestBody User user) {
-        return userService.add(user);
+        boolean addingCheck = userService.add(user);
+        if (!addingCheck) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/user/{id}")
     public ResponseEntity<List<User>> getUserById(@PathVariable Long id) {
-        return userService.get(id);
+        List<User> user = userService.get(id);
+        if (user.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -39,29 +47,49 @@ public class UserController {
             @RequestParam Optional<Integer> size,
             @RequestParam Optional<String> sortBy
     ) {
-        return userService.getAll(page, size, sortBy);
+        List<User> users = userService.getAll(page, size, sortBy);
+        if (users.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     @PutMapping(value = "/user/{id}")
     public ResponseEntity<HttpStatus> updateUserById(@PathVariable("id") Long id, @RequestBody User newUser, Principal user) {
-        return userService.update(id, newUser, user);
+        boolean updatingCheck = userService.update(id, newUser, user);
+        if (!updatingCheck) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping(value = "/user/{id}")
     public ResponseEntity<HttpStatus> deleteUserById(@PathVariable("id") Long id) {
-        return userService.delete(id);
+        boolean deleteCheck = userService.delete(id);
+        if (!deleteCheck) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/user/deleted/{id}")
     public ResponseEntity<User> getDeletedUserById(@PathVariable Long id) {
-        return userService.getDeletedUser(id);
+        Optional<User> user = userService.getDeletedUser(id);
+        if (!user.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(user.get(), HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/users/deleted")
     public ResponseEntity<List<User>> getAllDeletedUsers() {
-        return userService.getDeletedUsers();
+        List<User> users = userService.getDeletedUsers();
+        if (!users.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 }

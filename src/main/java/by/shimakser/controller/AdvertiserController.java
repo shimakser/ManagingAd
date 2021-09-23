@@ -24,12 +24,20 @@ public class AdvertiserController {
 
     @PostMapping(value = "/advertiser")
     public ResponseEntity<HttpStatus> addAdvertiser(@RequestBody Advertiser advertiser) {
-        return advertiserService.add(advertiser);
+        boolean addCheck = advertiserService.add(advertiser);
+        if (!addCheck) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/advertiser/{id}")
     public ResponseEntity<List<Advertiser>> getAdvertiserById(@PathVariable Long id) {
-        return advertiserService.get(id);
+        List<Advertiser> advertiser = advertiserService.get(id);
+        if (advertiser.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(advertiser, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -39,28 +47,48 @@ public class AdvertiserController {
             @RequestParam Optional<Integer> size,
             @RequestParam Optional<String> sortBy
     ) {
-        return advertiserService.getAll(page, size, sortBy);
+        List<Advertiser> advertisers = advertiserService.getAll(page, size, sortBy);
+        if (advertisers.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(advertisers, HttpStatus.OK);
     }
 
     @PutMapping(value = "/advertiser/{id}")
     public ResponseEntity<HttpStatus> updateAdvertiserById(@PathVariable("id") Long id, @RequestBody Advertiser advertiser, Principal creator) {
-        return advertiserService.update(id, advertiser, creator);
+        boolean updatingCheck = advertiserService.update(id, advertiser, creator);
+        if (!updatingCheck) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping(value = "/advertiser/{id}")
     public ResponseEntity<HttpStatus> deleteAdvertiserById(@PathVariable("id") Long id, Principal creator) {
-        return advertiserService.delete(id, creator);
+        boolean deleteCheck = advertiserService.delete(id, creator);
+        if (!deleteCheck) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/advertiser/deleted/{id}")
     public ResponseEntity<Advertiser> getDeletedAdvertiserById(@PathVariable Long id) {
-        return advertiserService.getDeletedAdvertiser(id);
+        Optional<Advertiser> advertiser = advertiserService.getDeletedAdvertiser(id);
+        if (!advertiser.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(advertiser.get(), HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/advertisers/deleted")
     public ResponseEntity<List<Advertiser>> getAllDeletedAdvertisers() {
-        return advertiserService.getDeletedAdvertisers();
+        List<Advertiser> advertisers = advertiserService.getDeletedAdvertisers();
+        if (!advertisers.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(advertisers, HttpStatus.OK);
     }
 }
