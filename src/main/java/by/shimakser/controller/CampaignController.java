@@ -48,9 +48,6 @@ public class CampaignController {
             @RequestParam Optional<String> sortBy
     ) {
         List<Campaign> campaigns = campaignService.getAll(page, size, sortBy);
-        if (campaigns.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
         return new ResponseEntity<>(campaigns, HttpStatus.OK);
     }
 
@@ -86,9 +83,6 @@ public class CampaignController {
     @GetMapping(value = "/campaigns/deleted")
     public ResponseEntity<List<Campaign>> getAllDeletedCampaigns() {
         List<Campaign> campaigns = campaignService.getDeletedCampaigns();
-        if (!campaigns.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
         return new ResponseEntity<>(campaigns, HttpStatus.OK);
     }
 }

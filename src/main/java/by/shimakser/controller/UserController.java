@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,14 +49,12 @@ public class UserController {
             @RequestParam Optional<String> sortBy
     ) {
         List<User> users = userService.getAll(page, size, sortBy);
-        if (users.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     @PutMapping(value = "/user/{id}")
-    public ResponseEntity<HttpStatus> updateUserById(@PathVariable("id") Long id, @RequestBody User newUser, Principal user) {
+    public ResponseEntity<HttpStatus> updateUserById(@PathVariable("id") Long id,
+                                                     @RequestBody User newUser, Principal user) throws SQLException {
         boolean updatingCheck = userService.update(id, newUser, user);
         if (!updatingCheck) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -87,9 +86,6 @@ public class UserController {
     @GetMapping(value = "/users/deleted")
     public ResponseEntity<List<User>> getAllDeletedUsers() {
         List<User> users = userService.getDeletedUsers();
-        if (!users.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 }

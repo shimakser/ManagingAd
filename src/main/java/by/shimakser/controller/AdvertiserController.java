@@ -48,9 +48,6 @@ public class AdvertiserController {
             @RequestParam Optional<String> sortBy
     ) {
         List<Advertiser> advertisers = advertiserService.getAll(page, size, sortBy);
-        if (advertisers.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
         return new ResponseEntity<>(advertisers, HttpStatus.OK);
     }
 
@@ -86,9 +83,6 @@ public class AdvertiserController {
     @GetMapping(value = "/advertisers/deleted")
     public ResponseEntity<List<Advertiser>> getAllDeletedAdvertisers() {
         List<Advertiser> advertisers = advertiserService.getDeletedAdvertisers();
-        if (!advertisers.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
         return new ResponseEntity<>(advertisers, HttpStatus.OK);
     }
 }
