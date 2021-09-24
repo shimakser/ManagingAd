@@ -4,6 +4,7 @@ import by.shimakser.model.Role;
 import by.shimakser.model.User;
 import by.shimakser.repository.UserRepository;
 import javassist.NotFoundException;
+import netscape.security.ForbiddenTargetException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -31,7 +32,7 @@ public class UserService {
     }
 
     @Transactional(rollbackFor = AlreadyBoundException.class)
-    public void add(User user) throws AlreadyBoundException {
+    public User add(User user) throws AlreadyBoundException {
         Optional<User> userFromDBByEmail = userRepository.findByUserEmail(user.getUserEmail());
 
         if (userFromDBByEmail.isPresent()) {
@@ -39,7 +40,9 @@ public class UserService {
         }
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         user.setUserRole(Role.USER);
+        user.setUserDeleted(Boolean.FALSE);
         userRepository.save(user);
+        return user;
     }
 
     @Transactional(rollbackFor = NotFoundException.class)
@@ -63,17 +66,20 @@ public class UserService {
         return users;
     }
 
-    @Transactional(rollbackFor = NotFoundException.class)
-    public void update(Long id, User newUser, Principal user) throws NotFoundException {
+    @Transactional(rollbackFor = {NotFoundException.class, ForbiddenTargetException.class})
+    public User update(Long id, User newUser, Principal user) throws NotFoundException, ForbiddenTargetException {
         User userById = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User is not found."));
+
         Optional<User> principalUser = userRepository.findByUsername(user.getName());
-        if (principalUser.get().getUserRole().equals(Role.ADMIN)
+        if (!principalUser.get().getUserRole().equals(Role.ADMIN)
                 || principalUser.get().getId().equals(id)) {
-            newUser.setId(id);
-            newUser.setPassword(bCryptPasswordEncoder.encode(userById.getPassword()));
-            userRepository.save(newUser);
+            throw new ForbiddenTargetException("Insufficient rights to edit the user.");
         }
+        newUser.setId(id);
+        newUser.setPassword(bCryptPasswordEncoder.encode(userById.getPassword()));
+        userRepository.save(newUser);
+        return newUser;
     }
 
     @Transactional(rollbackFor = NotFoundException.class)
