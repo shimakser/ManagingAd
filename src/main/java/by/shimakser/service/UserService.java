@@ -44,11 +44,9 @@ public class UserService {
 
     @Transactional(rollbackFor = NotFoundException.class)
     public List<User> get(Long id) throws NotFoundException {
-        Optional<User> userById = userRepository.findById(id);
-        if (!userById.isPresent()) {
-            throw new NotFoundException("User is not found.");
-        }
-        List<User> user = Stream.of(userById.get()).filter(u -> u.isUserDeleted() == Boolean.FALSE).collect(Collectors.toList());
+        User userById = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User is not found."));
+        List<User> user = Stream.of(userById).filter(u -> u.isUserDeleted() == Boolean.FALSE).collect(Collectors.toList());
         return user;
     }
 
@@ -67,36 +65,30 @@ public class UserService {
 
     @Transactional(rollbackFor = NotFoundException.class)
     public void update(Long id, User newUser, Principal user) throws NotFoundException {
-        Optional<User> userById = userRepository.findById(id);
-        if (!userById.isPresent()) {
-            throw new NotFoundException("User is not found.");
-        }
+        User userById = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User is not found."));
         Optional<User> principalUser = userRepository.findByUsername(user.getName());
         if (principalUser.get().getUserRole().equals(Role.ADMIN)
                 || principalUser.get().getId().equals(id)) {
             newUser.setId(id);
-            newUser.setPassword(bCryptPasswordEncoder.encode(userById.get().getPassword()));
+            newUser.setPassword(bCryptPasswordEncoder.encode(userById.getPassword()));
             userRepository.save(newUser);
         }
     }
 
     @Transactional(rollbackFor = NotFoundException.class)
     public void delete(Long id) throws NotFoundException {
-        Optional<User> userById = userRepository.findById(id);
-        if (!userById.isPresent()) {
-            throw new NotFoundException("User is not found.");
-        }
-        userById.get().setUserDeleted(Boolean.TRUE);
-        userRepository.save(userById.get());
+        User userById = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User is not found."));
+        userById.setUserDeleted(Boolean.TRUE);
+        userRepository.save(userById);
     }
 
     @Transactional(rollbackFor = NotFoundException.class)
     public User getDeletedUser(Long id) throws NotFoundException {
-        Optional<User> deletedUserById = userRepository.findByIdAndUserDeletedTrue(id);
-        if (!deletedUserById.isPresent()) {
-            throw new NotFoundException("Deleted user is not found.");
-        }
-        return deletedUserById.get();
+        User deletedUserById = userRepository.findByIdAndUserDeletedTrue(id)
+                .orElseThrow(() -> new NotFoundException("Deleted user is not found."));
+        return deletedUserById;
     }
 
     @Transactional
