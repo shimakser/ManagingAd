@@ -33,9 +33,9 @@ public class UserService {
 
     @Transactional(rollbackFor = AlreadyBoundException.class)
     public User add(User user) throws AlreadyBoundException {
-        Optional<User> userFromDBByEmail = userRepository.findByUserEmail(user.getUserEmail());
+        boolean isUserWithEmailExist = userRepository.existsUserByUserEmail(user.getUserEmail());
 
-        if (userFromDBByEmail.isPresent()) {
+        if (isUserWithEmailExist) {
             throw new AlreadyBoundException("Entered mail is already taken.");
         }
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
