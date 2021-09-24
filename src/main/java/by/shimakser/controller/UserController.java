@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.rmi.AlreadyBoundException;
 import java.security.Principal;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,13 +24,13 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping(value = "/user")
-    public ResponseEntity<HttpStatus> addUser(@RequestBody User user) throws AlreadyBoundException  {
+    @PostMapping(value = "/users")
+    public ResponseEntity<User> addUser(@RequestBody User user) throws AlreadyBoundException  {
         userService.add(user);
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
-    @GetMapping(value = "/user/{id}")
+    @GetMapping(value = "/users/{id}")
     public ResponseEntity<List<User>> getUserById(@PathVariable Long id) throws NotFoundException {
         List<User> user = userService.get(id);
         return new ResponseEntity<>(user, HttpStatus.OK);
@@ -45,25 +44,29 @@ public class UserController {
             @RequestParam Optional<String> sortBy
     ) {
         List<User> users = userService.getAll(page, size, sortBy);
+        if (users.isEmpty()) {
+            return new ResponseEntity<>(users, HttpStatus.NO_CONTENT);
+        }
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
-    @PutMapping(value = "/user/{id}")
-    public ResponseEntity<HttpStatus> updateUserById(@PathVariable("id") Long id,
-                                                     @RequestBody User newUser, Principal user) throws NotFoundException {
+    @PutMapping(value = "/users/{id}")
+    public ResponseEntity<User> updateUserById(@PathVariable("id") Long id,
+                                                     @RequestBody User newUser,
+                                                     Principal user) throws NotFoundException {
         userService.update(id, newUser, user);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(newUser, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @DeleteMapping(value = "/user/{id}")
+    @DeleteMapping(value = "/users/{id}")
     public ResponseEntity<HttpStatus> deleteUserById(@PathVariable("id") Long id) throws NotFoundException {
         userService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping(value = "/user/deleted/{id}")
+    @GetMapping(value = "/users/deleted/{id}")
     public ResponseEntity<User> getDeletedUserById(@PathVariable Long id) throws NotFoundException {
         User user = userService.getDeletedUser(id);
         return new ResponseEntity<>(user, HttpStatus.OK);
@@ -73,6 +76,9 @@ public class UserController {
     @GetMapping(value = "/users/deleted")
     public ResponseEntity<List<User>> getAllDeletedUsers() {
         List<User> users = userService.getDeletedUsers();
+        if (users.isEmpty()) {
+            return new ResponseEntity<>(users, HttpStatus.NO_CONTENT);
+        }
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 }
