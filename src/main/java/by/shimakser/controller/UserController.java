@@ -1,9 +1,12 @@
 package by.shimakser.controller;
 
+import by.shimakser.dto.UserDto;
+import by.shimakser.mapper.UserMapper;
 import by.shimakser.model.User;
 import by.shimakser.service.UserService;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -13,37 +16,43 @@ import java.rmi.AlreadyBoundException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 public class UserController {
 
     private final UserService userService;
 
+    private final UserMapper userMapper;
+
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, @Qualifier("userMapperImpl") UserMapper userMapper) {
         this.userService = userService;
+        this.userMapper = userMapper;
     }
 
     @PostMapping(value = "/users")
-    public ResponseEntity<User> addUser(@RequestBody User user) throws AlreadyBoundException  {
-        userService.add(user);
-        return new ResponseEntity<>(user, HttpStatus.CREATED);
+    public ResponseEntity<UserDto> addUser(@RequestBody UserDto userDto) throws AlreadyBoundException {
+        User newUser = userMapper.mapToEntity(userDto);
+        userService.add(newUser);
+        return new ResponseEntity<>(userDto, HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/users/{id}")
-    public ResponseEntity<List<User>> getUserById(@PathVariable Long id) throws NotFoundException {
-        List<User> user = userService.get(id);
+    public ResponseEntity<List<UserDto>> getUserById(@PathVariable Long id) throws NotFoundException {
+        List<UserDto> user = userService.get(id).stream().map(userMapper::mapToDto).collect(Collectors.toList());
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/users")
-    public ResponseEntity<List<User>> getAllUsers(
+    public ResponseEntity<List<UserDto>> getAllUsers(
             @RequestParam Optional<Integer> page,
             @RequestParam Optional<Integer> size,
             @RequestParam Optional<String> sortBy
     ) {
-        List<User> users = userService.getAll(page, size, sortBy);
+        List<UserDto> users = userService.getAll(page, size, sortBy).stream().map(userMapper::mapToDto)
+                .collect(Collectors.toList());
         if (users.isEmpty()) {
             return new ResponseEntity<>(users, HttpStatus.NO_CONTENT);
         }
@@ -51,11 +60,12 @@ public class UserController {
     }
 
     @PutMapping(value = "/users/{id}")
-    public ResponseEntity<User> updateUserById(@PathVariable("id") Long id,
-                                                     @RequestBody User newUser,
-                                                     Principal user) throws NotFoundException {
-        userService.update(id, newUser, user);
-        return new ResponseEntity<>(newUser, HttpStatus.OK);
+    public ResponseEntity<UserDto> updateUserById(@PathVariable("id") Long id,
+                                               @RequestBody UserDto newUserDto,
+                                               Principal principal) throws NotFoundException {
+        User user = userMapper.mapToEntity(newUserDto);
+        userService.update(id, user, principal);
+        return new ResponseEntity<>(newUserDto, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -67,18 +77,19 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/users/deleted/{id}")
-    public ResponseEntity<User> getDeletedUserById(@PathVariable Long id) throws NotFoundException {
-        User user = userService.getDeletedUser(id);
-        return new ResponseEntity<>(user, HttpStatus.OK);
+    public ResponseEntity<UserDto> getDeletedUserById(@PathVariable Long id) throws NotFoundException {
+        UserDto userDto = userMapper.mapToDto(userService.getDeletedUser(id));
+        return new ResponseEntity<>(userDto, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/users/deleted")
-    public ResponseEntity<List<User>> getAllDeletedUsers() {
-        List<User> users = userService.getDeletedUsers();
-        if (users.isEmpty()) {
-            return new ResponseEntity<>(users, HttpStatus.NO_CONTENT);
+    public ResponseEntity<List<UserDto>> getAllDeletedUsers() {
+        List<UserDto> usersDto = userService.getDeletedUsers().stream().map(userMapper::mapToDto)
+                .collect(Collectors.toList());
+        if (usersDto.isEmpty()) {
+            return new ResponseEntity<>(usersDto, HttpStatus.NO_CONTENT);
         }
-        return new ResponseEntity<>(users, HttpStatus.OK);
+        return new ResponseEntity<>(usersDto, HttpStatus.OK);
     }
 }

@@ -50,6 +50,9 @@ public class UserService {
         User userById = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User is not found."));
         List<User> user = Stream.of(userById).filter(u -> u.isUserDeleted() == Boolean.FALSE).collect(Collectors.toList());
+        if (user.isEmpty()) {
+            throw new NotFoundException("User is not found.");
+        }
         return user;
     }
 
