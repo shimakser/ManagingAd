@@ -23,24 +23,21 @@ public class UserController {
 
     private final UserService userService;
 
-    private final UserMapper userMapper;
-
     @Autowired
-    public UserController(UserService userService, @Qualifier("userMapperImpl") UserMapper userMapper) {
+    public UserController(UserService userService) {
         this.userService = userService;
-        this.userMapper = userMapper;
     }
 
     @PostMapping(value = "/users")
     public ResponseEntity<UserDto> addUser(@RequestBody UserDto userDto) throws AlreadyBoundException {
-        User newUser = userMapper.mapToEntity(userDto);
+        User newUser = UserMapper.INSTANCE.mapToEntity(userDto);
         userService.add(newUser);
         return new ResponseEntity<>(userDto, HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/users/{id}")
     public ResponseEntity<List<UserDto>> getUserById(@PathVariable Long id) throws NotFoundException {
-        List<UserDto> user = userService.get(id).stream().map(userMapper::mapToDto).collect(Collectors.toList());
+        List<UserDto> user = userService.get(id).stream().map(UserMapper.INSTANCE::mapToDto).collect(Collectors.toList());
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
@@ -51,7 +48,7 @@ public class UserController {
             @RequestParam Optional<Integer> size,
             @RequestParam Optional<String> sortBy
     ) {
-        List<UserDto> users = userService.getAll(page, size, sortBy).stream().map(userMapper::mapToDto)
+        List<UserDto> users = userService.getAll(page, size, sortBy).stream().map(UserMapper.INSTANCE::mapToDto)
                 .collect(Collectors.toList());
         if (users.isEmpty()) {
             return new ResponseEntity<>(users, HttpStatus.NO_CONTENT);
@@ -63,7 +60,7 @@ public class UserController {
     public ResponseEntity<UserDto> updateUserById(@PathVariable("id") Long id,
                                                @RequestBody UserDto newUserDto,
                                                Principal principal) throws NotFoundException {
-        User user = userMapper.mapToEntity(newUserDto);
+        User user = UserMapper.INSTANCE.mapToEntity(newUserDto);
         userService.update(id, user, principal);
         return new ResponseEntity<>(newUserDto, HttpStatus.OK);
     }
@@ -78,14 +75,14 @@ public class UserController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/users/deleted/{id}")
     public ResponseEntity<UserDto> getDeletedUserById(@PathVariable Long id) throws NotFoundException {
-        UserDto userDto = userMapper.mapToDto(userService.getDeletedUser(id));
+        UserDto userDto = UserMapper.INSTANCE.mapToDto(userService.getDeletedUser(id));
         return new ResponseEntity<>(userDto, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/users/deleted")
     public ResponseEntity<List<UserDto>> getAllDeletedUsers() {
-        List<UserDto> usersDto = userService.getDeletedUsers().stream().map(userMapper::mapToDto)
+        List<UserDto> usersDto = userService.getDeletedUsers().stream().map(UserMapper.INSTANCE::mapToDto)
                 .collect(Collectors.toList());
         if (usersDto.isEmpty()) {
             return new ResponseEntity<>(usersDto, HttpStatus.NO_CONTENT);
