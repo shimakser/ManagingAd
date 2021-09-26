@@ -6,7 +6,6 @@ import by.shimakser.model.User;
 import by.shimakser.service.UserService;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -36,33 +35,30 @@ public class UserController {
     }
 
     @GetMapping(value = "/users/{id}")
-    public ResponseEntity<List<UserDto>> getUserById(@PathVariable Long id) throws NotFoundException {
+    public List<UserDto> getUserById(@PathVariable Long id) throws NotFoundException {
         List<UserDto> user = userService.get(id).stream().map(UserMapper.INSTANCE::mapToDto).collect(Collectors.toList());
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return user;
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/users")
-    public ResponseEntity<List<UserDto>> getAllUsers(
+    public List<UserDto> getAllUsers(
             @RequestParam Optional<Integer> page,
             @RequestParam Optional<Integer> size,
             @RequestParam Optional<String> sortBy
     ) {
         List<UserDto> users = userService.getAll(page, size, sortBy).stream().map(UserMapper.INSTANCE::mapToDto)
                 .collect(Collectors.toList());
-        if (users.isEmpty()) {
-            return new ResponseEntity<>(users, HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(users, HttpStatus.OK);
+        return users;
     }
 
     @PutMapping(value = "/users/{id}")
-    public ResponseEntity<UserDto> updateUserById(@PathVariable("id") Long id,
-                                               @RequestBody UserDto newUserDto,
-                                               Principal principal) throws NotFoundException {
+    public UserDto updateUserById(@PathVariable("id") Long id,
+                                  @RequestBody UserDto newUserDto,
+                                  Principal principal) throws NotFoundException {
         User user = UserMapper.INSTANCE.mapToEntity(newUserDto);
         userService.update(id, user, principal);
-        return new ResponseEntity<>(newUserDto, HttpStatus.OK);
+        return newUserDto;
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -74,19 +70,16 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/users/deleted/{id}")
-    public ResponseEntity<UserDto> getDeletedUserById(@PathVariable Long id) throws NotFoundException {
+    public UserDto getDeletedUserById(@PathVariable Long id) throws NotFoundException {
         UserDto userDto = UserMapper.INSTANCE.mapToDto(userService.getDeletedUser(id));
-        return new ResponseEntity<>(userDto, HttpStatus.OK);
+        return userDto;
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/users/deleted")
-    public ResponseEntity<List<UserDto>> getAllDeletedUsers() {
+    public List<UserDto> getAllDeletedUsers() {
         List<UserDto> usersDto = userService.getDeletedUsers().stream().map(UserMapper.INSTANCE::mapToDto)
                 .collect(Collectors.toList());
-        if (usersDto.isEmpty()) {
-            return new ResponseEntity<>(usersDto, HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(usersDto, HttpStatus.OK);
+        return usersDto;
     }
 }
