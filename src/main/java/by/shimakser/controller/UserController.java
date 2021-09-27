@@ -22,22 +22,26 @@ public class UserController {
 
     private final UserService userService;
 
+    private final UserMapper userMapper;
+
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, UserMapper userMapper) {
         this.userService = userService;
+        this.userMapper = userMapper;
     }
 
     @PostMapping(value = "/users")
     public ResponseEntity<UserDto> addUser(@RequestBody UserDto userDto) throws AlreadyBoundException {
-        User newUser = UserMapper.INSTANCE.mapToEntity(userDto);
+        User newUser = userMapper.mapToEntity(userDto);
         userService.add(newUser);
         return new ResponseEntity<>(userDto, HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/users/{id}")
     public List<UserDto> getUserById(@PathVariable Long id) throws NotFoundException {
-        List<UserDto> user = userService.get(id).stream().map(UserMapper.INSTANCE::mapToDto).collect(Collectors.toList());
-        return user;
+        return userService.get(id)
+                .stream().map(userMapper::mapToDto)
+                .collect(Collectors.toList());
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -47,16 +51,16 @@ public class UserController {
             @RequestParam Optional<Integer> size,
             @RequestParam Optional<String> sortBy
     ) {
-        List<UserDto> users = userService.getAll(page, size, sortBy).stream().map(UserMapper.INSTANCE::mapToDto)
+        return userService.getAll(page, size, sortBy)
+                .stream().map(userMapper::mapToDto)
                 .collect(Collectors.toList());
-        return users;
     }
 
     @PutMapping(value = "/users/{id}")
     public UserDto updateUserById(@PathVariable("id") Long id,
                                   @RequestBody UserDto newUserDto,
                                   Principal principal) throws NotFoundException {
-        User user = UserMapper.INSTANCE.mapToEntity(newUserDto);
+        User user = userMapper.mapToEntity(newUserDto);
         userService.update(id, user, principal);
         return newUserDto;
     }
@@ -71,15 +75,14 @@ public class UserController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/users/deleted/{id}")
     public UserDto getDeletedUserById(@PathVariable Long id) throws NotFoundException {
-        UserDto userDto = UserMapper.INSTANCE.mapToDto(userService.getDeletedUser(id));
-        return userDto;
+        return userMapper.mapToDto(userService.getDeletedUser(id));
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/users/deleted")
     public List<UserDto> getAllDeletedUsers() {
-        List<UserDto> usersDto = userService.getDeletedUsers().stream().map(UserMapper.INSTANCE::mapToDto)
+        return userService.getDeletedUsers()
+                .stream().map(userMapper::mapToDto)
                 .collect(Collectors.toList());
-        return usersDto;
     }
 }

@@ -33,9 +33,9 @@ public class UserService {
 
     @Transactional(rollbackFor = AlreadyBoundException.class)
     public User add(User user) throws AlreadyBoundException {
-        boolean isUserWithEmailExist = userRepository.existsUserByUserEmail(user.getUserEmail());
+        boolean isUserByEmailExist = userRepository.existsUserByUserEmail(user.getUserEmail());
 
-        if (isUserWithEmailExist) {
+        if (isUserByEmailExist) {
             throw new AlreadyBoundException("Entered mail is already taken.");
         }
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
@@ -49,7 +49,9 @@ public class UserService {
     public List<User> get(Long id) throws NotFoundException {
         User userById = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User is not found."));
-        List<User> user = Stream.of(userById).filter(u -> u.isUserDeleted() == Boolean.FALSE).collect(Collectors.toList());
+        List<User> user = Stream.of(userById)
+                .filter(u -> u.isUserDeleted() == Boolean.FALSE)
+                .collect(Collectors.toList());
         if (user.isEmpty()) {
             throw new NotFoundException("User is not found.");
         }
@@ -58,15 +60,15 @@ public class UserService {
 
     @Transactional
     public List<User> getAll(Optional<Integer> page,
-                                             Optional<Integer> size,
-                                             Optional<String> sortBy
+                             Optional<Integer> size,
+                             Optional<String> sortBy
     ) {
-        List<User> users = userRepository.findAll(
+        return userRepository.findAll(
                         PageRequest.of(page.orElse(0),
                                 size.orElse(userRepository.findAll().size()),
-                                Sort.Direction.ASC, sortBy.orElse("id")))
-                .stream().filter(user -> user.isUserDeleted() == Boolean.FALSE).collect(Collectors.toList());
-        return users;
+                                Sort.Direction.ASC, sortBy.orElse("id"))).stream()
+                .filter(user -> user.isUserDeleted() == Boolean.FALSE)
+                .collect(Collectors.toList());
     }
 
     @Transactional(rollbackFor = {NotFoundException.class, ForbiddenTargetException.class})
@@ -95,14 +97,12 @@ public class UserService {
 
     @Transactional(rollbackFor = NotFoundException.class)
     public User getDeletedUser(Long id) throws NotFoundException {
-        User deletedUserById = userRepository.findByIdAndUserDeletedTrue(id)
+        return userRepository.findByIdAndUserDeletedTrue(id)
                 .orElseThrow(() -> new NotFoundException("Deleted user is not found."));
-        return deletedUserById;
     }
 
     @Transactional
     public List<User> getDeletedUsers() {
-        List<User> deletedAllUsersById = userRepository.findAllByUserDeletedTrue();
-        return deletedAllUsersById;
+        return userRepository.findAllByUserDeletedTrue();
     }
 }

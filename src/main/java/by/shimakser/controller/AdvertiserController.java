@@ -1,88 +1,89 @@
 package by.shimakser.controller;
 
+import by.shimakser.dto.AdvertiserDto;
+import by.shimakser.mapper.AdvertiserMapper;
 import by.shimakser.model.Advertiser;
 import by.shimakser.service.AdvertiserService;
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.rmi.AlreadyBoundException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 public class AdvertiserController {
 
     private final AdvertiserService advertiserService;
 
+    private final AdvertiserMapper advertiserMapper;
+
     @Autowired
-    public AdvertiserController(AdvertiserService advertiserService) {
+    public AdvertiserController(AdvertiserService advertiserService, AdvertiserMapper advertiserMapper) {
         this.advertiserService = advertiserService;
+        this.advertiserMapper = advertiserMapper;
     }
 
-    @PostMapping(value = "/advertiser")
-    public ResponseEntity<HttpStatus> addAdvertiser(@RequestBody Advertiser advertiser) {
-        boolean addCheck = advertiserService.add(advertiser);
-        if (!addCheck) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
-        return new ResponseEntity<>(HttpStatus.CREATED);
+    @PostMapping(value = "/advertisers")
+    public ResponseEntity<AdvertiserDto> addAdvertiser(@RequestBody AdvertiserDto advertiserDto, Principal user)
+            throws AlreadyBoundException {
+        Advertiser newAdvertiser = advertiserMapper.mapToEntity(advertiserDto);
+        advertiserService.add(newAdvertiser, user);
+        return new ResponseEntity<>(advertiserDto, HttpStatus.CREATED);
     }
 
-    @GetMapping(value = "/advertiser/{id}")
-    public ResponseEntity<List<Advertiser>> getAdvertiserById(@PathVariable Long id) {
-        List<Advertiser> advertiser = advertiserService.get(id);
-        if (advertiser.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(advertiser, HttpStatus.OK);
+    @GetMapping(value = "/advertisers/{id}")
+    public List<AdvertiserDto> getAdvertiserById(@PathVariable Long id) throws NotFoundException {
+        return advertiserService.get(id)
+                .stream().map(advertiserMapper::mapToDto)
+                .collect(Collectors.toList());
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/advertisers")
-    public ResponseEntity<List<Advertiser>> getAllAdvertisers(
+    public List<AdvertiserDto> getAllAdvertisers(
             @RequestParam Optional<Integer> page,
             @RequestParam Optional<Integer> size,
             @RequestParam Optional<String> sortBy
     ) {
-        List<Advertiser> advertisers = advertiserService.getAll(page, size, sortBy);
-        return new ResponseEntity<>(advertisers, HttpStatus.OK);
+        return advertiserService.getAll(page, size, sortBy)
+                .stream().map(advertiserMapper::mapToDto)
+                .collect(Collectors.toList());
     }
 
-    @PutMapping(value = "/advertiser/{id}")
-    public ResponseEntity<HttpStatus> updateAdvertiserById(@PathVariable("id") Long id, @RequestBody Advertiser advertiser, Principal creator) {
-        boolean updatingCheck = advertiserService.update(id, advertiser, creator);
-        if (!updatingCheck) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        return new ResponseEntity<>(HttpStatus.OK);
+    @PutMapping(value = "/advertisers/{id}")
+    public AdvertiserDto updateAdvertiserById(@PathVariable("id") Long id,
+                                              @RequestBody AdvertiserDto newAdvertiserDto,
+                                              Principal creator) throws NotFoundException {
+        Advertiser advertiser = advertiserMapper.mapToEntity(newAdvertiserDto);
+        advertiserService.update(id, advertiser, creator);
+        return newAdvertiserDto;
     }
 
-    @DeleteMapping(value = "/advertiser/{id}")
-    public ResponseEntity<HttpStatus> deleteAdvertiserById(@PathVariable("id") Long id, Principal creator) {
-        boolean deleteCheck = advertiserService.delete(id, creator);
-        if (!deleteCheck) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+    @DeleteMapping(value = "/advertisers/{id}")
+    public ResponseEntity<HttpStatus> deleteAdvertiserById(@PathVariable("id") Long id, Principal creator)
+            throws NotFoundException {
+        advertiserService.delete(id, creator);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping(value = "/advertiser/deleted/{id}")
-    public ResponseEntity<Advertiser> getDeletedAdvertiserById(@PathVariable Long id) {
-        Optional<Advertiser> advertiser = advertiserService.getDeletedAdvertiser(id);
-        if (!advertiser.isPresent()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(advertiser.get(), HttpStatus.OK);
+    @GetMapping(value = "/advertisers/deleted/{id}")
+    public AdvertiserDto getDeletedAdvertiserById(@PathVariable Long id) throws NotFoundException {
+        return advertiserMapper.mapToDto(advertiserService.getDeletedAdvertiser(id));
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping(value = "/advertisers/deleted")
-    public ResponseEntity<List<Advertiser>> getAllDeletedAdvertisers() {
-        List<Advertiser> advertisers = advertiserService.getDeletedAdvertisers();
-        return new ResponseEntity<>(advertisers, HttpStatus.OK);
+    public List<AdvertiserDto> getAllDeletedAdvertisers() {
+        return advertiserService.getDeletedAdvertisers()
+                .stream().map(advertiserMapper::mapToDto)
+                .collect(Collectors.toList());
     }
 }

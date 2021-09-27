@@ -5,13 +5,15 @@ import by.shimakser.model.Role;
 import by.shimakser.model.User;
 import by.shimakser.repository.CampaignRepository;
 import by.shimakser.repository.UserRepository;
+import javassist.NotFoundException;
+import netscape.security.ForbiddenTargetException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.rmi.AlreadyBoundException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
@@ -30,70 +32,78 @@ public class CampaignService {
         this.userRepository = userRepository;
     }
 
-    public boolean add(Campaign campaign) {
-        Optional<Campaign> campaignByTitle = campaignRepository
-                .findByCampaignTitle(campaign.getCampaignTitle());
+    @Transactional(rollbackFor = AlreadyBoundException.class)
+    public Campaign add(Campaign campaign) throws AlreadyBoundException {
+        boolean isCampaignByTitleExist = campaignRepository
+                .existsCampaignByCampaignTitle(campaign.getCampaignTitle());
 
-        if (campaignByTitle.isPresent()) {
-            return false;
+        if (isCampaignByTitleExist) {
+            throw new AlreadyBoundException("Entered title is already taken.");
         }
         campaignRepository.save(campaign);
-        return true;
-    }
-
-    public List<Campaign> get(Long id) {
-        Optional<Campaign> campaignById = campaignRepository.findById(id);
-        List<Campaign> campaign = Stream.of(campaignById.get()).filter(c -> c.isCampaignDeleted() == Boolean.FALSE).collect(Collectors.toList());
         return campaign;
     }
 
+    @Transactional(rollbackFor = NotFoundException.class)
+    public List<Campaign> get(Long id) throws NotFoundException {
+        Campaign campaignById = campaignRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Campaign is not found."));
+        List<Campaign> campaign = Stream.of(campaignById)
+                .filter(c -> c.isCampaignDeleted() == Boolean.FALSE)
+                .collect(Collectors.toList());
+        if (campaign.isEmpty()) {
+            throw new NotFoundException("User is not found.");
+        }
+        return campaign;
+    }
+
+    @Transactional
     public List<Campaign> getAll(
             Optional<Integer> page,
             Optional<Integer> size,
             Optional<String> sortBy
     ) {
-        List<Campaign> campaigns = campaignRepository.findAll(
+        return campaignRepository.findAll(
                         PageRequest.of(page.orElse(0),
                                 size.orElse(campaignRepository.findAll().size()),
-                                Sort.Direction.ASC, sortBy.orElse("id")))
-                .stream().filter(campaign -> campaign.isCampaignDeleted() == Boolean.FALSE).collect(Collectors.toList());
-        return campaigns;
+                                Sort.Direction.ASC, sortBy.orElse("id"))).stream()
+                .filter(campaign -> campaign.isCampaignDeleted() == Boolean.FALSE)
+                .collect(Collectors.toList());
     }
 
-    public boolean update(Long id, Campaign newCampaign, Principal creator) {
-        if (!findCampaignByIdAndUserByPrincipal(id, creator)) {
-            return false;
-        }
+    @Transactional(rollbackFor = {NotFoundException.class, ForbiddenTargetException.class})
+    public Campaign update(Long id, Campaign newCampaign, Principal creator) throws NotFoundException {
+        checkCampaignByIdAndUserByPrincipal(id, creator);
         newCampaign.setId(id);
         campaignRepository.save(newCampaign);
-        return true;
+        return newCampaign;
     }
 
-    public boolean delete(Long id, Principal creator) {
-        if (!findCampaignByIdAndUserByPrincipal(id, creator)) {
-            return false;
-        }
+    @Transactional(rollbackFor = {NotFoundException.class, ForbiddenTargetException.class})
+    public void delete(Long id, Principal creator) throws NotFoundException {
+        checkCampaignByIdAndUserByPrincipal(id, creator);
         campaignRepository.deleteById(id);
-        return true;
     }
 
-    public Optional<Campaign> getDeletedCampaign(Long id) {
-        Optional<Campaign> deletedCampaignById = campaignRepository.findByIdAndCampaignDeletedTrue(id);
-        return  deletedCampaignById;
+    @Transactional(rollbackFor = NotFoundException.class)
+    public Campaign getDeletedCampaign(Long id) throws NotFoundException {
+        return campaignRepository.findByIdAndCampaignDeletedTrue(id)
+                .orElseThrow(() -> new NotFoundException("Deleted campaign is not found."));
     }
 
+    @Transactional
     public List<Campaign> getDeletedCampaigns() {
-        List<Campaign> deletedAllCampaignsById = campaignRepository.findAllByCampaignDeletedTrue();
-        return deletedAllCampaignsById;
+        return campaignRepository.findAllByCampaignDeletedTrue();
     }
 
-    public boolean findCampaignByIdAndUserByPrincipal(Long id, Principal user) {
-        Optional<Campaign> campaignById = campaignRepository.findById(id);
-        if (!campaignById.isPresent()) {
-            return false;
-        }
+    public void checkCampaignByIdAndUserByPrincipal(Long id, Principal user) throws NotFoundException {
+        Campaign campaignById = campaignRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Campaign is not found."));
         User principalUser = userRepository.findByUsername(user.getName()).get();
-        return (principalUser.getUserRole().equals(Role.ADMIN)
-                || principalUser.getId().equals(campaignById.get().getAdvertiser().getCreator().getId()));
+        boolean checkAccess = principalUser.getUserRole().equals(Role.ADMIN)
+                || principalUser.getId().equals(campaignById.getAdvertiser().getCreator().getId());
+        if (!checkAccess) {
+            throw new ForbiddenTargetException("Insufficient rights to edit the advertiser.");
+        }
     }
 }

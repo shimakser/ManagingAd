@@ -5,13 +5,15 @@ import by.shimakser.model.Role;
 import by.shimakser.model.User;
 import by.shimakser.repository.AdvertiserRepository;
 import by.shimakser.repository.UserRepository;
+import javassist.NotFoundException;
+import netscape.security.ForbiddenTargetException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.rmi.AlreadyBoundException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
@@ -30,70 +32,81 @@ public class AdvertiserService {
         this.userRepository = userRepository;
     }
 
-    public boolean add(Advertiser advertiser) {
-        Optional<Advertiser> advertiserByTitle = advertiserRepository
-                .findByAdvertiserTitle(advertiser.getAdvertiserTitle());
+    @Transactional(rollbackFor = AlreadyBoundException.class)
+    public Advertiser add(Advertiser advertiser, Principal user) throws AlreadyBoundException {
+        boolean isAdvertiserByTitleExist = advertiserRepository
+                .existsAdvertiserByAdvertiserTitle(advertiser.getAdvertiserTitle());
 
-        if (advertiserByTitle.isPresent()) {
-            return false;
+        if (isAdvertiserByTitleExist) {
+            throw new AlreadyBoundException("Entered title is already taken.");
         }
+        User principalUser = userRepository.findByUsername(user.getName()).get();
+        advertiser.setCreator(principalUser);
         advertiserRepository.save(advertiser);
-        return true;
-    }
-
-    public List<Advertiser> get(Long id) {
-        Optional<Advertiser> advertiserById = advertiserRepository.findById(id);
-        List<Advertiser> advertiser = Stream.of(advertiserById.get()).filter(a -> a.isAdvertiserDeleted() == Boolean.FALSE).collect(Collectors.toList());
         return advertiser;
     }
 
+    @Transactional(rollbackFor = NotFoundException.class)
+    public List<Advertiser> get(Long id) throws NotFoundException {
+        Advertiser advertiserById = advertiserRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Advertiser is not found."));
+        List<Advertiser> advertiser = Stream.of(advertiserById)
+                .filter(a -> a.isAdvertiserDeleted() == Boolean.FALSE)
+                .collect(Collectors.toList());
+        if (advertiser.isEmpty()) {
+            throw new NotFoundException("User is not found.");
+        }
+        return advertiser;
+    }
+
+    @Transactional
     public List<Advertiser> getAll(
             Optional<Integer> page,
             Optional<Integer> size,
             Optional<String> sortBy
     ) {
-        List<Advertiser> advertisers = advertiserRepository.findAll(
-                PageRequest.of(page.orElse(0),
+        return advertiserRepository.findAll(
+                        PageRequest.of(page.orElse(0),
                                 size.orElse(advertiserRepository.findAll().size()),
-                                Sort.Direction.ASC, sortBy.orElse("id")))
-                        .stream().filter(campaign -> campaign.isAdvertiserDeleted() == Boolean.FALSE).collect(Collectors.toList());
-        return advertisers;
+                                Sort.Direction.ASC, sortBy.orElse("id"))).stream()
+                .filter(campaign -> campaign.isAdvertiserDeleted() == Boolean.FALSE)
+                .collect(Collectors.toList());
     }
 
-    public boolean update(Long id, Advertiser newAdvertiser, Principal creator) {
-        if (!findAdvertiserByIdAndUserByPrincipal(id, creator)) {
-            return false;
-        }
+    @Transactional(rollbackFor = {NotFoundException.class, ForbiddenTargetException.class})
+    public Advertiser update(Long id, Advertiser newAdvertiser, Principal creator) throws NotFoundException {
+        checkAdvertiserByIdAndUserByPrincipal(id, creator);
         newAdvertiser.setId(id);
         advertiserRepository.save(newAdvertiser);
-        return true;
+        return newAdvertiser;
     }
 
-    public boolean delete(Long id, Principal creator) {
-        if (!findAdvertiserByIdAndUserByPrincipal(id, creator)) {
-            return false;
-        }
+    @Transactional(rollbackFor = {NotFoundException.class, ForbiddenTargetException.class})
+    public void delete(Long id, Principal creator) throws NotFoundException {
+        checkAdvertiserByIdAndUserByPrincipal(id, creator);
         advertiserRepository.deleteById(id);
-        return true;
     }
 
-    public Optional<Advertiser> getDeletedAdvertiser(Long id) {
-        Optional<Advertiser> deletedAdvertiserById = advertiserRepository.findByIdAndAdvertiserDeletedTrue(id);
-        return deletedAdvertiserById;
+    @Transactional(rollbackFor = NotFoundException.class)
+    public Advertiser getDeletedAdvertiser(Long id) throws NotFoundException {
+        return advertiserRepository.findByIdAndAdvertiserDeletedTrue(id)
+                .orElseThrow(() -> new NotFoundException("Deleted advertiser is not found."));
     }
 
+    @Transactional
     public List<Advertiser> getDeletedAdvertisers() {
-        List<Advertiser> deletedAllAdvertisersById = advertiserRepository.findAllByAdvertiserDeletedTrue();
-        return deletedAllAdvertisersById;
+        return advertiserRepository.findAllByAdvertiserDeletedTrue();
     }
 
-    public boolean findAdvertiserByIdAndUserByPrincipal(Long id, Principal user) {
-        Optional<Advertiser> advertiserById = advertiserRepository.findById(id);
-        if (!advertiserById.isPresent()) {
-            return false;
-        }
+    public void checkAdvertiserByIdAndUserByPrincipal(Long id, Principal user) throws NotFoundException {
+        Advertiser advertiserById = advertiserRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Advertiser is not found."));
+
         User principalUser = userRepository.findByUsername(user.getName()).get();
-        return (principalUser.getUserRole().equals(Role.ADMIN)
-                || principalUser.getId().equals(advertiserById.get().getCreator().getId()));
+        boolean checkAccess = principalUser.getUserRole().equals(Role.ADMIN)
+                || principalUser.getId().equals(advertiserById.getCreator().getId());
+        if (!checkAccess) {
+            throw new ForbiddenTargetException("Insufficient rights to edit the advertiser.");
+        }
     }
 }
