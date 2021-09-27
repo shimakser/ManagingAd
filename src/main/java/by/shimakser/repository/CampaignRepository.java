@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface CampaignRepository extends JpaRepository<Campaign, Long> {
-    Optional<Campaign> findByCampaignTitle(String title);
+    boolean existsCampaignByCampaignTitle(String title);
     Optional<Campaign> findByIdAndCampaignDeletedTrue(Long id);
     List<Campaign> findAllByCampaignDeletedTrue();
 }

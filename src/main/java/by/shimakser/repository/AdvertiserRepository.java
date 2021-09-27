@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface AdvertiserRepository extends JpaRepository<Advertiser, Long> {
-    Optional<Advertiser> findByAdvertiserTitle(String title);
+    boolean existsAdvertiserByAdvertiserTitle(String title);
     Optional<Advertiser> findByIdAndAdvertiserDeletedTrue(Long id);
     List<Advertiser> findAllByAdvertiserDeletedTrue();
 }
