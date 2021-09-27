@@ -63,12 +63,10 @@ public class UserService {
                              Optional<Integer> size,
                              Optional<String> sortBy
     ) {
-        return userRepository.findAll(
+        return userRepository.findAllByUserDeletedFalse(
                         PageRequest.of(page.orElse(0),
-                                size.orElse(userRepository.findAll().size()),
-                                Sort.Direction.ASC, sortBy.orElse("id"))).stream()
-                .filter(user -> user.isUserDeleted() == Boolean.FALSE)
-                .collect(Collectors.toList());
+                                size.orElse(userRepository.findAllByUserDeletedFalse().size()),
+                                Sort.Direction.ASC, sortBy.orElse("id")));
     }
 
     @Transactional(rollbackFor = {NotFoundException.class, ForbiddenTargetException.class})

@@ -65,12 +65,10 @@ public class AdvertiserService {
             Optional<Integer> size,
             Optional<String> sortBy
     ) {
-        return advertiserRepository.findAll(
+        return advertiserRepository.findAllByAdvertiserDeletedFalse(
                         PageRequest.of(page.orElse(0),
-                                size.orElse(advertiserRepository.findAll().size()),
-                                Sort.Direction.ASC, sortBy.orElse("id"))).stream()
-                .filter(campaign -> campaign.isAdvertiserDeleted() == Boolean.FALSE)
-                .collect(Collectors.toList());
+                                size.orElse(advertiserRepository.findAllByAdvertiserDeletedFalse().size()),
+                                Sort.Direction.ASC, sortBy.orElse("id")));
     }
 
     @Transactional(rollbackFor = {NotFoundException.class, ForbiddenTargetException.class})

@@ -63,12 +63,10 @@ public class CampaignService {
             Optional<Integer> size,
             Optional<String> sortBy
     ) {
-        return campaignRepository.findAll(
+        return campaignRepository.findAllByCampaignDeletedFalse(
                         PageRequest.of(page.orElse(0),
-                                size.orElse(campaignRepository.findAll().size()),
-                                Sort.Direction.ASC, sortBy.orElse("id"))).stream()
-                .filter(campaign -> campaign.isCampaignDeleted() == Boolean.FALSE)
-                .collect(Collectors.toList());
+                                size.orElse(campaignRepository.findAllByCampaignDeletedFalse().size()),
+                                Sort.Direction.ASC, sortBy.orElse("id")));
     }
 
     @Transactional(rollbackFor = {NotFoundException.class, ForbiddenTargetException.class})
