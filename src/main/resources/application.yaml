@@ -1,0 +1,21 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /managingad
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ManagingAd
+    username: postgres
+    password: root
+    driver-class-name: org.postgresql.Driver
+
+  flyway:
+    url: jdbc:postgresql://localhost:5432/ManagingAd
+    user: postgres
+    password: root
+    locations: classpath:/db/migration
+    baseline-on-migrate: true
+
+  jpa:
+    open-in-view: true
