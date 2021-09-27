@@ -1,6 +1,7 @@
 package by.shimakser.model;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name="campaign")
@@ -18,7 +19,10 @@ public class Campaign {
     @ManyToOne
     @JoinColumn(name = "advertiser_id")
     private Advertiser advertiser;
+
     private boolean campaignDeleted = Boolean.FALSE;
+    private LocalDateTime campaignCreatedDate;
+    private LocalDateTime campaignDeletedDate;
 
     public Long getId() {
         return id;
@@ -98,5 +102,21 @@ public class Campaign {
 
     public void setCampaignDeleted(boolean campaignDeleted) {
         this.campaignDeleted = campaignDeleted;
+    }
+
+    public LocalDateTime getCampaignCreatedDate() {
+        return campaignCreatedDate;
+    }
+
+    public void setCampaignCreatedDate(LocalDateTime campaignCreatedDate) {
+        this.campaignCreatedDate = campaignCreatedDate;
+    }
+
+    public LocalDateTime getCampaignDeletedDate() {
+        return campaignDeletedDate;
+    }
+
+    public void setCampaignDeletedDate(LocalDateTime campaignDeletedDate) {
+        this.campaignDeletedDate = campaignDeletedDate;
     }
 }
