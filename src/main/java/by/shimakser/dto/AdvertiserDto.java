@@ -1,19 +1,10 @@
-package by.shimakser.model;
+package by.shimakser.dto;
 
-import javax.persistence.*;
+public class AdvertiserDto {
 
-@Entity
-@Table(name="advertiser")
-public class Advertiser {
-
-    @Id
     private Long id;
     private String advertiserTitle;
     private String advertiserDescription;
-    @ManyToOne
-    @JoinColumn(name = "creator_id")
-    private User creator;
-    private boolean advertiserDeleted = Boolean.FALSE;
 
     public Long getId() {
         return id;
@@ -37,21 +28,5 @@ public class Advertiser {
 
     public void setAdvertiserDescription(String advertiserDescription) {
         this.advertiserDescription = advertiserDescription;
-    }
-
-    public User getCreator() {
-        return creator;
-    }
-
-    public void setCreator(User creator) {
-        this.creator = creator;
-    }
-
-    public boolean isAdvertiserDeleted() {
-        return advertiserDeleted;
-    }
-
-    public void setAdvertiserDeleted(boolean advertiserDeleted) {
-        this.advertiserDeleted = advertiserDeleted;
     }
 }

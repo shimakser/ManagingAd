@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.persistence.*;
 
 @Entity
-@Table(name="usr")
+@Table(name = "usr")
 public class User {
 
     @Id
@@ -19,18 +19,6 @@ public class User {
     private Role userRole;
     private boolean userDeleted = Boolean.FALSE;
 
-    public User(){}
-
-    public User(Long id) {
-        this.id = id;
-    }
-
-    public User(String username, String userEmail, String password) {
-        this.username = username;
-        this.userEmail = userEmail;
-        this.password = password;
-    }
-
     public Long getId() {
         return id;
     }
@@ -43,8 +31,8 @@ public class User {
         return username;
     }
 
-    public void setUsername(String name) {
-        this.username = name;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getUserEmail() {
@@ -67,8 +55,8 @@ public class User {
         return userRole;
     }
 
-    public void setUserRole(Role role) {
-        this.userRole = role;
+    public void setUserRole(Role userRole) {
+        this.userRole = userRole;
     }
 
     public boolean isUserDeleted() {

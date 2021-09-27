@@ -1,12 +1,9 @@
-package by.shimakser.model;
+package by.shimakser.dto;
 
-import javax.persistence.*;
+import by.shimakser.model.Advertiser;
 
-@Entity
-@Table(name="campaign")
-public class Campaign {
+public class CampaignDto {
 
-    @Id
     private Long id;
     private String campaignTitle;
     private String campaignDescription;
@@ -15,10 +12,7 @@ public class Campaign {
     private String languages;
     private String age;
     private String geolocation;
-    @ManyToOne
-    @JoinColumn(name = "advertiser_id")
-    private Advertiser advertiser;
-    private boolean campaignDeleted = Boolean.FALSE;
+    private AdvertiserDto advertiser;
 
     public Long getId() {
         return id;
@@ -84,19 +78,11 @@ public class Campaign {
         this.geolocation = geolocation;
     }
 
-    public Advertiser getAdvertiser() {
+    public AdvertiserDto getAdvertiser() {
         return advertiser;
     }
 
-    public void setAdvertiser(Advertiser advertiser) {
+    public void setAdvertiser(AdvertiserDto advertiser) {
         this.advertiser = advertiser;
-    }
-
-    public boolean isCampaignDeleted() {
-        return campaignDeleted;
-    }
-
-    public void setCampaignDeleted(boolean campaignDeleted) {
-        this.campaignDeleted = campaignDeleted;
     }
 }
