@@ -13,8 +13,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.xml.crypto.Data;
 import java.rmi.AlreadyBoundException;
 import java.security.Principal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -40,6 +44,8 @@ public class CampaignService {
         if (isCampaignByTitleExist) {
             throw new AlreadyBoundException("Entered title is already taken.");
         }
+        LocalDateTime date = LocalDateTime.now();
+        campaign.setCampaignCreatedDate(date);
         campaignRepository.save(campaign);
         return campaign;
     }
@@ -79,8 +85,11 @@ public class CampaignService {
 
     @Transactional(rollbackFor = {NotFoundException.class, ForbiddenTargetException.class})
     public void delete(Long id, Principal creator) throws NotFoundException {
-        checkCampaignByIdAndUserByPrincipal(id, creator);
-        campaignRepository.deleteById(id);
+        Campaign campaignById = checkCampaignByIdAndUserByPrincipal(id, creator);
+        campaignById.setCampaignDeleted(true);
+        LocalDateTime date = LocalDateTime.now();
+        campaignById.setCampaignDeletedDate(date);
+        campaignRepository.save(campaignById);
     }
 
     @Transactional(rollbackFor = NotFoundException.class)
@@ -94,7 +103,7 @@ public class CampaignService {
         return campaignRepository.findAllByCampaignDeletedTrue();
     }
 
-    public void checkCampaignByIdAndUserByPrincipal(Long id, Principal user) throws NotFoundException {
+    public Campaign checkCampaignByIdAndUserByPrincipal(Long id, Principal user) throws NotFoundException {
         Campaign campaignById = campaignRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Campaign is not found."));
         User principalUser = userRepository.findByUsername(user.getName()).get();
@@ -103,5 +112,6 @@ public class CampaignService {
         if (!checkAccess) {
             throw new ForbiddenTargetException("Insufficient rights to edit the advertiser.");
         }
+        return campaignById;
     }
 }

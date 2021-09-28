@@ -81,8 +81,9 @@ public class AdvertiserService {
 
     @Transactional(rollbackFor = {NotFoundException.class, ForbiddenTargetException.class})
     public void delete(Long id, Principal creator) throws NotFoundException {
-        checkAdvertiserByIdAndUserByPrincipal(id, creator);
-        advertiserRepository.deleteById(id);
+        Advertiser advertiserById = checkAdvertiserByIdAndUserByPrincipal(id, creator);
+        advertiserById.setAdvertiserDeleted(true);
+        advertiserRepository.save(advertiserById);
     }
 
     @Transactional(rollbackFor = NotFoundException.class)
@@ -96,7 +97,7 @@ public class AdvertiserService {
         return advertiserRepository.findAllByAdvertiserDeletedTrue();
     }
 
-    public void checkAdvertiserByIdAndUserByPrincipal(Long id, Principal user) throws NotFoundException {
+    public Advertiser checkAdvertiserByIdAndUserByPrincipal(Long id, Principal user) throws NotFoundException {
         Advertiser advertiserById = advertiserRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Advertiser is not found."));
 
@@ -106,5 +107,6 @@ public class AdvertiserService {
         if (!checkAccess) {
             throw new ForbiddenTargetException("Insufficient rights to edit the advertiser.");
         }
+        return advertiserById;
     }
 }
