@@ -6,7 +6,7 @@ public class Filter {
 
     private Set<String> age;
 
-    private String title;
+    private String country;
 
     private String deletedDate;
 
@@ -21,12 +21,12 @@ public class Filter {
         this.age = age;
     }
 
-    public String getTitle() {
-        return title;
+    public String getCountry() {
+        return country;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setCountry(String country) {
+        this.country = country;
     }
 
     public String getDeletedDate() {

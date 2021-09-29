@@ -50,9 +50,9 @@ public class CampaignFilterService {
             return specification;
         }
 
-        if (filter.getTitle() != null) {
+        if (filter.getCountry() != null) {
             specification = specification.and(
-                    CampaignSpecifications.titleEqual(filter.getTitle())
+                    CampaignSpecifications.countryEqual(filter.getCountry())
             );
         }
 

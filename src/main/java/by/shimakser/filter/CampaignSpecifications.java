@@ -21,11 +21,11 @@ public class CampaignSpecifications {
                 );
     }
 
-    public static Specification<Campaign> titleEqual(String title) {
+    public static Specification<Campaign> countryEqual(String country) {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.like(
-                        root.get(Campaign_.TITLE),
-                        "%" + title + "%"
+                        root.get(Campaign_.COUNTRY),
+                        "%" + country + "%"
                 );
     }
 

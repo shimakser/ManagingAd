@@ -12,8 +12,8 @@ public abstract class Campaign_ {
     public static volatile SingularAttribute<Campaign, String> campaignTitle;
     public static volatile SingularAttribute<Campaign, String> campaignDescription;
     public static volatile SingularAttribute<Campaign, String> image;
-    public static volatile SingularAttribute<Campaign, String> countries;
-    public static volatile SingularAttribute<Campaign, String> languages;
+    public static volatile SingularAttribute<Campaign, String> country;
+    public static volatile SingularAttribute<Campaign, String> language;
     public static volatile SingularAttribute<Campaign, String> age;
     public static volatile SingularAttribute<Campaign, String> geolocation;
     public static volatile SingularAttribute<Campaign, String> campaignCreatedDate;
@@ -23,8 +23,8 @@ public abstract class Campaign_ {
     public static final String TITLE = "campaignTitle";
     public static final String DESCRIPTION = "campaignDescription";
     public static final String IMAGE = "image";
-    public static final String COUNTRIES = "countries";
-    public static final String LANGUAGES = "languages";
+    public static final String COUNTRY = "country";
+    public static final String LANGUAGE = "language";
     public static final String AGE = "age";
     public static final String GEOLOCATION = "geolocation";
     public static final String CREATED_DATE = "campaignCreatedDate";

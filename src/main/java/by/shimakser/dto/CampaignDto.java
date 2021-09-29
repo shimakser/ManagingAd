@@ -1,15 +1,13 @@
 package by.shimakser.dto;
 
-import by.shimakser.model.Advertiser;
-
 public class CampaignDto {
 
     private Long id;
     private String campaignTitle;
     private String campaignDescription;
     private String image;
-    private String countries;
-    private String languages;
+    private String country;
+    private String language;
     private String age;
     private String geolocation;
     private AdvertiserDto advertiser;
@@ -46,20 +44,20 @@ public class CampaignDto {
         this.image = image;
     }
 
-    public String getCountries() {
-        return countries;
+    public String getCountry() {
+        return country;
     }
 
-    public void setCountries(String countries) {
-        this.countries = countries;
+    public void setCountry(String country) {
+        this.country = country;
     }
 
-    public String getLanguages() {
-        return languages;
+    public String getLanguage() {
+        return language;
     }
 
-    public void setLanguages(String languages) {
-        this.languages = languages;
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
     public String getAge() {

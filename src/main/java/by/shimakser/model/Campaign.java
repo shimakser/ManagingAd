@@ -12,8 +12,8 @@ public class Campaign {
     private String campaignTitle;
     private String campaignDescription;
     private String image;
-    private String countries;
-    private String languages;
+    private String country;
+    private String language;
     private String age;
     private String geolocation;
     @ManyToOne
@@ -56,20 +56,20 @@ public class Campaign {
         this.image = image;
     }
 
-    public String getCountries() {
-        return countries;
+    public String getCountry() {
+        return country;
     }
 
-    public void setCountries(String countries) {
-        this.countries = countries;
+    public void setCountry(String countries) {
+        this.country = countries;
     }
 
-    public String getLanguages() {
-        return languages;
+    public String getLanguage() {
+        return language;
     }
 
-    public void setLanguages(String languages) {
-        this.languages = languages;
+    public void setLanguage(String languages) {
+        this.language = languages;
     }
 
     public String getAge() {
