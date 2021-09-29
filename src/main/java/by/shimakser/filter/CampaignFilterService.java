@@ -30,7 +30,7 @@ public class CampaignFilterService {
     }
 
     private LocalDateTime convertToLocalDateTime(String date) {
-        DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime parsedDate = LocalDateTime.parse(date, pattern);
         return parsedDate;
     }
@@ -40,7 +40,7 @@ public class CampaignFilterService {
         int pageSize = filterRequest.getPageSize();
         String sortFieldName = filterRequest.getSortBy();
 
-        return PageRequest.of(pageNumber, pageSize, Sort.Direction.ASC, sortFieldName);
+        return PageRequest.of(pageNumber, pageSize, Sort.by(sortFieldName));
     }
 
     private Specification<Campaign> buildSpecification(Filter filter) {
@@ -64,6 +64,20 @@ public class CampaignFilterService {
         if (filter.getCampaignDeleteNotes() != null) {
             specification = specification.and(
                     CampaignSpecifications.deleteNotesEqual(filter.getCampaignDeleteNotes())
+            );
+        }
+
+        if (filter.getCreatedDateFrom() != null) {
+            LocalDateTime dateCreatedFrom = convertToLocalDateTime(filter.getCreatedDateFrom());
+            specification = specification.and(
+                    CampaignSpecifications.createdDateGreaterThanOrEqualTo(dateCreatedFrom)
+            );
+        }
+
+        if (filter.getCreatedDateTo() != null) {
+            LocalDateTime dateCreatedTo = convertToLocalDateTime(filter.getCreatedDateTo());
+            specification = specification.and(
+                    CampaignSpecifications.createdDateLessThanOrEqualTo(dateCreatedTo)
             );
         }
 

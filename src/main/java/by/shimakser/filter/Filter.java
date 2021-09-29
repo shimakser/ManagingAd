@@ -10,6 +10,26 @@ public class Filter {
 
     private String campaignDeleteNotes;
 
+
+    private String createdDateFrom;
+    private String createdDateTo;
+
+    public String getCreatedDateFrom() {
+        return createdDateFrom;
+    }
+
+    public void setCreatedDateFrom(String createdDateFrom) {
+        this.createdDateFrom = createdDateFrom;
+    }
+
+    public String getCreatedDateTo() {
+        return createdDateTo;
+    }
+
+    public void setCreatedDateTo(String createdDateTo) {
+        this.createdDateTo = createdDateTo;
+    }
+
     public String getCampaignDeleteNotes() {
         return campaignDeleteNotes;
     }

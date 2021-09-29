@@ -39,7 +39,7 @@ public class CampaignFilterController {
                                         @RequestParam Optional<String> sortBy) {
         FilterRequest filterRequest = new FilterRequest(filter,
                 page.orElse(1),
-                size.orElse(campaignRepository.findAllByCampaignDeletedFalse().size()),
+                size.orElse(campaignRepository.findAll().size()),
                 sortBy.orElse("id"));
 
         return campaignFilterService.getByFilter(filterRequest).stream()
