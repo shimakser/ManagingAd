@@ -38,10 +38,8 @@ public class UserController {
     }
 
     @GetMapping(value = "/users/{id}")
-    public List<UserDto> getUserById(@PathVariable Long id) throws NotFoundException {
-        return userService.get(id)
-                .stream().map(userMapper::mapToDto)
-                .collect(Collectors.toList());
+    public UserDto getUserById(@PathVariable Long id) throws NotFoundException {
+        return userMapper.mapToDto(userService.get(id));
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")

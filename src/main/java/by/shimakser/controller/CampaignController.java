@@ -38,10 +38,8 @@ public class CampaignController {
     }
 
     @GetMapping(value = "/campaigns/{id}")
-    public List<CampaignDto> getCampaignById(@PathVariable Long id) throws NotFoundException {
-        return campaignService.get(id)
-                .stream().map(campaignMapper::mapToDto)
-                .collect(Collectors.toList());
+    public CampaignDto getCampaignById(@PathVariable Long id) throws NotFoundException {
+        return campaignMapper.mapToDto(campaignService.get(id));
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")

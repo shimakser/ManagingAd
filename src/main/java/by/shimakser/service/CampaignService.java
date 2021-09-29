@@ -13,16 +13,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.xml.crypto.Data;
 import java.rmi.AlreadyBoundException;
 import java.security.Principal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class CampaignService {
@@ -51,16 +46,12 @@ public class CampaignService {
     }
 
     @Transactional(rollbackFor = NotFoundException.class)
-    public List<Campaign> get(Long id) throws NotFoundException {
+    public Campaign get(Long id) throws NotFoundException {
         Campaign campaignById = campaignRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Campaign is not found."));
-        List<Campaign> campaign = Stream.of(campaignById)
+        return Optional.of(campaignById)
                 .filter(c -> c.isCampaignDeleted() == Boolean.FALSE)
-                .collect(Collectors.toList());
-        if (campaign.isEmpty()) {
-            throw new NotFoundException("User is not found.");
-        }
-        return campaign;
+                .orElseThrow(() -> new NotFoundException("Campaign is not found."));
     }
 
     @Transactional
@@ -70,9 +61,9 @@ public class CampaignService {
             Optional<String> sortBy
     ) {
         return campaignRepository.findAllByCampaignDeletedFalse(
-                        PageRequest.of(page.orElse(0),
-                                size.orElse(campaignRepository.findAllByCampaignDeletedFalse().size()),
-                                Sort.Direction.ASC, sortBy.orElse("id")));
+                PageRequest.of(page.orElse(0),
+                        size.orElse(campaignRepository.findAllByCampaignDeletedFalse().size()),
+                        Sort.Direction.ASC, sortBy.orElse("id")));
     }
 
     @Transactional(rollbackFor = {NotFoundException.class, ForbiddenTargetException.class})

@@ -39,10 +39,8 @@ public class AdvertiserController {
     }
 
     @GetMapping(value = "/advertisers/{id}")
-    public List<AdvertiserDto> getAdvertiserById(@PathVariable Long id) throws NotFoundException {
-        return advertiserService.get(id)
-                .stream().map(advertiserMapper::mapToDto)
-                .collect(Collectors.toList());
+    public AdvertiserDto getAdvertiserById(@PathVariable Long id) throws NotFoundException {
+        return advertiserMapper.mapToDto(advertiserService.get(id));
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")

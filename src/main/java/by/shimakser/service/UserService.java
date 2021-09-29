@@ -16,8 +16,6 @@ import java.rmi.AlreadyBoundException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class UserService {
@@ -46,16 +44,12 @@ public class UserService {
     }
 
     @Transactional(rollbackFor = NotFoundException.class)
-    public List<User> get(Long id) throws NotFoundException {
+    public User get(Long id) throws NotFoundException {
         User userById = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User is not found."));
-        List<User> user = Stream.of(userById)
+        return Optional.of(userById)
                 .filter(u -> u.isUserDeleted() == Boolean.FALSE)
-                .collect(Collectors.toList());
-        if (user.isEmpty()) {
-            throw new NotFoundException("User is not found.");
-        }
-        return user;
+                .orElseThrow(() -> new NotFoundException("User is not found."));
     }
 
     @Transactional

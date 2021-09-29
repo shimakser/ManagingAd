@@ -17,8 +17,6 @@ import java.rmi.AlreadyBoundException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class AdvertiserService {
@@ -47,16 +45,12 @@ public class AdvertiserService {
     }
 
     @Transactional(rollbackFor = NotFoundException.class)
-    public List<Advertiser> get(Long id) throws NotFoundException {
+    public Advertiser get(Long id) throws NotFoundException {
         Advertiser advertiserById = advertiserRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Advertiser is not found."));
-        List<Advertiser> advertiser = Stream.of(advertiserById)
+        return Optional.of(advertiserById)
                 .filter(a -> a.isAdvertiserDeleted() == Boolean.FALSE)
-                .collect(Collectors.toList());
-        if (advertiser.isEmpty()) {
-            throw new NotFoundException("User is not found.");
-        }
-        return advertiser;
+                .orElseThrow(() -> new NotFoundException("Advertiser is not found."));
     }
 
     @Transactional
@@ -66,9 +60,9 @@ public class AdvertiserService {
             Optional<String> sortBy
     ) {
         return advertiserRepository.findAllByAdvertiserDeletedFalse(
-                        PageRequest.of(page.orElse(0),
-                                size.orElse(advertiserRepository.findAllByAdvertiserDeletedFalse().size()),
-                                Sort.Direction.ASC, sortBy.orElse("id")));
+                PageRequest.of(page.orElse(0),
+                        size.orElse(advertiserRepository.findAllByAdvertiserDeletedFalse().size()),
+                        Sort.Direction.ASC, sortBy.orElse("id")));
     }
 
     @Transactional(rollbackFor = {NotFoundException.class, ForbiddenTargetException.class})
