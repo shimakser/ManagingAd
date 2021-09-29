@@ -15,9 +15,9 @@ import java.rmi.AlreadyBoundException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
+@RequestMapping("/advertisers")
 public class AdvertiserController {
 
     private final AdvertiserService advertiserService;
@@ -30,7 +30,7 @@ public class AdvertiserController {
         this.advertiserMapper = advertiserMapper;
     }
 
-    @PostMapping(value = "/advertisers")
+    @PostMapping
     public ResponseEntity<AdvertiserDto> addAdvertiser(@RequestBody AdvertiserDto advertiserDto, Principal user)
             throws AlreadyBoundException {
         Advertiser newAdvertiser = advertiserMapper.mapToEntity(advertiserDto);
@@ -38,24 +38,22 @@ public class AdvertiserController {
         return new ResponseEntity<>(advertiserDto, HttpStatus.CREATED);
     }
 
-    @GetMapping(value = "/advertisers/{id}")
+    @GetMapping(value = "/{id}")
     public AdvertiserDto getAdvertiserById(@PathVariable Long id) throws NotFoundException {
         return advertiserMapper.mapToDto(advertiserService.get(id));
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping(value = "/advertisers")
+    @GetMapping
     public List<AdvertiserDto> getAllAdvertisers(
             @RequestParam Optional<Integer> page,
             @RequestParam Optional<Integer> size,
             @RequestParam Optional<String> sortBy
     ) {
-        return advertiserService.getAll(page, size, sortBy)
-                .stream().map(advertiserMapper::mapToDto)
-                .collect(Collectors.toList());
+        return advertiserMapper.mapToListDto(advertiserService.getAll(page, size, sortBy));
     }
 
-    @PutMapping(value = "/advertisers/{id}")
+    @PutMapping(value = "/{id}")
     public AdvertiserDto updateAdvertiserById(@PathVariable("id") Long id,
                                               @RequestBody AdvertiserDto newAdvertiserDto,
                                               Principal creator) throws NotFoundException {
@@ -64,7 +62,7 @@ public class AdvertiserController {
         return newAdvertiserDto;
     }
 
-    @DeleteMapping(value = "/advertisers/{id}")
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity<HttpStatus> deleteAdvertiserById(@PathVariable("id") Long id, Principal creator)
             throws NotFoundException {
         advertiserService.delete(id, creator);
@@ -72,16 +70,14 @@ public class AdvertiserController {
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping(value = "/advertisers/deleted/{id}")
+    @GetMapping(value = "/deleted/{id}")
     public AdvertiserDto getDeletedAdvertiserById(@PathVariable Long id) throws NotFoundException {
         return advertiserMapper.mapToDto(advertiserService.getDeletedAdvertiser(id));
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping(value = "/advertisers/deleted")
+    @GetMapping(value = "/deleted")
     public List<AdvertiserDto> getAllDeletedAdvertisers() {
-        return advertiserService.getDeletedAdvertisers()
-                .stream().map(advertiserMapper::mapToDto)
-                .collect(Collectors.toList());
+        return advertiserMapper.mapToListDto(advertiserService.getDeletedAdvertisers());
     }
 }

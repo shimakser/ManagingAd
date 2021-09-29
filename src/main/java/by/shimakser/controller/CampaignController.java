@@ -1,6 +1,9 @@
 package by.shimakser.controller;
 
 import by.shimakser.dto.CampaignDto;
+import by.shimakser.filter.CampaignFilterService;
+import by.shimakser.filter.Filter;
+import by.shimakser.filter.FilterRequest;
 import by.shimakser.mapper.CampaignMapper;
 import by.shimakser.model.Campaign;
 import by.shimakser.service.CampaignService;
@@ -15,46 +18,50 @@ import java.rmi.AlreadyBoundException;
 import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
+@RequestMapping("/campaigns")
 public class CampaignController {
 
     private final CampaignService campaignService;
 
     private final CampaignMapper campaignMapper;
 
+    private final CampaignFilterService campaignFilterService;
+
     @Autowired
-    public CampaignController(CampaignService campaignService, CampaignMapper campaignMapper) {
+    public CampaignController(CampaignService campaignService, CampaignMapper campaignMapper, CampaignFilterService campaignFilterService) {
         this.campaignService = campaignService;
         this.campaignMapper = campaignMapper;
+        this.campaignFilterService = campaignFilterService;
     }
 
-    @PostMapping(value = "/campaigns")
+    @PostMapping
     public ResponseEntity<CampaignDto> addCampaign(@RequestBody CampaignDto campaignDto) throws AlreadyBoundException {
         Campaign newCampaign = campaignMapper.mapToEntity(campaignDto);
         campaignService.add(newCampaign);
         return new ResponseEntity<>(campaignDto, HttpStatus.CREATED);
     }
 
-    @GetMapping(value = "/campaigns/{id}")
+    @GetMapping(value = "/{id}")
     public CampaignDto getCampaignById(@PathVariable Long id) throws NotFoundException {
         return campaignMapper.mapToDto(campaignService.get(id));
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping(value = "/campaigns")
-    public List<CampaignDto> getAllCampaigns(
-            @RequestParam Optional<Integer> page,
-            @RequestParam Optional<Integer> size,
-            @RequestParam Optional<String> sortBy
-    ) {
-        return campaignService.getAll(page, size, sortBy)
-                .stream().map(campaignMapper::mapToDto)
-                .collect(Collectors.toList());
+    @PostMapping("/filter")
+    public List<CampaignDto> getByFirst(@RequestBody Filter filter,
+                                        @RequestParam Optional<Integer> page,
+                                        @RequestParam Optional<Integer> size,
+                                        @RequestParam Optional<String> sortBy) {
+        FilterRequest filterRequest = new FilterRequest(filter,
+                page.orElse(1),
+                size.orElse(10),
+                sortBy.orElse("id"));
+
+        return campaignMapper.mapToListDto(campaignFilterService.getByFilter(filterRequest));
     }
 
-    @PutMapping(value = "/campaigns/{id}")
+    @PutMapping(value = "/{id}")
     public CampaignDto updateCampaignById(@PathVariable("id") Long id,
                                           @RequestBody CampaignDto newCampaignDto,
                                           Principal creator) throws NotFoundException {
@@ -63,7 +70,7 @@ public class CampaignController {
         return newCampaignDto;
     }
 
-    @DeleteMapping(value = "/campaigns/{id}")
+    @DeleteMapping(value = "/{id}")
     public ResponseEntity<HttpStatus> deleteCampaignById(@PathVariable("id") Long id, Principal creator)
             throws NotFoundException {
         campaignService.delete(id, creator);
@@ -71,16 +78,14 @@ public class CampaignController {
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping(value = "/campaigns/deleted/{id}")
+    @GetMapping(value = "/deleted/{id}")
     public CampaignDto getDeletedCampaignById(@PathVariable Long id) throws NotFoundException {
         return campaignMapper.mapToDto(campaignService.getDeletedCampaign(id));
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @GetMapping(value = "/campaigns/deleted")
+    @GetMapping(value = "/deleted")
     public List<CampaignDto> getAllDeletedCampaigns() {
-        return campaignService.getDeletedCampaigns()
-                .stream().map(campaignMapper::mapToDto)
-                .collect(Collectors.toList());
+        return campaignMapper.mapToListDto(campaignService.getDeletedCampaigns());
     }
 }
