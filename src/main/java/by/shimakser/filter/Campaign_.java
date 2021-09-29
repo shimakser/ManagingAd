@@ -18,6 +18,7 @@ public abstract class Campaign_ {
     public static volatile SingularAttribute<Campaign, String> geolocation;
     public static volatile SingularAttribute<Campaign, String> campaignCreatedDate;
     public static volatile SingularAttribute<Campaign, String> campaignDeletedDate;
+    public static volatile SingularAttribute<Campaign, String> campaignDeleteNotes;
 
     public static final String ID = "id";
     public static final String TITLE = "campaignTitle";
@@ -29,4 +30,5 @@ public abstract class Campaign_ {
     public static final String GEOLOCATION = "geolocation";
     public static final String CREATED_DATE = "campaignCreatedDate";
     public static final String DELETED_DATE = "campaignDeletedDate";
+    public static final String DELETED_NOTES = "campaignDeleteNotes";
 }

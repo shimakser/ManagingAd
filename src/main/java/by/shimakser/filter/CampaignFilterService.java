@@ -56,29 +56,14 @@ public class CampaignFilterService {
             );
         }
 
-        if (filter.getDeletedDate() != null) {
-            LocalDateTime dateDeleted = convertToLocalDateTime(filter.getDeletedDate());
-            specification = specification.and(
-                    CampaignSpecifications.deletedDateEqual(dateDeleted)
-            );
-        }
-
         if (filter.getAge() != null) {
             specification = specification.and(
                     CampaignSpecifications.ageMatch(filter.getAge())
             );
         }
-        if (filter.getCreatedDateFrom() != null) {
-            LocalDateTime dateCreatedFrom = convertToLocalDateTime(filter.getCreatedDateFrom());
+        if (filter.getCampaignDeleteNotes() != null) {
             specification = specification.and(
-                    CampaignSpecifications.createdDateGreaterThanOrEqualTo(dateCreatedFrom)
-            );
-        }
-
-        if (filter.getCreatedDateTo() != null) {
-            LocalDateTime dateCreatedTo = convertToLocalDateTime(filter.getCreatedDateTo());
-            specification = specification.and(
-                    CampaignSpecifications.createdDateLessThanOrEqualTo(dateCreatedTo)
+                    CampaignSpecifications.deleteNotesEqual(filter.getCampaignDeleteNotes())
             );
         }
 

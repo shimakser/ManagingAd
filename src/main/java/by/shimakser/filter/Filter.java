@@ -8,10 +8,15 @@ public class Filter {
 
     private String country;
 
-    private String deletedDate;
+    private String campaignDeleteNotes;
 
-    private String createdDateFrom;
-    private String createdDateTo;
+    public String getCampaignDeleteNotes() {
+        return campaignDeleteNotes;
+    }
+
+    public void setCampaignDeleteNotes(String campaignDeleteNotes) {
+        this.campaignDeleteNotes = campaignDeleteNotes;
+    }
 
     public Set<String> getAge() {
         return age;
@@ -27,29 +32,5 @@ public class Filter {
 
     public void setCountry(String country) {
         this.country = country;
-    }
-
-    public String getDeletedDate() {
-        return deletedDate;
-    }
-
-    public void setDeletedDate(String deletedDate) {
-        this.deletedDate = deletedDate;
-    }
-
-    public String getCreatedDateFrom() {
-        return createdDateFrom;
-    }
-
-    public void setCreatedDateFrom(String createdDateFrom) {
-        this.createdDateFrom = createdDateFrom;
-    }
-
-    public String getCreatedDateTo() {
-        return createdDateTo;
-    }
-
-    public void setCreatedDateTo(String createdDateTo) {
-        this.createdDateTo = createdDateTo;
     }
 }

@@ -23,6 +23,7 @@ public class Campaign {
     private boolean campaignDeleted = Boolean.FALSE;
     private LocalDateTime campaignCreatedDate;
     private LocalDateTime campaignDeletedDate;
+    private String campaignDeleteNotes;
 
     public Long getId() {
         return id;
@@ -118,5 +119,13 @@ public class Campaign {
 
     public void setCampaignDeletedDate(LocalDateTime campaignDeletedDate) {
         this.campaignDeletedDate = campaignDeletedDate;
+    }
+
+    public String getCampaignDeleteNotes() {
+        return campaignDeleteNotes;
+    }
+
+    public void setCampaignDeleteNotes(String campaignDeleteNotes) {
+        this.campaignDeleteNotes = campaignDeleteNotes;
     }
 }

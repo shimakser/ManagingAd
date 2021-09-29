@@ -6,7 +6,6 @@ import org.springframework.data.jpa.domain.Specification;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.time.LocalDateTime;
 import java.util.Set;
 
 public class CampaignSpecifications {
@@ -26,15 +25,6 @@ public class CampaignSpecifications {
                 criteriaBuilder.like(
                         root.get(Campaign_.COUNTRY),
                         "%" + country + "%"
-                );
-    }
-
-
-    public static Specification<Campaign> deletedDateEqual(LocalDateTime deletedDate) {
-        return (root, query, criteriaBuilder) ->
-                criteriaBuilder.like(
-                        root.get(Campaign_.DELETED_DATE),
-                        "%" + deletedDate + "%"
                 );
     }
 
@@ -66,20 +56,11 @@ public class CampaignSpecifications {
         );
     }
 
-    public static Specification<Campaign> createdDateGreaterThanOrEqualTo(LocalDateTime createdDateFrom) {
+    public static Specification<Campaign> deleteNotesEqual(String deletedNotes) {
         return (root, query, criteriaBuilder) ->
-                criteriaBuilder.greaterThanOrEqualTo(
-                        root.get(Campaign_.CREATED_DATE),
-                        createdDateFrom
+                criteriaBuilder.like(
+                        root.get(Campaign_.DELETED_NOTES),
+                        "%" + deletedNotes + "%"
                 );
     }
-
-    public static Specification<Campaign> createdDateLessThanOrEqualTo(LocalDateTime createdDateTo) {
-        return (root, query, criteriaBuilder) ->
-                criteriaBuilder.lessThanOrEqualTo(
-                        root.get(Campaign_.CREATED_DATE),
-                        createdDateTo
-                );
-    }
-
 }
