@@ -59,7 +59,7 @@ public class UserService {
     ) {
         return userRepository.findAllByUserDeletedFalse(
                         PageRequest.of(page.orElse(0),
-                                size.orElse(userRepository.findAllByUserDeletedFalse().size()),
+                                size.orElse(10),
                                 Sort.Direction.ASC, sortBy.orElse("id")));
     }
 

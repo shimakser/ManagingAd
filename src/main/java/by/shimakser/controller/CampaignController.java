@@ -1,11 +1,10 @@
 package by.shimakser.controller;
 
 import by.shimakser.dto.CampaignDto;
-import by.shimakser.filter.CampaignFilterService;
-import by.shimakser.filter.Filter;
 import by.shimakser.filter.FilterRequest;
 import by.shimakser.mapper.CampaignMapper;
 import by.shimakser.model.Campaign;
+import by.shimakser.service.CampaignFilterService;
 import by.shimakser.service.CampaignService;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import java.rmi.AlreadyBoundException;
 import java.security.Principal;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/campaigns")
@@ -49,15 +47,7 @@ public class CampaignController {
     }
 
     @PostMapping("/filter")
-    public List<CampaignDto> getByFirst(@RequestBody Filter filter,
-                                        @RequestParam Optional<Integer> page,
-                                        @RequestParam Optional<Integer> size,
-                                        @RequestParam Optional<String> sortBy) {
-        FilterRequest filterRequest = new FilterRequest(filter,
-                page.orElse(1),
-                size.orElse(10),
-                sortBy.orElse("id"));
-
+    public List<CampaignDto> getByFilter(@RequestBody FilterRequest filterRequest) {
         return campaignMapper.mapToListDto(campaignFilterService.getByFilter(filterRequest));
     }
 

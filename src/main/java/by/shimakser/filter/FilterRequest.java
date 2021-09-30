@@ -3,16 +3,16 @@ package by.shimakser.filter;
 public class FilterRequest {
 
     private Filter filter;
-    private int numOfPage;
-    private int pageSize;
+    private Integer page;
+    private Integer size;
     private String sortBy;
 
     public FilterRequest() {}
 
-    public FilterRequest(Filter filter, int numOfPage, int pageSize, String sortBy) {
+    public FilterRequest(Filter filter, Integer page, Integer size, String sortBy) {
         this.filter = filter;
-        this.numOfPage = numOfPage;
-        this.pageSize = pageSize;
+        this.page = page;
+        this.size = size;
         this.sortBy = sortBy;
     }
 
@@ -24,20 +24,20 @@ public class FilterRequest {
         this.filter = filter;
     }
 
-    public int getNumOfPage() {
-        return numOfPage;
+    public Integer getPage() {
+        return page;
     }
 
-    public void setNumOfPage(int numOfPage) {
-        this.numOfPage = numOfPage;
+    public void setPage(Integer page) {
+        this.page = page;
     }
 
-    public int getPageSize() {
-        return pageSize;
+    public Integer getSize() {
+        return size;
     }
 
-    public void setPageSize(int pageSize) {
-        this.pageSize = pageSize;
+    public void setSize(Integer size) {
+        this.size = size;
     }
 
     public String getSortBy() {

@@ -61,7 +61,7 @@ public class AdvertiserService {
     ) {
         return advertiserRepository.findAllByAdvertiserDeletedFalse(
                 PageRequest.of(page.orElse(0),
-                        size.orElse(advertiserRepository.findAllByAdvertiserDeletedFalse().size()),
+                        size.orElse(10),
                         Sort.Direction.ASC, sortBy.orElse("id")));
     }
 

@@ -54,18 +54,6 @@ public class CampaignService {
                 .orElseThrow(() -> new NotFoundException("Campaign is not found."));
     }
 
-    @Transactional
-    public List<Campaign> getAll(
-            Optional<Integer> page,
-            Optional<Integer> size,
-            Optional<String> sortBy
-    ) {
-        return campaignRepository.findAllByCampaignDeletedFalse(
-                PageRequest.of(page.orElse(0),
-                        size.orElse(campaignRepository.findAllByCampaignDeletedFalse().size()),
-                        Sort.Direction.ASC, sortBy.orElse("id")));
-    }
-
     @Transactional(rollbackFor = {NotFoundException.class, ForbiddenTargetException.class})
     public Campaign update(Long id, Campaign newCampaign, Principal creator) throws NotFoundException {
         checkCampaignByIdAndUserByPrincipal(id, creator);
