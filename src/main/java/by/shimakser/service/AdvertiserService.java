@@ -19,6 +19,8 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.function.Predicate.not;
+
 @Service
 public class AdvertiserService {
 
@@ -52,7 +54,7 @@ public class AdvertiserService {
         Advertiser advertiserById = advertiserRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Advertiser is not found."));
         return Optional.of(advertiserById)
-                .filter(a -> a.isAdvertiserDeleted() == Boolean.FALSE)
+                .filter(not(Advertiser::isAdvertiserDeleted))
                 .orElseThrow(() -> new NotFoundException("Advertiser is not found."));
     }
 
@@ -69,7 +71,8 @@ public class AdvertiserService {
     }
 
     @Transactional(rollbackFor = {NotFoundException.class, AuthenticationException.class, AuthorizationServiceException.class})
-    public Advertiser update(Long id, Advertiser newAdvertiser, Principal creator) throws NotFoundException, AuthenticationException {
+    public Advertiser update(Long id, Advertiser newAdvertiser, Principal creator)
+            throws NotFoundException, AuthenticationException {
         checkAdvertiserByIdAndUserByPrincipal(id, creator);
         newAdvertiser.setId(id);
         advertiserRepository.save(newAdvertiser);
@@ -94,7 +97,8 @@ public class AdvertiserService {
         return advertiserRepository.findAllByAdvertiserDeletedTrue();
     }
 
-    public Advertiser checkAdvertiserByIdAndUserByPrincipal(Long id, Principal user) throws NotFoundException, AuthenticationException {
+    public Advertiser checkAdvertiserByIdAndUserByPrincipal(Long id, Principal user)
+            throws NotFoundException, AuthenticationException {
         Advertiser advertiserById = advertiserRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Advertiser is not found."));
 

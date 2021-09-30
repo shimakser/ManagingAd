@@ -18,6 +18,8 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.function.Predicate.not;
+
 @Service
 public class UserService {
 
@@ -49,7 +51,7 @@ public class UserService {
         User userById = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User is not found."));
         return Optional.of(userById)
-                .filter(u -> u.isUserDeleted() == Boolean.FALSE)
+                .filter(not(User::isUserDeleted))
                 .orElseThrow(() -> new NotFoundException("User is not found."));
     }
 

@@ -18,6 +18,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.function.Predicate.not;
+
 @Service
 public class CampaignService {
 
@@ -49,7 +51,7 @@ public class CampaignService {
         Campaign campaignById = campaignRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Campaign is not found."));
         return Optional.of(campaignById)
-                .filter(c -> c.isCampaignDeleted() == Boolean.FALSE)
+                .filter(not(Campaign::isCampaignDeleted))
                 .orElseThrow(() -> new NotFoundException("Campaign is not found."));
     }
 
@@ -81,7 +83,8 @@ public class CampaignService {
         return campaignRepository.findAllByCampaignDeletedTrue();
     }
 
-    public Campaign checkCampaignByIdAndUserByPrincipal(Long id, Principal user) throws NotFoundException, AuthenticationException {
+    public Campaign checkCampaignByIdAndUserByPrincipal(Long id, Principal user)
+            throws NotFoundException, AuthenticationException {
         Campaign campaignById = campaignRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Campaign is not found."));
         User principalUser = userRepository.findByUsername(user.getName())

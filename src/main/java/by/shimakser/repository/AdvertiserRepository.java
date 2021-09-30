@@ -17,6 +17,4 @@ public interface AdvertiserRepository extends JpaRepository<Advertiser, Long> {
     List<Advertiser> findAllByAdvertiserDeletedTrue();
 
     List<Advertiser> findAllByAdvertiserDeletedFalse(Pageable pageable);
-
-    List<Advertiser> findAllByAdvertiserDeletedFalse();
 }
