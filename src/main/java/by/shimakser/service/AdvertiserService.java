@@ -1,5 +1,6 @@
 package by.shimakser.service;
 
+import by.shimakser.exception.ExceptionText;
 import by.shimakser.model.Advertiser;
 import by.shimakser.model.Role;
 import by.shimakser.model.User;
@@ -39,10 +40,10 @@ public class AdvertiserService {
                 .existsAdvertiserByAdvertiserTitle(advertiser.getAdvertiserTitle());
 
         if (isAdvertiserByTitleExist) {
-            throw new AlreadyBoundException("Entered title is already taken.");
+            throw new AlreadyBoundException(ExceptionText.AlreadyBound.getExceptionText());
         }
         User principalUser = userRepository.findByUsername(user.getName())
-                .orElseThrow(() -> new AuthorizationServiceException("Not authorized."));
+                .orElseThrow(() -> new AuthorizationServiceException(ExceptionText.AuthorizationService.getExceptionText()));
         ;
         advertiser.setCreator(principalUser);
         advertiserRepository.save(advertiser);
@@ -52,10 +53,10 @@ public class AdvertiserService {
     @Transactional(rollbackFor = NotFoundException.class)
     public Advertiser get(Long id) throws NotFoundException {
         Advertiser advertiserById = advertiserRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Advertiser is not found."));
+                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
         return Optional.of(advertiserById)
                 .filter(not(Advertiser::isAdvertiserDeleted))
-                .orElseThrow(() -> new NotFoundException("Advertiser is not found."));
+                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
     }
 
     @Transactional
@@ -89,7 +90,7 @@ public class AdvertiserService {
     @Transactional(rollbackFor = NotFoundException.class)
     public Advertiser getDeletedAdvertiser(Long id) throws NotFoundException {
         return advertiserRepository.findByIdAndAdvertiserDeletedTrue(id)
-                .orElseThrow(() -> new NotFoundException("Deleted advertiser is not found."));
+                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
     }
 
     @Transactional
@@ -100,14 +101,14 @@ public class AdvertiserService {
     public Advertiser checkAdvertiserByIdAndUserByPrincipal(Long id, Principal user)
             throws NotFoundException, AuthenticationException {
         Advertiser advertiserById = advertiserRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Advertiser is not found."));
+                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
 
         User principalUser = userRepository.findByUsername(user.getName())
-                .orElseThrow(() -> new AuthorizationServiceException("Not authorized."));
+                .orElseThrow(() -> new AuthorizationServiceException(ExceptionText.AuthorizationService.getExceptionText()));
         boolean checkAccess = principalUser.getUserRole().equals(Role.ADMIN)
                 || principalUser.getId().equals(advertiserById.getCreator().getId());
         if (!checkAccess) {
-            throw new AuthenticationException("Insufficient rights to edit the advertiser.");
+            throw new AuthenticationException(ExceptionText.Authentication.getExceptionText());
         }
         return advertiserById;
     }

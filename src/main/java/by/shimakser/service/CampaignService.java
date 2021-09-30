@@ -1,5 +1,6 @@
 package by.shimakser.service;
 
+import by.shimakser.exception.ExceptionText;
 import by.shimakser.model.Campaign;
 import by.shimakser.model.Role;
 import by.shimakser.model.User;
@@ -38,7 +39,7 @@ public class CampaignService {
                 .existsCampaignByCampaignTitle(campaign.getCampaignTitle());
 
         if (isCampaignByTitleExist) {
-            throw new AlreadyBoundException("Entered title is already taken.");
+            throw new AlreadyBoundException(ExceptionText.AlreadyBound.getExceptionText());
         }
         LocalDateTime date = LocalDateTime.now();
         campaign.setCampaignCreatedDate(date);
@@ -49,10 +50,10 @@ public class CampaignService {
     @Transactional(rollbackFor = NotFoundException.class)
     public Campaign get(Long id) throws NotFoundException {
         Campaign campaignById = campaignRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Campaign is not found."));
+                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
         return Optional.of(campaignById)
                 .filter(not(Campaign::isCampaignDeleted))
-                .orElseThrow(() -> new NotFoundException("Campaign is not found."));
+                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
     }
 
     @Transactional(rollbackFor = {NotFoundException.class, AuthenticationException.class, AuthorizationServiceException.class})
@@ -75,7 +76,7 @@ public class CampaignService {
     @Transactional(rollbackFor = NotFoundException.class)
     public Campaign getDeletedCampaign(Long id) throws NotFoundException {
         return campaignRepository.findByIdAndCampaignDeletedTrue(id)
-                .orElseThrow(() -> new NotFoundException("Deleted campaign is not found."));
+                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
     }
 
     @Transactional
@@ -86,13 +87,13 @@ public class CampaignService {
     public Campaign checkCampaignByIdAndUserByPrincipal(Long id, Principal user)
             throws NotFoundException, AuthenticationException {
         Campaign campaignById = campaignRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Campaign is not found."));
+                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
         User principalUser = userRepository.findByUsername(user.getName())
                 .orElseThrow(() -> new AuthorizationServiceException("Not authorized."));
         boolean checkAccess = principalUser.getUserRole().equals(Role.ADMIN)
                 || principalUser.getId().equals(campaignById.getAdvertiser().getCreator().getId());
         if (!checkAccess) {
-            throw new AuthenticationException("Insufficient rights to edit the advertiser.");
+            throw new AuthenticationException(ExceptionText.Authentication.getExceptionText());
         }
         return campaignById;
     }

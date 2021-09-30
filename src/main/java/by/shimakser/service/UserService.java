@@ -1,5 +1,6 @@
 package by.shimakser.service;
 
+import by.shimakser.exception.ExceptionText;
 import by.shimakser.model.Role;
 import by.shimakser.model.User;
 import by.shimakser.repository.UserRepository;
@@ -37,7 +38,7 @@ public class UserService {
         boolean isUserByEmailExist = userRepository.existsUserByUserEmail(user.getUserEmail());
 
         if (isUserByEmailExist) {
-            throw new AlreadyBoundException("Entered mail is already taken.");
+            throw new AlreadyBoundException(ExceptionText.AlreadyBound.getExceptionText());
         }
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         user.setUserRole(Role.USER);
@@ -49,10 +50,10 @@ public class UserService {
     @Transactional(rollbackFor = NotFoundException.class)
     public User get(Long id) throws NotFoundException {
         User userById = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("User is not found."));
+                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
         return Optional.of(userById)
                 .filter(not(User::isUserDeleted))
-                .orElseThrow(() -> new NotFoundException("User is not found."));
+                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
     }
 
     @Transactional
@@ -70,13 +71,13 @@ public class UserService {
     public User update(Long id, User newUser, Principal user)
             throws NotFoundException,AuthenticationException, AuthorizationServiceException {
         User userById = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("User is not found."));
+                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
 
         User principalUser = userRepository.findByUsername(user.getName())
-                .orElseThrow(() -> new AuthorizationServiceException("Not authorized."));
+                .orElseThrow(() -> new AuthorizationServiceException(ExceptionText.AuthorizationService.getExceptionText()));
         if (!principalUser.getUserRole().equals(Role.ADMIN)
                 || principalUser.getId().equals(id)) {
-            throw new AuthenticationException("Insufficient rights to edit the user.");
+            throw new AuthenticationException(ExceptionText.Authentication.getExceptionText());
         }
         newUser.setId(id);
         newUser.setPassword(bCryptPasswordEncoder.encode(userById.getPassword()));
@@ -87,7 +88,7 @@ public class UserService {
     @Transactional(rollbackFor = NotFoundException.class)
     public void delete(Long id) throws NotFoundException {
         User userById = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("User is not found."));
+                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
         userById.setUserDeleted(Boolean.TRUE);
         userRepository.save(userById);
     }
@@ -95,7 +96,7 @@ public class UserService {
     @Transactional(rollbackFor = NotFoundException.class)
     public User getDeletedUser(Long id) throws NotFoundException {
         return userRepository.findByIdAndUserDeletedTrue(id)
-                .orElseThrow(() -> new NotFoundException("Deleted user is not found."));
+                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
     }
 
     @Transactional
