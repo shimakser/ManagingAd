@@ -6,13 +6,12 @@ import by.shimakser.model.User;
 import by.shimakser.repository.CampaignRepository;
 import by.shimakser.repository.UserRepository;
 import javassist.NotFoundException;
-import netscape.security.ForbiddenTargetException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.naming.AuthenticationException;
 import java.rmi.AlreadyBoundException;
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -54,16 +53,16 @@ public class CampaignService {
                 .orElseThrow(() -> new NotFoundException("Campaign is not found."));
     }
 
-    @Transactional(rollbackFor = {NotFoundException.class, ForbiddenTargetException.class})
-    public Campaign update(Long id, Campaign newCampaign, Principal creator) throws NotFoundException {
+    @Transactional(rollbackFor = {NotFoundException.class, AuthenticationException.class, AuthorizationServiceException.class})
+    public Campaign update(Long id, Campaign newCampaign, Principal creator) throws NotFoundException, AuthenticationException {
         checkCampaignByIdAndUserByPrincipal(id, creator);
         newCampaign.setId(id);
         campaignRepository.save(newCampaign);
         return newCampaign;
     }
 
-    @Transactional(rollbackFor = {NotFoundException.class, ForbiddenTargetException.class})
-    public void delete(Long id, Principal creator) throws NotFoundException {
+    @Transactional(rollbackFor = {NotFoundException.class, AuthenticationException.class, AuthorizationServiceException.class})
+    public void delete(Long id, Principal creator) throws NotFoundException, AuthenticationException {
         Campaign campaignById = checkCampaignByIdAndUserByPrincipal(id, creator);
         campaignById.setCampaignDeleted(true);
         LocalDateTime date = LocalDateTime.now();
@@ -82,14 +81,15 @@ public class CampaignService {
         return campaignRepository.findAllByCampaignDeletedTrue();
     }
 
-    public Campaign checkCampaignByIdAndUserByPrincipal(Long id, Principal user) throws NotFoundException {
+    public Campaign checkCampaignByIdAndUserByPrincipal(Long id, Principal user) throws NotFoundException, AuthenticationException {
         Campaign campaignById = campaignRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Campaign is not found."));
-        User principalUser = userRepository.findByUsername(user.getName()).get();
+        User principalUser = userRepository.findByUsername(user.getName())
+                .orElseThrow(() -> new AuthorizationServiceException("Not authorized."));
         boolean checkAccess = principalUser.getUserRole().equals(Role.ADMIN)
                 || principalUser.getId().equals(campaignById.getAdvertiser().getCreator().getId());
         if (!checkAccess) {
-            throw new ForbiddenTargetException("Insufficient rights to edit the advertiser.");
+            throw new AuthenticationException("Insufficient rights to edit the advertiser.");
         }
         return campaignById;
     }

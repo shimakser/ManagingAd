@@ -2,12 +2,13 @@ package by.shimakser.advice;
 
 import by.shimakser.exception.ExceptionMessage;
 import javassist.NotFoundException;
-import netscape.security.ForbiddenTargetException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import javax.naming.AuthenticationException;
 import java.rmi.AlreadyBoundException;
 
 @ControllerAdvice
@@ -25,9 +26,15 @@ public class ExceptionController {
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(ForbiddenTargetException.class)
-    public ResponseEntity<ExceptionMessage> handleForbiddenException(ForbiddenTargetException e) {
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ExceptionMessage> handleAuthenticationException(AuthenticationException e) {
         ExceptionMessage response = new ExceptionMessage(e.getMessage());
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(AuthorizationServiceException.class)
+    public ResponseEntity<ExceptionMessage> handleAuthorizationException(AuthorizationServiceException e) {
+        ExceptionMessage response = new ExceptionMessage(e.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 }

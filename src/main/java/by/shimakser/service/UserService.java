@@ -4,14 +4,15 @@ import by.shimakser.model.Role;
 import by.shimakser.model.User;
 import by.shimakser.repository.UserRepository;
 import javassist.NotFoundException;
-import netscape.security.ForbiddenTargetException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.naming.AuthenticationException;
 import java.rmi.AlreadyBoundException;
 import java.security.Principal;
 import java.util.List;
@@ -58,20 +59,22 @@ public class UserService {
                              Optional<String> sortBy
     ) {
         return userRepository.findAllByUserDeletedFalse(
-                        PageRequest.of(page.orElse(0),
-                                size.orElse(10),
-                                Sort.Direction.ASC, sortBy.orElse("id")));
+                PageRequest.of(page.orElse(0),
+                        size.orElse(10),
+                        Sort.Direction.ASC, sortBy.orElse("id")));
     }
 
-    @Transactional(rollbackFor = {NotFoundException.class, ForbiddenTargetException.class})
-    public User update(Long id, User newUser, Principal user) throws NotFoundException, ForbiddenTargetException {
+    @Transactional(rollbackFor = {NotFoundException.class, AuthenticationException.class, AuthorizationServiceException.class})
+    public User update(Long id, User newUser, Principal user)
+            throws NotFoundException,AuthenticationException, AuthorizationServiceException {
         User userById = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User is not found."));
 
-        Optional<User> principalUser = userRepository.findByUsername(user.getName());
-        if (!principalUser.get().getUserRole().equals(Role.ADMIN)
-                || principalUser.get().getId().equals(id)) {
-            throw new ForbiddenTargetException("Insufficient rights to edit the user.");
+        User principalUser = userRepository.findByUsername(user.getName())
+                .orElseThrow(() -> new AuthorizationServiceException("Not authorized."));
+        if (!principalUser.getUserRole().equals(Role.ADMIN)
+                || principalUser.getId().equals(id)) {
+            throw new AuthenticationException("Insufficient rights to edit the user.");
         }
         newUser.setId(id);
         newUser.setPassword(bCryptPasswordEncoder.encode(userById.getPassword()));

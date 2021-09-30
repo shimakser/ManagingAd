@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.naming.AuthenticationException;
 import java.rmi.AlreadyBoundException;
 import java.security.Principal;
 import java.util.List;
@@ -56,7 +57,7 @@ public class AdvertiserController {
     @PutMapping(value = "/{id}")
     public AdvertiserDto updateAdvertiserById(@PathVariable("id") Long id,
                                               @RequestBody AdvertiserDto newAdvertiserDto,
-                                              Principal creator) throws NotFoundException {
+                                              Principal creator) throws NotFoundException, AuthenticationException {
         Advertiser advertiser = advertiserMapper.mapToEntity(newAdvertiserDto);
         advertiserService.update(id, advertiser, creator);
         return newAdvertiserDto;
@@ -64,7 +65,7 @@ public class AdvertiserController {
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<HttpStatus> deleteAdvertiserById(@PathVariable("id") Long id, Principal creator)
-            throws NotFoundException {
+            throws NotFoundException, AuthenticationException {
         advertiserService.delete(id, creator);
         return new ResponseEntity<>(HttpStatus.OK);
     }

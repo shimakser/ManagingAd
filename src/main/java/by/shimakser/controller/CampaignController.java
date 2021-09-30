@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.naming.AuthenticationException;
 import java.rmi.AlreadyBoundException;
 import java.security.Principal;
 import java.util.List;
@@ -54,7 +55,7 @@ public class CampaignController {
     @PutMapping(value = "/{id}")
     public CampaignDto updateCampaignById(@PathVariable("id") Long id,
                                           @RequestBody CampaignDto newCampaignDto,
-                                          Principal creator) throws NotFoundException {
+                                          Principal creator) throws NotFoundException, AuthenticationException {
         Campaign campaign = campaignMapper.mapToEntity(newCampaignDto);
         campaignService.update(id, campaign, creator);
         return newCampaignDto;
@@ -62,7 +63,7 @@ public class CampaignController {
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<HttpStatus> deleteCampaignById(@PathVariable("id") Long id, Principal creator)
-            throws NotFoundException {
+            throws NotFoundException, AuthenticationException {
         campaignService.delete(id, creator);
         return new ResponseEntity<>(HttpStatus.OK);
     }

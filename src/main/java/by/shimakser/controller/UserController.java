@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.naming.AuthenticationException;
 import java.rmi.AlreadyBoundException;
 import java.security.Principal;
 import java.util.List;
@@ -55,7 +56,7 @@ public class UserController {
     @PutMapping(value = "/{id}")
     public UserDto updateUserById(@PathVariable("id") Long id,
                                   @RequestBody UserDto newUserDto,
-                                  Principal principal) throws NotFoundException {
+                                  Principal principal) throws NotFoundException, AuthenticationException {
         User user = userMapper.mapToEntity(newUserDto);
         userService.update(id, user, principal);
         return newUserDto;
