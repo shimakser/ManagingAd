@@ -1,7 +1,7 @@
 package by.shimakser.exception;
 
 public enum ExceptionText {
-    NotFound("Notation is not found."),
+    NotFound("Not found."),
     AlreadyBound("Entered note is already taken."),
     Authentication("Insufficient rights to edit the user."),
     AuthorizationService("Not authorized.");
