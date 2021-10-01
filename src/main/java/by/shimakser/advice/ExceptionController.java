@@ -1,4 +1,4 @@
-package by.shimakser.advice;
+package by.shimakser.exception;
 
 import by.shimakser.exception.ExceptionMessage;
 import javassist.NotFoundException;
