@@ -1,6 +1,7 @@
 package by.shimakser.filter;
 
 import by.shimakser.model.Campaign;
+import by.shimakser.model.Campaign_;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -39,7 +40,6 @@ public class CampaignSpecifications {
     private static Predicate[] buildAgePredicates(Set<String> ageSet,
                                                   Root<Campaign> root,
                                                   CriteriaBuilder criteriaBuilder) {
-
         return ageSet
                 .stream()
                 .map(age ->
@@ -49,8 +49,8 @@ public class CampaignSpecifications {
     }
 
     private static Predicate buildAgePredicate(String age,
-                                               Root<Campaign> root, CriteriaBuilder criteriaBuilder) {
-
+                                               Root<Campaign> root,
+                                               CriteriaBuilder criteriaBuilder) {
         return criteriaBuilder.equal(
                 root.get(Campaign_.AGE),
                 age
@@ -60,7 +60,7 @@ public class CampaignSpecifications {
     public static Specification<Campaign> deleteNotesEqual(String deletedNotes) {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.like(
-                        root.get(Campaign_.DELETED_NOTES),
+                        root.get(Campaign_.CAMPAIGN_DELETE_NOTES),
                         "%" + deletedNotes + "%"
                 );
     }
@@ -68,7 +68,7 @@ public class CampaignSpecifications {
     public static Specification<Campaign> createdDateGreaterThanOrEqualTo(LocalDateTime createdDateFrom) {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.greaterThanOrEqualTo(
-                        root.get(Campaign_.CREATED_DATE),
+                        root.get(Campaign_.CAMPAIGN_CREATED_DATE),
                         createdDateFrom
                 );
     }
@@ -76,7 +76,7 @@ public class CampaignSpecifications {
     public static Specification<Campaign> createdDateLessThanOrEqualTo(LocalDateTime createdDateTo) {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.lessThanOrEqualTo(
-                        root.get(Campaign_.CREATED_DATE),
+                        root.get(Campaign_.CAMPAIGN_CREATED_DATE),
                         createdDateTo
                 );
     }
