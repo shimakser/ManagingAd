@@ -1,7 +1,10 @@
 package by.shimakser.model;
 
+import lombok.Data;
+
 import javax.persistence.*;
 
+@Data
 @Entity
 @Table(name="advertiser")
 public class Advertiser {
@@ -14,44 +17,4 @@ public class Advertiser {
     @JoinColumn(name = "creator_id")
     private User creator;
     private boolean advertiserDeleted = Boolean.FALSE;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getAdvertiserTitle() {
-        return advertiserTitle;
-    }
-
-    public void setAdvertiserTitle(String advertiserTitle) {
-        this.advertiserTitle = advertiserTitle;
-    }
-
-    public String getAdvertiserDescription() {
-        return advertiserDescription;
-    }
-
-    public void setAdvertiserDescription(String advertiserDescription) {
-        this.advertiserDescription = advertiserDescription;
-    }
-
-    public User getCreator() {
-        return creator;
-    }
-
-    public void setCreator(User creator) {
-        this.creator = creator;
-    }
-
-    public boolean isAdvertiserDeleted() {
-        return advertiserDeleted;
-    }
-
-    public void setAdvertiserDeleted(boolean advertiserDeleted) {
-        this.advertiserDeleted = advertiserDeleted;
-    }
 }

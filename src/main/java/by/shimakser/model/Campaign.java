@@ -1,8 +1,11 @@
 package by.shimakser.model;
 
+import lombok.Data;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+@Data
 @Entity
 @Table(name="campaign")
 public class Campaign {
@@ -24,108 +27,4 @@ public class Campaign {
     private LocalDateTime campaignCreatedDate;
     private LocalDateTime campaignDeletedDate;
     private String campaignDeleteNotes;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getCampaignTitle() {
-        return campaignTitle;
-    }
-
-    public void setCampaignTitle(String campaignTitle) {
-        this.campaignTitle = campaignTitle;
-    }
-
-    public String getCampaignDescription() {
-        return campaignDescription;
-    }
-
-    public void setCampaignDescription(String campaignDescription) {
-        this.campaignDescription = campaignDescription;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String countries) {
-        this.country = countries;
-    }
-
-    public String getLanguage() {
-        return language;
-    }
-
-    public void setLanguage(String languages) {
-        this.language = languages;
-    }
-
-    public String getAge() {
-        return age;
-    }
-
-    public void setAge(String age) {
-        this.age = age;
-    }
-
-    public String getGeolocation() {
-        return geolocation;
-    }
-
-    public void setGeolocation(String geolocation) {
-        this.geolocation = geolocation;
-    }
-
-    public Advertiser getAdvertiser() {
-        return advertiser;
-    }
-
-    public void setAdvertiser(Advertiser advertiser) {
-        this.advertiser = advertiser;
-    }
-
-    public boolean isCampaignDeleted() {
-        return campaignDeleted;
-    }
-
-    public void setCampaignDeleted(boolean campaignDeleted) {
-        this.campaignDeleted = campaignDeleted;
-    }
-
-    public LocalDateTime getCampaignCreatedDate() {
-        return campaignCreatedDate;
-    }
-
-    public void setCampaignCreatedDate(LocalDateTime campaignCreatedDate) {
-        this.campaignCreatedDate = campaignCreatedDate;
-    }
-
-    public LocalDateTime getCampaignDeletedDate() {
-        return campaignDeletedDate;
-    }
-
-    public void setCampaignDeletedDate(LocalDateTime campaignDeletedDate) {
-        this.campaignDeletedDate = campaignDeletedDate;
-    }
-
-    public String getCampaignDeleteNotes() {
-        return campaignDeleteNotes;
-    }
-
-    public void setCampaignDeleteNotes(String campaignDeleteNotes) {
-        this.campaignDeleteNotes = campaignDeleteNotes;
-    }
 }

@@ -1,5 +1,8 @@
 package by.shimakser.filter;
 
+import lombok.Data;
+
+@Data
 public class FilterRequest {
 
     private Filter filter;
@@ -13,38 +16,6 @@ public class FilterRequest {
         this.filter = filter;
         this.page = page;
         this.size = size;
-        this.sortBy = sortBy;
-    }
-
-    public Filter getFilter() {
-        return filter;
-    }
-
-    public void setFilter(Filter filter) {
-        this.filter = filter;
-    }
-
-    public Integer getPage() {
-        return page;
-    }
-
-    public void setPage(Integer page) {
-        this.page = page;
-    }
-
-    public Integer getSize() {
-        return size;
-    }
-
-    public void setSize(Integer size) {
-        this.size = size;
-    }
-
-    public String getSortBy() {
-        return sortBy;
-    }
-
-    public void setSortBy(String sortBy) {
         this.sortBy = sortBy;
     }
 }
