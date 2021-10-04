@@ -1,6 +1,5 @@
 package by.shimakser.exception;
 
-import by.shimakser.exception.ExceptionMessage;
 import javassist.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +8,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import javax.naming.AuthenticationException;
+import java.io.FileNotFoundException;
 import java.rmi.AlreadyBoundException;
 
 @ControllerAdvice
@@ -36,5 +36,11 @@ public class ExceptionController {
     public ResponseEntity<ExceptionMessage> handleAuthorizationException(AuthorizationServiceException e) {
         ExceptionMessage response = new ExceptionMessage(e.getMessage());
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(FileNotFoundException.class)
+    public ResponseEntity<ExceptionMessage> handleFileNotFoundException(FileNotFoundException e) {
+        ExceptionMessage response = new ExceptionMessage(e.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 }
