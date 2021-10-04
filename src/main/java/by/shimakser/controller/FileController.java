@@ -1,12 +1,10 @@
 package by.shimakser.controller;
 
 import by.shimakser.model.FileRequest;
+import by.shimakser.model.Status;
 import by.shimakser.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.FileNotFoundException;
 
@@ -29,5 +27,15 @@ public class FileController {
     @PostMapping("/import")
     public Long importFile(@RequestBody FileRequest fileRequest) {
         return fileService.importToFile(fileRequest);
+    }
+
+    @GetMapping("/import/{id}")
+    public Status getStatusOfImport(@PathVariable Long id) {
+        return fileService.getStatusOfImportById(id);
+    }
+
+    @GetMapping("/export/{id}")
+    public Status getStatusOfExport(@PathVariable Long id) {
+        return fileService.getStatusOfExportById(id);
     }
 }

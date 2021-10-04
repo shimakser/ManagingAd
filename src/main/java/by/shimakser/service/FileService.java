@@ -26,7 +26,7 @@ public class FileService {
 
     private final Map<Long, Status> statusMap = new HashMap<>();
 
-    private static Long idOfOperation = 1L;
+    private static Long idOfOperation = 0L;
 
     @Transactional(rollbackFor = {FileNotFoundException.class})
     public Long exportFromFile(FileRequest fileRequest) throws FileNotFoundException {
@@ -35,15 +35,13 @@ public class FileService {
             throw new FileNotFoundException(ExceptionText.FileNotFound.getExceptionText());
         }
 
+        idOfOperation++;
         Runnable exportTask = () -> {
             try (BufferedReader reader = new BufferedReader(new FileReader(fileRequest.getPathToFile()))) {
                 String line;
-                idOfOperation++;
                 statusMap.put(idOfOperation, Status.In_Process);
 
                 while ((line = reader.readLine()) != null) {
-                    System.out.println(line);
-
                     String[] fields = line.split(",");
 
                     Office office = new Office();
@@ -65,14 +63,14 @@ public class FileService {
 
     @Transactional
     public Long importToFile(FileRequest fileRequest) {
+        idOfOperation++;
         Runnable importTask = () -> {
-            idOfOperation++;
             statusMap.put(idOfOperation, Status.In_Process);
             try (FileWriter writer = new FileWriter(fileRequest.getPathToFile(), false)) {
                 List<Office> offices = officeRepository.findAll();
                 for (Office office : offices) {
                     writer.write(office.toString());
-                    writer.write("\n");
+                    writer.write( "\n");
                 }
                 statusMap.put(idOfOperation, Status.Uploaded);
             } catch (IOException e) {
@@ -85,5 +83,15 @@ public class FileService {
         importThread.start();
 
         return idOfOperation;
+    }
+
+    @Transactional
+    public Status getStatusOfImportById(Long id) {
+        return statusMap.get(id);
+    }
+
+    @Transactional
+    public Status getStatusOfExportById(Long id) {
+        return statusMap.get(id);
     }
 }
