@@ -16,4 +16,9 @@ public class Contact {
     private String contactPhoneNumber;
     private String contactEmail;
     private String contactSite;
+
+    @Override
+    public String toString() {
+        return id + "," + contactPhoneNumber + "," + contactEmail + "," + contactSite;
+    }
 }

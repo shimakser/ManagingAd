@@ -14,7 +14,12 @@ public class Office {
     private Long id;
     private String officeTitle;
     private String officeAddress;
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "office_id")
     private List<Contact> officeContacts;
+
+    @Override
+    public String toString() {
+        return id + "," + officeTitle + "," + officeAddress + "," + officeContacts;
+    }
 }
