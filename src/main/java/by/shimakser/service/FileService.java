@@ -5,6 +5,7 @@ import by.shimakser.model.FileRequest;
 import by.shimakser.model.Office;
 import by.shimakser.model.Status;
 import by.shimakser.repository.OfficeRepository;
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,22 +25,25 @@ public class FileService {
         this.officeRepository = officeRepository;
     }
 
-    private final Map<Long, Status> statusMap = new HashMap<>();
+    private final Map<Long, Status> statusOfImport = new HashMap<>();
+    private final Map<Long, Status> statusOfExport = new HashMap<>();
 
     private static Long idOfOperation = 0L;
 
     @Transactional(rollbackFor = {FileNotFoundException.class})
     public Long exportFromFile(FileRequest fileRequest) throws FileNotFoundException {
-        File file = new File(fileRequest.getPathToFile());
+        String path = fileRequest.getPathToFile();
+        File file = new File(path);
         if (!file.isFile()) {
             throw new FileNotFoundException(ExceptionText.FileNotFound.getExceptionText());
         }
 
         idOfOperation++;
         Runnable exportTask = () -> {
-            try (BufferedReader reader = new BufferedReader(new FileReader(fileRequest.getPathToFile()))) {
+            try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
                 String line;
-                statusMap.put(idOfOperation, Status.In_Process);
+                Status.In_Process.setPathForFile(path);
+                statusOfExport.put(idOfOperation, Status.In_Process);
 
                 while ((line = reader.readLine()) != null) {
                     String[] fields = line.split(",");
@@ -49,10 +53,12 @@ public class FileService {
                     office.setOfficeTitle(fields[1]);
                     office.setOfficeAddress(fields[2]);
                     officeRepository.save(office);
-                    statusMap.put(idOfOperation, Status.Uploaded);
+                    Status.Uploaded.setPathForFile(path);
+                    statusOfExport.put(idOfOperation, Status.Uploaded);
                 }
             } catch (IOException ex) {
-                statusMap.put(idOfOperation, Status.Not_Loaded);
+                Status.Not_Loaded.setPathForFile(path);
+                statusOfExport.put(idOfOperation, Status.Not_Loaded);
                 ex.printStackTrace();
             }
         };
@@ -63,18 +69,22 @@ public class FileService {
 
     @Transactional
     public Long importToFile(FileRequest fileRequest) {
+        String path = fileRequest.getPathToFile();
         idOfOperation++;
         Runnable importTask = () -> {
-            statusMap.put(idOfOperation, Status.In_Process);
-            try (FileWriter writer = new FileWriter(fileRequest.getPathToFile(), false)) {
+            Status.In_Process.setPathForFile(path);
+            statusOfImport.put(idOfOperation, Status.In_Process);
+            try (FileWriter writer = new FileWriter(path, false)) {
                 List<Office> offices = officeRepository.findAll();
                 for (Office office : offices) {
                     writer.write(office.toString());
-                    writer.write( "\n");
+                    writer.write("\n");
                 }
-                statusMap.put(idOfOperation, Status.Uploaded);
+                Status.Uploaded.setPathForFile(path);
+                statusOfImport.put(idOfOperation, Status.Uploaded);
             } catch (IOException e) {
-                statusMap.put(idOfOperation, Status.Not_Loaded);
+                Status.Not_Loaded.setPathForFile(path);
+                statusOfImport.put(idOfOperation, Status.Not_Loaded);
                 e.printStackTrace();
             }
         };
@@ -86,12 +96,29 @@ public class FileService {
     }
 
     @Transactional
-    public Status getStatusOfImportById(Long id) {
-        return statusMap.get(id);
+    public Status getStatusOfImportById(Long id) throws NotFoundException {
+        Status status = statusOfImport.get(id);
+        if (status == null) {
+            throw new NotFoundException(ExceptionText.NotFound.getExceptionText());
+        }
+        return status;
     }
 
     @Transactional
-    public Status getStatusOfExportById(Long id) {
-        return statusMap.get(id);
+    public Status getStatusOfExportById(Long id) throws NotFoundException {
+        Status status = statusOfExport.get(id);
+        if (status == null) {
+            throw new NotFoundException(ExceptionText.NotFound.getExceptionText());
+        }
+        return status;
+    }
+
+    @Transactional
+    public String getImportedFileById(Long id) throws NotFoundException {
+        Status status = statusOfImport.get(id);
+        if (status == null || !status.equals(Status.Uploaded)) {
+            throw new NotFoundException(ExceptionText.NotFound.getExceptionText());
+        }
+        return status.getPathForFile();
     }
 }
