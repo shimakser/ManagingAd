@@ -1,9 +1,11 @@
 package by.shimakser.service;
 
 import by.shimakser.exception.ExceptionText;
+import by.shimakser.model.Contact;
 import by.shimakser.model.FileRequest;
 import by.shimakser.model.Office;
 import by.shimakser.model.Status;
+import by.shimakser.repository.ContactRepository;
 import by.shimakser.repository.OfficeRepository;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,18 +13,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class FileService {
 
     private final OfficeRepository officeRepository;
+    private final ContactRepository contactRepository;
 
     @Autowired
-    public FileService(OfficeRepository officeRepository) {
+    public FileService(OfficeRepository officeRepository, ContactRepository contactRepository) {
         this.officeRepository = officeRepository;
+        this.contactRepository = contactRepository;
     }
 
     private final Map<Long, Status> statusOfImport = new HashMap<>();
@@ -46,13 +48,26 @@ public class FileService {
                 statusOfExport.put(idOfOperation, Status.In_Process);
 
                 while ((line = reader.readLine()) != null) {
-                    String[] fields = line.split(",");
+                    String[] arrayOfContacts = line.split(",", 4);
+                    List<Contact> listOfContacts = new ArrayList<>();
 
-                    Office office = new Office();
-                    office.setId(Long.parseLong(fields[0]));
-                    office.setOfficeTitle(fields[1]);
-                    office.setOfficeAddress(fields[2]);
+                    String[] splitContacts = arrayOfContacts[3].substring(1, arrayOfContacts[3].length() - 1).split(", ");
+
+                    Arrays.stream(splitContacts)
+                            .filter(str -> str.length() > 2)
+                            .forEach(str -> {
+                                String[] contactsField = str.split(",");
+
+                                Contact contact = new Contact(Long.parseLong(contactsField[0]), contactsField[1],
+                                        contactsField[2], contactsField[3]);
+                                contactRepository.save(contact);
+
+                                listOfContacts.add(contact);
+                            });
+
+                    Office office = new Office(Long.parseLong(arrayOfContacts[0]), arrayOfContacts[1], arrayOfContacts[2], listOfContacts);
                     officeRepository.save(office);
+
                     Status.Uploaded.setPathForFile(path);
                     statusOfExport.put(idOfOperation, Status.Uploaded);
                 }
