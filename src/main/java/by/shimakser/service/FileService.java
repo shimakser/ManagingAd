@@ -8,6 +8,7 @@ import by.shimakser.model.Status;
 import by.shimakser.repository.ContactRepository;
 import by.shimakser.repository.OfficeRepository;
 import javassist.NotFoundException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,11 +49,12 @@ public class FileService {
                 statusOfExport.put(idOfOperation, Status.In_Process);
 
                 while ((line = reader.readLine()) != null) {
-                    String[] arrayOfContacts = line.split(",", 4);
+                    String[] arrayOfOffices = line.split(",", 4);
                     List<Contact> listOfContacts = new ArrayList<>();
 
-                    String[] splitContacts = arrayOfContacts[3].substring(1, arrayOfContacts[3].length() - 1).split(", ");
+                    int indexOfClosSqBracket = arrayOfOffices[3].indexOf("]");
 
+                    String[] splitContacts = arrayOfOffices[3].substring(1, indexOfClosSqBracket).split(", ");
                     Arrays.stream(splitContacts)
                             .filter(str -> str.length() > 2)
                             .forEach(str -> {
@@ -65,7 +67,14 @@ public class FileService {
                                 listOfContacts.add(contact);
                             });
 
-                    Office office = new Office(Long.parseLong(arrayOfContacts[0]), arrayOfContacts[1], arrayOfContacts[2], listOfContacts);
+                    JSONObject jsonObject = null;
+                    String descriptions = arrayOfOffices[3].substring(indexOfClosSqBracket + 2);
+                    if (descriptions.length() > 4) {
+                        jsonObject = new org.json.JSONObject(descriptions);
+                    }
+
+                    Office office = new Office(Long.parseLong(arrayOfOffices[0]), arrayOfOffices[1],
+                            arrayOfOffices[2], listOfContacts, jsonObject);
                     officeRepository.save(office);
 
                     Status.Uploaded.setPathForFile(path);

@@ -1,6 +1,5 @@
 package by.shimakser.converter;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.persistence.AttributeConverter;
@@ -25,7 +24,7 @@ public class JSONObjectConverter implements AttributeConverter<JSONObject, Strin
         JSONObject jsonData;
         try {
             jsonData = new JSONObject(jsonDataAsJson);
-        } catch (JSONException ex) {
+        } catch (Exception ex) {
             jsonData = null;
         }
         return jsonData;
