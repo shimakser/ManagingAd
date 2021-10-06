@@ -4,11 +4,10 @@ import by.shimakser.dto.AdvertiserDto;
 import by.shimakser.model.Advertiser;
 import by.shimakser.model.User;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = User.class)
+@Mapper(componentModel = "spring")
 public interface AdvertiserMapper {
 
     AdvertiserDto mapToDto(Advertiser advertiser);
