@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.AuthenticationException;
+import javax.persistence.EntityNotFoundException;
 import java.rmi.AlreadyBoundException;
 import java.security.Principal;
 import java.time.LocalDateTime;
@@ -47,25 +48,25 @@ public class CampaignService {
         return campaign;
     }
 
-    @Transactional(rollbackFor = NotFoundException.class)
-    public Campaign get(Long id) throws NotFoundException {
+    @Transactional(rollbackFor = EntityNotFoundException.class)
+    public Campaign get(Long id) throws EntityNotFoundException {
         Campaign campaignById = campaignRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.EntityNotFound.getExceptionText()));
         return Optional.of(campaignById)
                 .filter(not(Campaign::isCampaignDeleted))
-                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.EntityNotFound.getExceptionText()));
     }
 
-    @Transactional(rollbackFor = {NotFoundException.class, AuthenticationException.class, AuthorizationServiceException.class})
-    public Campaign update(Long id, Campaign newCampaign, Principal creator) throws NotFoundException, AuthenticationException {
+    @Transactional(rollbackFor = {EntityNotFoundException.class, AuthenticationException.class, AuthorizationServiceException.class})
+    public Campaign update(Long id, Campaign newCampaign, Principal creator) throws EntityNotFoundException, AuthenticationException {
         checkCampaignByIdAndUserByPrincipal(id, creator);
         newCampaign.setId(id);
         campaignRepository.save(newCampaign);
         return newCampaign;
     }
 
-    @Transactional(rollbackFor = {NotFoundException.class, AuthenticationException.class, AuthorizationServiceException.class})
-    public void delete(Long id, Principal creator) throws NotFoundException, AuthenticationException {
+    @Transactional(rollbackFor = {EntityNotFoundException.class, AuthenticationException.class, AuthorizationServiceException.class})
+    public void delete(Long id, Principal creator) throws EntityNotFoundException, AuthenticationException {
         Campaign campaignById = checkCampaignByIdAndUserByPrincipal(id, creator);
         campaignById.setCampaignDeleted(true);
         LocalDateTime date = LocalDateTime.now();
@@ -73,10 +74,10 @@ public class CampaignService {
         campaignRepository.save(campaignById);
     }
 
-    @Transactional(rollbackFor = NotFoundException.class)
-    public Campaign getDeletedCampaign(Long id) throws NotFoundException {
+    @Transactional(rollbackFor = EntityNotFoundException.class)
+    public Campaign getDeletedCampaign(Long id) throws EntityNotFoundException {
         return campaignRepository.findByIdAndCampaignDeletedTrue(id)
-                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.EntityNotFound.getExceptionText()));
     }
 
     @Transactional
@@ -85,9 +86,9 @@ public class CampaignService {
     }
 
     public Campaign checkCampaignByIdAndUserByPrincipal(Long id, Principal user)
-            throws NotFoundException, AuthenticationException {
+            throws EntityNotFoundException, AuthenticationException {
         Campaign campaignById = campaignRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.EntityNotFound.getExceptionText()));
         User principalUser = userRepository.findByUsername(user.getName())
                 .orElseThrow(() -> new AuthorizationServiceException("Not authorized."));
         boolean checkAccess = principalUser.getUserRole().equals(Role.ADMIN)

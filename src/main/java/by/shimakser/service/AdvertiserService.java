@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.AuthenticationException;
+import javax.persistence.EntityNotFoundException;
 import java.rmi.AlreadyBoundException;
 import java.security.Principal;
 import java.util.List;
@@ -50,13 +51,13 @@ public class AdvertiserService {
         return advertiser;
     }
 
-    @Transactional(rollbackFor = NotFoundException.class)
-    public Advertiser get(Long id) throws NotFoundException {
+    @Transactional(rollbackFor = EntityNotFoundException.class)
+    public Advertiser get(Long id) throws EntityNotFoundException {
         Advertiser advertiserById = advertiserRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.EntityNotFound.getExceptionText()));
         return Optional.of(advertiserById)
                 .filter(not(Advertiser::isAdvertiserDeleted))
-                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.EntityNotFound.getExceptionText()));
     }
 
     @Transactional
@@ -71,26 +72,26 @@ public class AdvertiserService {
                         Sort.Direction.ASC, sortBy.orElse("id")));
     }
 
-    @Transactional(rollbackFor = {NotFoundException.class, AuthenticationException.class, AuthorizationServiceException.class})
+    @Transactional(rollbackFor = {EntityNotFoundException.class, AuthenticationException.class, AuthorizationServiceException.class})
     public Advertiser update(Long id, Advertiser newAdvertiser, Principal creator)
-            throws NotFoundException, AuthenticationException {
+            throws EntityNotFoundException, AuthenticationException {
         checkAdvertiserByIdAndUserByPrincipal(id, creator);
         newAdvertiser.setId(id);
         advertiserRepository.save(newAdvertiser);
         return newAdvertiser;
     }
 
-    @Transactional(rollbackFor = {NotFoundException.class, AuthenticationException.class, AuthorizationServiceException.class})
-    public void delete(Long id, Principal creator) throws NotFoundException, AuthenticationException {
+    @Transactional(rollbackFor = {EntityNotFoundException.class, AuthenticationException.class, AuthorizationServiceException.class})
+    public void delete(Long id, Principal creator) throws EntityNotFoundException, AuthenticationException {
         Advertiser advertiserById = checkAdvertiserByIdAndUserByPrincipal(id, creator);
         advertiserById.setAdvertiserDeleted(true);
         advertiserRepository.save(advertiserById);
     }
 
-    @Transactional(rollbackFor = NotFoundException.class)
-    public Advertiser getDeletedAdvertiser(Long id) throws NotFoundException {
+    @Transactional(rollbackFor = EntityNotFoundException.class)
+    public Advertiser getDeletedAdvertiser(Long id) throws EntityNotFoundException {
         return advertiserRepository.findByIdAndAdvertiserDeletedTrue(id)
-                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.EntityNotFound.getExceptionText()));
     }
 
     @Transactional
@@ -99,9 +100,9 @@ public class AdvertiserService {
     }
 
     public Advertiser checkAdvertiserByIdAndUserByPrincipal(Long id, Principal user)
-            throws NotFoundException, AuthenticationException {
+            throws EntityNotFoundException, AuthenticationException {
         Advertiser advertiserById = advertiserRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.EntityNotFound.getExceptionText()));
 
         User principalUser = userRepository.findByUsername(user.getName())
                 .orElseThrow(() -> new AuthorizationServiceException(ExceptionText.AuthorizationService.getExceptionText()));

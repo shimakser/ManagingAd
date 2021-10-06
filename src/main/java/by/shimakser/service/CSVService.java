@@ -119,7 +119,7 @@ public class CSVService {
         return idOfOperation;
     }
 
-    @Transactional
+    @Transactional(rollbackFor = NotFoundException.class)
     public Status getStatusOfImportById(Long id) throws NotFoundException {
         Status status = statusOfImport.get(id);
         if (status == null) {
@@ -128,7 +128,7 @@ public class CSVService {
         return status;
     }
 
-    @Transactional
+    @Transactional(rollbackFor = NotFoundException.class)
     public Status getStatusOfExportById(Long id) throws NotFoundException {
         Status status = statusOfExport.get(id);
         if (status == null) {
@@ -137,7 +137,7 @@ public class CSVService {
         return status;
     }
 
-    @Transactional
+    @Transactional(rollbackFor = NotFoundException.class)
     public String getImportedFileById(Long id) throws NotFoundException {
         Status status = statusOfImport.get(id);
         if (status == null || !status.equals(Status.Uploaded)) {

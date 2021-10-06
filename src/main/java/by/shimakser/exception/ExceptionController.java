@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import javax.naming.AuthenticationException;
+import javax.persistence.EntityNotFoundException;
 import java.io.FileNotFoundException;
 import java.rmi.AlreadyBoundException;
 
@@ -40,6 +41,12 @@ public class ExceptionController {
 
     @ExceptionHandler(FileNotFoundException.class)
     public ResponseEntity<ExceptionMessage> handleFileNotFoundException(FileNotFoundException e) {
+        ExceptionMessage response = new ExceptionMessage(e.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ExceptionMessage> handleEntityNotFoundException(EntityNotFoundException e) {
         ExceptionMessage response = new ExceptionMessage(e.getMessage());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }

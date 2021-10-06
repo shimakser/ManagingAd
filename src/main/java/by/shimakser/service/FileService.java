@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -30,10 +31,10 @@ public class FileService {
         return file;
     }
 
-    @Transactional(rollbackFor = NotFoundException.class)
-    public File get(Long id) throws NotFoundException {
+    @Transactional(rollbackFor = EntityNotFoundException.class)
+    public File get(Long id) throws EntityNotFoundException {
         return fileRepository.findFileByIdAndFileDeletedFalse(id)
-                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.EntityNotFound.getExceptionText()));
 
     }
 
@@ -42,28 +43,28 @@ public class FileService {
         return fileRepository.findAllByFileDeletedFalse();
     }
 
-    @Transactional(rollbackFor = NotFoundException.class)
-    public File update(Long id, File newFile) throws NotFoundException {
+    @Transactional(rollbackFor = EntityNotFoundException.class)
+    public File update(Long id, File newFile) throws EntityNotFoundException {
         fileRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.EntityNotFound.getExceptionText()));
 
         newFile.setId(id);
         fileRepository.save(newFile);
         return newFile;
     }
 
-    @Transactional(rollbackFor = NotFoundException.class)
-    public void delete(Long id) throws NotFoundException {
+    @Transactional(rollbackFor = EntityNotFoundException.class)
+    public void delete(Long id) throws EntityNotFoundException {
         File fileById = fileRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.EntityNotFound.getExceptionText()));
         fileById.setFileDeleted(Boolean.TRUE);
         fileRepository.save(fileById);
     }
 
-    @Transactional(rollbackFor = NotFoundException.class)
-    public File getDeletedFile(Long id) throws NotFoundException {
+    @Transactional(rollbackFor = EntityNotFoundException.class)
+    public File getDeletedFile(Long id) throws EntityNotFoundException {
         return fileRepository.findFileByIdAndFileDeletedTrue(id)
-                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.EntityNotFound.getExceptionText()));
     }
 
     @Transactional

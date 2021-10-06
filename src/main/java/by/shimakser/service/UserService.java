@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.AuthenticationException;
+import javax.persistence.EntityNotFoundException;
 import java.rmi.AlreadyBoundException;
 import java.security.Principal;
 import java.util.List;
@@ -47,13 +48,13 @@ public class UserService {
         return user;
     }
 
-    @Transactional(rollbackFor = NotFoundException.class)
-    public User get(Long id) throws NotFoundException {
+    @Transactional(rollbackFor = EntityNotFoundException.class)
+    public User get(Long id) throws EntityNotFoundException {
         User userById = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.EntityNotFound.getExceptionText()));
         return Optional.of(userById)
                 .filter(not(User::isUserDeleted))
-                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.EntityNotFound.getExceptionText()));
     }
 
     @Transactional
@@ -67,11 +68,11 @@ public class UserService {
                         Sort.Direction.ASC, sortBy.orElse("id")));
     }
 
-    @Transactional(rollbackFor = {NotFoundException.class, AuthenticationException.class, AuthorizationServiceException.class})
+    @Transactional(rollbackFor = {EntityNotFoundException.class, AuthenticationException.class, AuthorizationServiceException.class})
     public User update(Long id, User newUser, Principal user)
-            throws NotFoundException,AuthenticationException, AuthorizationServiceException {
+            throws EntityNotFoundException,AuthenticationException, AuthorizationServiceException {
         User userById = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.EntityNotFound.getExceptionText()));
 
         User principalUser = userRepository.findByUsername(user.getName())
                 .orElseThrow(() -> new AuthorizationServiceException(ExceptionText.AuthorizationService.getExceptionText()));
@@ -85,18 +86,18 @@ public class UserService {
         return newUser;
     }
 
-    @Transactional(rollbackFor = NotFoundException.class)
-    public void delete(Long id) throws NotFoundException {
+    @Transactional(rollbackFor = EntityNotFoundException.class)
+    public void delete(Long id) throws EntityNotFoundException {
         User userById = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.EntityNotFound.getExceptionText()));
         userById.setUserDeleted(Boolean.TRUE);
         userRepository.save(userById);
     }
 
-    @Transactional(rollbackFor = NotFoundException.class)
-    public User getDeletedUser(Long id) throws NotFoundException {
+    @Transactional(rollbackFor = EntityNotFoundException.class)
+    public User getDeletedUser(Long id) throws EntityNotFoundException {
         return userRepository.findByIdAndUserDeletedTrue(id)
-                .orElseThrow(() -> new NotFoundException(ExceptionText.NotFound.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.EntityNotFound.getExceptionText()));
     }
 
     @Transactional
