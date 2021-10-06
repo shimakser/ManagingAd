@@ -19,3 +19,9 @@ spring:
 
   jpa:
     open-in-view: true
+
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: ManagingAd
