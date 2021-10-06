@@ -1,8 +1,8 @@
 package by.shimakser.controller;
 
-import by.shimakser.model.FileRequest;
+import by.shimakser.model.CSVRequest;
 import by.shimakser.model.Status;
-import by.shimakser.service.FileService;
+import by.shimakser.service.CSVService;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -11,37 +11,37 @@ import java.io.FileNotFoundException;
 
 @RestController
 @RequestMapping("/offices")
-public class FileController {
+public class CSVController {
 
-    private final FileService fileService;
+    private final CSVService csvService;
 
     @Autowired
-    public FileController(FileService fileService) {
-        this.fileService = fileService;
+    public CSVController(CSVService csvService) {
+        this.csvService = csvService;
     }
 
     @PostMapping("/export")
-    public Long exportFile(@RequestBody FileRequest fileRequest) throws FileNotFoundException {
-        return fileService.exportFromFile(fileRequest);
+    public Long exportFile(@RequestBody CSVRequest csvRequest) throws FileNotFoundException {
+        return csvService.exportFromFile(csvRequest);
     }
 
     @PostMapping("/import")
-    public Long importFile(@RequestBody FileRequest fileRequest) {
-        return fileService.importToFile(fileRequest);
+    public Long importFile(@RequestBody CSVRequest csvRequest) {
+        return csvService.importToFile(csvRequest);
     }
 
     @GetMapping("/import/{id}")
     public Status getStatusOfImport(@PathVariable Long id) throws NotFoundException {
-        return fileService.getStatusOfImportById(id);
+        return csvService.getStatusOfImportById(id);
     }
 
     @GetMapping("/export/{id}")
     public Status getStatusOfExport(@PathVariable Long id) throws NotFoundException {
-        return fileService.getStatusOfExportById(id);
+        return csvService.getStatusOfExportById(id);
     }
 
     @GetMapping("/import/{id}/file")
     public String getImportedFile(@PathVariable Long id) throws NotFoundException {
-        return fileService.getImportedFileById(id);
+        return csvService.getImportedFileById(id);
     }
 }

@@ -2,7 +2,7 @@ package by.shimakser.service;
 
 import by.shimakser.exception.ExceptionText;
 import by.shimakser.model.Contact;
-import by.shimakser.model.FileRequest;
+import by.shimakser.model.CSVRequest;
 import by.shimakser.model.Office;
 import by.shimakser.model.Status;
 import by.shimakser.repository.ContactRepository;
@@ -17,13 +17,13 @@ import java.io.*;
 import java.util.*;
 
 @Service
-public class FileService {
+public class CSVService {
 
     private final OfficeRepository officeRepository;
     private final ContactRepository contactRepository;
 
     @Autowired
-    public FileService(OfficeRepository officeRepository, ContactRepository contactRepository) {
+    public CSVService(OfficeRepository officeRepository, ContactRepository contactRepository) {
         this.officeRepository = officeRepository;
         this.contactRepository = contactRepository;
     }
@@ -34,8 +34,8 @@ public class FileService {
     private static Long idOfOperation = 0L;
 
     @Transactional(rollbackFor = {FileNotFoundException.class})
-    public Long exportFromFile(FileRequest fileRequest) throws FileNotFoundException {
-        String path = fileRequest.getPathToFile();
+    public Long exportFromFile(CSVRequest csvRequest) throws FileNotFoundException {
+        String path = csvRequest.getPathToFile();
         File file = new File(path);
         if (!file.isFile()) {
             throw new FileNotFoundException(ExceptionText.FileNotFound.getExceptionText());
@@ -92,8 +92,8 @@ public class FileService {
     }
 
     @Transactional
-    public Long importToFile(FileRequest fileRequest) {
-        String path = fileRequest.getPathToFile();
+    public Long importToFile(CSVRequest csvRequest) {
+        String path = csvRequest.getPathToFile();
         idOfOperation++;
         Runnable importTask = () -> {
             Status.In_Process.setPathForFile(path);
