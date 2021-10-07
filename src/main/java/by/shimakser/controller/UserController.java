@@ -43,7 +43,7 @@ public class UserController {
         return userMapper.mapToDto(userService.get(id));
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('user:write')")
     @GetMapping
     public List<UserDto> getAllUsers(
             @RequestParam Optional<Integer> page,
@@ -62,20 +62,20 @@ public class UserController {
         return newUserDto;
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('user:write')")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<HttpStatus> deleteUserById(@PathVariable("id") Long id) throws NotFoundException {
         userService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('user:write')")
     @GetMapping(value = "/deleted/{id}")
     public UserDto getDeletedUserById(@PathVariable Long id) throws NotFoundException {
         return userMapper.mapToDto(userService.getDeletedUser(id));
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('user:write')")
     @GetMapping(value = "/deleted")
     public List<UserDto> getAllDeletedUsers() {
         return userMapper.mapToListDto(userService.getDeletedUsers());

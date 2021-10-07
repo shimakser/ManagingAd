@@ -44,7 +44,7 @@ public class AdvertiserController {
         return advertiserMapper.mapToDto(advertiserService.get(id));
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('user:write')")
     @GetMapping
     public List<AdvertiserDto> getAllAdvertisers(
             @RequestParam Optional<Integer> page,
@@ -70,13 +70,13 @@ public class AdvertiserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('user:write')")
     @GetMapping(value = "/deleted/{id}")
     public AdvertiserDto getDeletedAdvertiserById(@PathVariable Long id) throws NotFoundException {
         return advertiserMapper.mapToDto(advertiserService.getDeletedAdvertiser(id));
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('user:write')")
     @GetMapping(value = "/deleted")
     public List<AdvertiserDto> getAllDeletedAdvertisers() {
         return advertiserMapper.mapToListDto(advertiserService.getDeletedAdvertisers());

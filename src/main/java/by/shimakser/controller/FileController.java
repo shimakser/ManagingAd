@@ -41,7 +41,7 @@ public class FileController {
         return fileMapper.mapToDto(fileService.get(id));
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('user:write')")
     @GetMapping
     public List<FileDto> getAllFiles() {
         return fileMapper.mapToListDto(fileService.getAll());
@@ -55,20 +55,20 @@ public class FileController {
         return newFileDto;
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('user:write')")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<HttpStatus> deleteFileById(@PathVariable("id") Long id) throws NotFoundException {
         fileService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('user:write')")
     @GetMapping(value = "/deleted/{id}")
     public FileDto getDeletedFileById(@PathVariable Long id) throws NotFoundException {
         return fileMapper.mapToDto(fileService.getDeletedFile(id));
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('user:write')")
     @GetMapping(value = "/deleted")
     public List<FileDto> getAllDeletedFiles() {
         return fileMapper.mapToListDto(fileService.getDeletedFiles());
