@@ -1,5 +1,6 @@
 package by.shimakser.security.jwt;
 
+import by.shimakser.exception.ExceptionText;
 import by.shimakser.exception.JwtAuthenticationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -39,7 +40,7 @@ public class JwtTokenFilter extends GenericFilterBean {
         } catch (JwtAuthenticationException e) {
             SecurityContextHolder.clearContext();
             ((HttpServletResponse) servletResponse).sendError(e.getHttpStatus().value());
-            throw new JwtAuthenticationException("JWT token expired or invalid");
+            throw new JwtAuthenticationException(ExceptionText.JwtAuthentication.getExceptionText());
         }
         filterChain.doFilter(servletRequest, servletResponse);
     }

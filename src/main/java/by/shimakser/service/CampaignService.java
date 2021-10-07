@@ -6,7 +6,6 @@ import by.shimakser.model.Role;
 import by.shimakser.model.User;
 import by.shimakser.repository.CampaignRepository;
 import by.shimakser.repository.UserRepository;
-import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.stereotype.Service;
@@ -90,11 +89,11 @@ public class CampaignService {
         Campaign campaignById = campaignRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionText.EntityNotFound.getExceptionText()));
         User principalUser = userRepository.findByUsername(user.getName())
-                .orElseThrow(() -> new AuthorizationServiceException("Not authorized."));
+                .orElseThrow(() -> new AuthorizationServiceException(ExceptionText.AuthorizationService.getExceptionText()));
         boolean checkAccess = principalUser.getUserRole().equals(Role.ADMIN)
                 || principalUser.getId().equals(campaignById.getAdvertiser().getCreator().getId());
         if (!checkAccess) {
-            throw new AuthenticationException(ExceptionText.Authentication.getExceptionText());
+            throw new AuthenticationException(ExceptionText.InsufficientRights.getExceptionText());
         }
         return campaignById;
     }

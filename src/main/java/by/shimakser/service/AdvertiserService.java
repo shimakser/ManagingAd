@@ -6,7 +6,6 @@ import by.shimakser.model.Role;
 import by.shimakser.model.User;
 import by.shimakser.repository.AdvertiserRepository;
 import by.shimakser.repository.UserRepository;
-import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -109,7 +108,7 @@ public class AdvertiserService {
         boolean checkAccess = principalUser.getUserRole().equals(Role.ADMIN)
                 || principalUser.getId().equals(advertiserById.getCreator().getId());
         if (!checkAccess) {
-            throw new AuthenticationException(ExceptionText.Authentication.getExceptionText());
+            throw new AuthenticationException(ExceptionText.InsufficientRights.getExceptionText());
         }
         return advertiserById;
     }

@@ -4,7 +4,6 @@ import by.shimakser.dto.UserDto;
 import by.shimakser.mapper.UserMapper;
 import by.shimakser.model.User;
 import by.shimakser.service.UserService;
-import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +38,7 @@ public class UserController {
     }
 
     @GetMapping(value = "/{id}")
-    public UserDto getUserById(@PathVariable Long id) throws NotFoundException {
+    public UserDto getUserById(@PathVariable Long id) {
         return userMapper.mapToDto(userService.get(id));
     }
 
@@ -56,7 +55,7 @@ public class UserController {
     @PutMapping(value = "/{id}")
     public UserDto updateUserById(@PathVariable("id") Long id,
                                   @RequestBody UserDto newUserDto,
-                                  Principal principal) throws NotFoundException, AuthenticationException {
+                                  Principal principal) throws AuthenticationException {
         User user = userMapper.mapToEntity(newUserDto);
         userService.update(id, user, principal);
         return newUserDto;
@@ -64,14 +63,14 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('user:write')")
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<HttpStatus> deleteUserById(@PathVariable("id") Long id) throws NotFoundException {
+    public ResponseEntity<HttpStatus> deleteUserById(@PathVariable("id") Long id) {
         userService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('user:write')")
     @GetMapping(value = "/deleted/{id}")
-    public UserDto getDeletedUserById(@PathVariable Long id) throws NotFoundException {
+    public UserDto getDeletedUserById(@PathVariable Long id)  {
         return userMapper.mapToDto(userService.getDeletedUser(id));
     }
 

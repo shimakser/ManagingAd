@@ -6,7 +6,6 @@ import by.shimakser.mapper.CampaignMapper;
 import by.shimakser.model.Campaign;
 import by.shimakser.service.CampaignFilterService;
 import by.shimakser.service.CampaignService;
-import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +42,7 @@ public class CampaignController {
     }
 
     @GetMapping(value = "/{id}")
-    public CampaignDto getCampaignById(@PathVariable Long id) throws NotFoundException {
+    public CampaignDto getCampaignById(@PathVariable Long id)  {
         return campaignMapper.mapToDto(campaignService.get(id));
     }
 
@@ -55,7 +54,7 @@ public class CampaignController {
     @PutMapping(value = "/{id}")
     public CampaignDto updateCampaignById(@PathVariable("id") Long id,
                                           @RequestBody CampaignDto newCampaignDto,
-                                          Principal creator) throws NotFoundException, AuthenticationException {
+                                          Principal creator) throws AuthenticationException {
         Campaign campaign = campaignMapper.mapToEntity(newCampaignDto);
         campaignService.update(id, campaign, creator);
         return newCampaignDto;
@@ -63,14 +62,14 @@ public class CampaignController {
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<HttpStatus> deleteCampaignById(@PathVariable("id") Long id, Principal creator)
-            throws NotFoundException, AuthenticationException {
+            throws AuthenticationException {
         campaignService.delete(id, creator);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('user:write')")
     @GetMapping(value = "/deleted/{id}")
-    public CampaignDto getDeletedCampaignById(@PathVariable Long id) throws NotFoundException {
+    public CampaignDto getDeletedCampaignById(@PathVariable Long id) {
         return campaignMapper.mapToDto(campaignService.getDeletedCampaign(id));
     }
 

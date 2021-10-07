@@ -21,6 +21,18 @@ public class ExceptionController {
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(FileNotFoundException.class)
+    public ResponseEntity<ExceptionMessage> handleFileNotFoundException(FileNotFoundException e) {
+        ExceptionMessage response = new ExceptionMessage(e.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ExceptionMessage> handleEntityNotFoundException(EntityNotFoundException e) {
+        ExceptionMessage response = new ExceptionMessage(e.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(AlreadyBoundException.class)
     public ResponseEntity<ExceptionMessage> handleAlreadyIsTakenException(AlreadyBoundException e) {
         ExceptionMessage response = new ExceptionMessage(e.getMessage());
@@ -39,15 +51,9 @@ public class ExceptionController {
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(FileNotFoundException.class)
-    public ResponseEntity<ExceptionMessage> handleFileNotFoundException(FileNotFoundException e) {
+    @ExceptionHandler(JwtAuthenticationException.class)
+    public ResponseEntity<ExceptionMessage> handleJwtAuthenticationException(JwtAuthenticationException e) {
         ExceptionMessage response = new ExceptionMessage(e.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<ExceptionMessage> handleEntityNotFoundException(EntityNotFoundException e) {
-        ExceptionMessage response = new ExceptionMessage(e.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 }

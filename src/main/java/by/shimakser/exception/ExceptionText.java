@@ -2,11 +2,16 @@ package by.shimakser.exception;
 
 public enum ExceptionText {
     NotFound("No items found."),
+    FileNotFound("File is not found."),
+    EntityNotFound("Entity is not found."),
+
     AlreadyBound("Entered note is already taken."),
-    Authentication("Insufficient rights to edit the user."),
+
+    JwtAuthentication("JWT token is expired or invalid."),
     AuthorizationService("Not authorized."),
-    FileNotFound("File is not found"),
-    EntityNotFound("Entity is not found");
+
+    InsufficientRights("Insufficient rights to edit the user."),
+    Authentication("Invalid email or password.");
 
     private String exceptionText;
 

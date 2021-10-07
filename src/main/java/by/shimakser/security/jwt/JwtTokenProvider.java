@@ -1,10 +1,10 @@
 package by.shimakser.security.jwt;
 
+import by.shimakser.exception.ExceptionText;
 import by.shimakser.exception.JwtAuthenticationException;
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,7 +26,6 @@ public class JwtTokenProvider {
     private long validityInMilliseconds;
 
     private final UserDetailsService userDetailsService;
-
 
     @Autowired
     public JwtTokenProvider(UserDetailsService userDetailsService) {
@@ -68,7 +67,7 @@ public class JwtTokenProvider {
 
             return !claimsJws.getBody().getExpiration().before(new Date());
         } catch (JwtException | IllegalArgumentException e) {
-            throw new JwtAuthenticationException("JWT token is expired or invalid", HttpStatus.UNAUTHORIZED);
+            throw new JwtAuthenticationException(ExceptionText.JwtAuthentication.getExceptionText());
         }
     }
 

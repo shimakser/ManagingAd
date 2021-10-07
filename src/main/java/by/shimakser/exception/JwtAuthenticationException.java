@@ -1,6 +1,5 @@
 package by.shimakser.exception;
 
-
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
