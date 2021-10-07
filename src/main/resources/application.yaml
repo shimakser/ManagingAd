@@ -25,3 +25,8 @@ spring:
       host: localhost
       port: 27017
       database: ManagingAd
+
+jwt:
+  token:
+    secret: shimakser
+    expired: 3600000
