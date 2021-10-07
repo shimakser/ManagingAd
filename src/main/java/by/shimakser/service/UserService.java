@@ -57,6 +57,12 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionText.EntityNotFound.getExceptionText()));
     }
 
+    @Transactional(rollbackFor = EntityNotFoundException.class)
+    public User getByEmail(String email) throws EntityNotFoundException {
+        return userRepository.findByUserEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.EntityNotFound.getExceptionText()));
+    }
+
     @Transactional
     public List<User> getAll(Optional<Integer> page,
                              Optional<Integer> size,
