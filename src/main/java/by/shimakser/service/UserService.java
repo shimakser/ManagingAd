@@ -4,7 +4,6 @@ import by.shimakser.exception.ExceptionText;
 import by.shimakser.model.Role;
 import by.shimakser.model.User;
 import by.shimakser.repository.UserRepository;
-import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -57,6 +56,12 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionText.EntityNotFound.getExceptionText()));
     }
 
+    @Transactional(rollbackFor = EntityNotFoundException.class)
+    public User getByEmail(String email) throws EntityNotFoundException {
+        return userRepository.findByUserEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.EntityNotFound.getExceptionText()));
+    }
+
     @Transactional
     public List<User> getAll(Optional<Integer> page,
                              Optional<Integer> size,
@@ -78,7 +83,7 @@ public class UserService {
                 .orElseThrow(() -> new AuthorizationServiceException(ExceptionText.AuthorizationService.getExceptionText()));
         if (!principalUser.getUserRole().equals(Role.ADMIN)
                 || principalUser.getId().equals(id)) {
-            throw new AuthenticationException(ExceptionText.Authentication.getExceptionText());
+            throw new AuthenticationException(ExceptionText.InsufficientRights.getExceptionText());
         }
         newUser.setId(id);
         newUser.setPassword(bCryptPasswordEncoder.encode(userById.getPassword()));

@@ -40,11 +40,11 @@ public class AdvertiserController {
     }
 
     @GetMapping(value = "/{id}")
-    public AdvertiserDto getAdvertiserById(@PathVariable Long id) throws NotFoundException {
+    public AdvertiserDto getAdvertiserById(@PathVariable Long id) {
         return advertiserMapper.mapToDto(advertiserService.get(id));
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('user:write')")
     @GetMapping
     public List<AdvertiserDto> getAllAdvertisers(
             @RequestParam Optional<Integer> page,
@@ -57,7 +57,7 @@ public class AdvertiserController {
     @PutMapping(value = "/{id}")
     public AdvertiserDto updateAdvertiserById(@PathVariable("id") Long id,
                                               @RequestBody AdvertiserDto newAdvertiserDto,
-                                              Principal creator) throws NotFoundException, AuthenticationException {
+                                              Principal creator) throws AuthenticationException {
         Advertiser advertiser = advertiserMapper.mapToEntity(newAdvertiserDto);
         advertiserService.update(id, advertiser, creator);
         return newAdvertiserDto;
@@ -65,18 +65,18 @@ public class AdvertiserController {
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<HttpStatus> deleteAdvertiserById(@PathVariable("id") Long id, Principal creator)
-            throws NotFoundException, AuthenticationException {
+            throws AuthenticationException {
         advertiserService.delete(id, creator);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('user:write')")
     @GetMapping(value = "/deleted/{id}")
-    public AdvertiserDto getDeletedAdvertiserById(@PathVariable Long id) throws NotFoundException {
+    public AdvertiserDto getDeletedAdvertiserById(@PathVariable Long id) {
         return advertiserMapper.mapToDto(advertiserService.getDeletedAdvertiser(id));
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('user:write')")
     @GetMapping(value = "/deleted")
     public List<AdvertiserDto> getAllDeletedAdvertisers() {
         return advertiserMapper.mapToListDto(advertiserService.getDeletedAdvertisers());

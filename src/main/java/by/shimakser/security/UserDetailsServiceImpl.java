@@ -2,14 +2,12 @@ package by.shimakser.security;
 
 import by.shimakser.model.User;
 import by.shimakser.repository.UserRepository;
+import by.shimakser.security.jwt.JwtUser;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service("userDetailsServiceImpl")
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -22,13 +20,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User userByUsername = userRepository.findByUsername(username)
+    public UserDetails loadUserByUsername(String userEmail) throws UsernameNotFoundException {
+        User userByUsername = userRepository.findByUserEmail(userEmail)
                 .orElseThrow(() ->
-                        new UsernameNotFoundException(username + " was not found"));
-        return new org.springframework.security.core.userdetails.User(
-                userByUsername.getUsername(),
-                userByUsername.getPassword(),
-                AuthorityUtils.createAuthorityList(userByUsername.getUserRole().toString()));
+                        new UsernameNotFoundException("User by " + userEmail + " was not found"));
+
+        return JwtUser.convertFromUser(userByUsername);
     }
 }

@@ -6,13 +6,11 @@ import by.shimakser.model.File;
 import by.shimakser.service.FileService;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.rmi.AlreadyBoundException;
 import java.util.List;
 
 @RestController
@@ -37,11 +35,11 @@ public class FileController {
     }
 
     @GetMapping(value = "/{id}")
-    public FileDto getFileById(@PathVariable Long id) throws NotFoundException {
+    public FileDto getFileById(@PathVariable Long id) {
         return fileMapper.mapToDto(fileService.get(id));
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('user:write')")
     @GetMapping
     public List<FileDto> getAllFiles() {
         return fileMapper.mapToListDto(fileService.getAll());
@@ -49,26 +47,26 @@ public class FileController {
 
     @PutMapping(value = "/{id}")
     public FileDto updateFileById(@PathVariable("id") Long id,
-                                  @RequestBody FileDto newFileDto) throws NotFoundException {
+                                  @RequestBody FileDto newFileDto) {
         File file = fileMapper.mapToEntity(newFileDto);
         fileService.update(id, file);
         return newFileDto;
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('user:write')")
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<HttpStatus> deleteFileById(@PathVariable("id") Long id) throws NotFoundException {
+    public ResponseEntity<HttpStatus> deleteFileById(@PathVariable("id") Long id) {
         fileService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('user:write')")
     @GetMapping(value = "/deleted/{id}")
-    public FileDto getDeletedFileById(@PathVariable Long id) throws NotFoundException {
+    public FileDto getDeletedFileById(@PathVariable Long id) {
         return fileMapper.mapToDto(fileService.getDeletedFile(id));
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority('user:write')")
     @GetMapping(value = "/deleted")
     public List<FileDto> getAllDeletedFiles() {
         return fileMapper.mapToListDto(fileService.getDeletedFiles());
