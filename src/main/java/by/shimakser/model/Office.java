@@ -20,6 +20,7 @@ public class Office {
     private Long id;
     private String officeTitle;
     private String officeAddress;
+    private Double officePrice;
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "office_id")
     private List<Contact> officeContacts;
@@ -30,6 +31,6 @@ public class Office {
 
     @Override
     public String toString() {
-        return id + "," + officeTitle + "," + officeAddress + "," + officeContacts + "," + officeDescription;
+        return id + "," + officeTitle + "," + officeAddress + "," + officePrice + "," + officeContacts + "," + officeDescription;
     }
 }

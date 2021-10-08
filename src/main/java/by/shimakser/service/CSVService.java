@@ -49,12 +49,12 @@ public class CSVService {
                 statusOfExport.put(idOfOperation, Status.In_Process);
 
                 while ((line = reader.readLine()) != null) {
-                    String[] arrayOfOffices = line.split(",", 4);
+                    String[] arrayOfOffices = line.split(",", 5);
                     List<Contact> listOfContacts = new ArrayList<>();
 
-                    int indexOfClosSqBracket = arrayOfOffices[3].indexOf("]");
+                    int indexOfClosSqBracket = arrayOfOffices[4].indexOf("]");
 
-                    String[] splitContacts = arrayOfOffices[3].substring(1, indexOfClosSqBracket).split(", ");
+                    String[] splitContacts = arrayOfOffices[4].substring(1, indexOfClosSqBracket).split(", ");
                     Arrays.stream(splitContacts)
                             .filter(str -> str.length() > 2)
                             .forEach(str -> {
@@ -68,13 +68,13 @@ public class CSVService {
                             });
 
                     JSONObject jsonObject = null;
-                    String descriptions = arrayOfOffices[3].substring(indexOfClosSqBracket + 2);
+                    String descriptions = arrayOfOffices[4].substring(indexOfClosSqBracket + 2);
                     if (descriptions.length() > 4) {
                         jsonObject = new org.json.JSONObject(descriptions);
                     }
 
                     Office office = new Office(Long.parseLong(arrayOfOffices[0]), arrayOfOffices[1],
-                            arrayOfOffices[2], listOfContacts, jsonObject);
+                            arrayOfOffices[2], Double.parseDouble(arrayOfOffices[3]), listOfContacts, jsonObject);
                     officeRepository.save(office);
 
                     Status.Uploaded.setPathForFile(path);
