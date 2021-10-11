@@ -1,4 +1,4 @@
-package by.shimakser.model;
+package by.shimakser.model.mongo;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;

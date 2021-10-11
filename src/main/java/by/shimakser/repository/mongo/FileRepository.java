@@ -1,6 +1,6 @@
-package by.shimakser.repository;
+package by.shimakser.repository.mongo;
 
-import by.shimakser.model.File;
+import by.shimakser.model.mongo.File;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

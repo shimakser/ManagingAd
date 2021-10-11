@@ -1,9 +1,9 @@
-package by.shimakser.controller;
+package by.shimakser.controller.mongo;
 
 import by.shimakser.dto.FileDto;
 import by.shimakser.mapper.FileMapper;
-import by.shimakser.model.File;
-import by.shimakser.service.FileService;
+import by.shimakser.model.mongo.File;
+import by.shimakser.service.mongo.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

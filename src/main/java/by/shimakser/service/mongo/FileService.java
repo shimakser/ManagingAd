@@ -1,9 +1,8 @@
-package by.shimakser.service;
+package by.shimakser.service.mongo;
 
 import by.shimakser.exception.ExceptionText;
-import by.shimakser.model.File;
-import by.shimakser.repository.FileRepository;
-import javassist.NotFoundException;
+import by.shimakser.model.mongo.File;
+import by.shimakser.repository.mongo.FileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
