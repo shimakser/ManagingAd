@@ -1,11 +1,11 @@
-package by.shimakser.controller;
+package by.shimakser.controller.ad;
 
 import by.shimakser.dto.CampaignDto;
 import by.shimakser.filter.FilterRequest;
 import by.shimakser.mapper.CampaignMapper;
-import by.shimakser.model.Campaign;
-import by.shimakser.service.CampaignFilterService;
-import by.shimakser.service.CampaignService;
+import by.shimakser.model.ad.Campaign;
+import by.shimakser.service.ad.CampaignFilterService;
+import by.shimakser.service.ad.CampaignService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

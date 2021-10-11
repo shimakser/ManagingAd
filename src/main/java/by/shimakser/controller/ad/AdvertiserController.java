@@ -1,10 +1,9 @@
-package by.shimakser.controller;
+package by.shimakser.controller.ad;
 
 import by.shimakser.dto.AdvertiserDto;
 import by.shimakser.mapper.AdvertiserMapper;
-import by.shimakser.model.Advertiser;
-import by.shimakser.service.AdvertiserService;
-import javassist.NotFoundException;
+import by.shimakser.model.ad.Advertiser;
+import by.shimakser.service.ad.AdvertiserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

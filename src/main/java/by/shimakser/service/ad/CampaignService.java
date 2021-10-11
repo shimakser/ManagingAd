@@ -1,11 +1,11 @@
-package by.shimakser.service;
+package by.shimakser.service.ad;
 
 import by.shimakser.exception.ExceptionText;
-import by.shimakser.model.Campaign;
-import by.shimakser.model.Role;
-import by.shimakser.model.User;
-import by.shimakser.repository.CampaignRepository;
-import by.shimakser.repository.UserRepository;
+import by.shimakser.model.ad.Campaign;
+import by.shimakser.model.ad.Role;
+import by.shimakser.model.ad.User;
+import by.shimakser.repository.ad.CampaignRepository;
+import by.shimakser.repository.ad.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.stereotype.Service;

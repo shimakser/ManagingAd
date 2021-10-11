@@ -1,4 +1,4 @@
-package by.shimakser.model;
+package by.shimakser.model.ad;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

@@ -1,6 +1,6 @@
-package by.shimakser.repository;
+package by.shimakser.repository.ad;
 
-import by.shimakser.model.User;
+import by.shimakser.model.ad.User;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

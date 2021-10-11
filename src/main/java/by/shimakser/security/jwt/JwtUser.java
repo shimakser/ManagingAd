@@ -1,6 +1,6 @@
 package by.shimakser.security.jwt;
 
-import by.shimakser.model.User;
+import by.shimakser.model.ad.User;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

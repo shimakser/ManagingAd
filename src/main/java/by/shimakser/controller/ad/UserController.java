@@ -1,9 +1,9 @@
-package by.shimakser.controller;
+package by.shimakser.controller.ad;
 
 import by.shimakser.dto.UserDto;
 import by.shimakser.mapper.UserMapper;
-import by.shimakser.model.User;
-import by.shimakser.service.UserService;
+import by.shimakser.model.ad.User;
+import by.shimakser.service.ad.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

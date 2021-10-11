@@ -1,6 +1,6 @@
-package by.shimakser.repository;
+package by.shimakser.repository.ad;
 
-import by.shimakser.model.Campaign;
+import by.shimakser.model.ad.Campaign;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;

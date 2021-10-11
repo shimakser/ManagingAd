@@ -1,7 +1,7 @@
 package by.shimakser.filter;
 
-import by.shimakser.model.Campaign;
-import by.shimakser.model.Campaign_;
+import by.shimakser.model.ad.Campaign;
+import by.shimakser.model.ad.Campaign_;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.CriteriaBuilder;

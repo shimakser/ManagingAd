@@ -1,7 +1,7 @@
 package by.shimakser.security;
 
-import by.shimakser.model.User;
-import by.shimakser.repository.UserRepository;
+import by.shimakser.model.ad.User;
+import by.shimakser.repository.ad.UserRepository;
 import by.shimakser.security.jwt.JwtUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

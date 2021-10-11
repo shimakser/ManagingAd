@@ -1,4 +1,4 @@
-package by.shimakser.model;
+package by.shimakser.model.office;
 
 import by.shimakser.converter.JSONObjectConverter;
 import lombok.AllArgsConstructor;
@@ -24,8 +24,6 @@ public class Office {
     @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "office_id")
     private List<Contact> officeContacts;
-
-    @Column(columnDefinition = "TEXT")
     @Convert(converter = JSONObjectConverter.class)
     private JSONObject officeDescription;
 

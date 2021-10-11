@@ -4,7 +4,6 @@ import by.shimakser.dto.FileDto;
 import by.shimakser.mapper.FileMapper;
 import by.shimakser.model.File;
 import by.shimakser.service.FileService;
-import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

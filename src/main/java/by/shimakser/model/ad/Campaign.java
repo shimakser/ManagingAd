@@ -1,4 +1,4 @@
-package by.shimakser.model;
+package by.shimakser.model.ad;
 
 import lombok.Data;
 

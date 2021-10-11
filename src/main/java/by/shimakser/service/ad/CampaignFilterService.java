@@ -1,10 +1,10 @@
-package by.shimakser.service;
+package by.shimakser.service.ad;
 
 import by.shimakser.filter.CampaignSpecifications;
-import by.shimakser.filter.Filter;
+import by.shimakser.filter.CampaignFilter;
 import by.shimakser.filter.FilterRequest;
-import by.shimakser.model.Campaign;
-import by.shimakser.repository.CampaignRepository;
+import by.shimakser.model.ad.Campaign;
+import by.shimakser.repository.ad.CampaignRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,7 +32,7 @@ public class CampaignFilterService {
     @Transactional
     public List<Campaign> getByFilter(FilterRequest filterRequest) {
         return campaignRepository.findAll(
-                        buildSpecification(filterRequest.getFilter()),
+                        buildSpecification(filterRequest.getCampaignFilter()),
                         buildPageable(filterRequest))
                 .stream().collect(Collectors.toList());
     }
@@ -56,39 +56,39 @@ public class CampaignFilterService {
         return PageRequest.of(pageNumber, pageSize, Sort.by(sortFieldName));
     }
 
-    private Specification<Campaign> buildSpecification(Filter filter) {
+    private Specification<Campaign> buildSpecification(CampaignFilter campaignFilter) {
         Specification<Campaign> specification = CampaignSpecifications.empty();
 
-        if (filter == null) {
+        if (campaignFilter == null) {
             return specification;
         }
 
-        if (filter.getCountry() != null) {
+        if (campaignFilter.getCountry() != null) {
             specification = specification.and(
-                    CampaignSpecifications.countryEqual(filter.getCountry())
+                    CampaignSpecifications.countryEqual(campaignFilter.getCountry())
             );
         }
 
-        if (filter.getAge() != null) {
+        if (campaignFilter.getAge() != null) {
             specification = specification.and(
-                    CampaignSpecifications.ageMatch(filter.getAge())
+                    CampaignSpecifications.ageMatch(campaignFilter.getAge())
             );
         }
-        if (filter.getCampaignDeleteNotes() != null) {
+        if (campaignFilter.getCampaignDeleteNotes() != null) {
             specification = specification.and(
-                    CampaignSpecifications.deleteNotesEqual(filter.getCampaignDeleteNotes())
+                    CampaignSpecifications.deleteNotesEqual(campaignFilter.getCampaignDeleteNotes())
             );
         }
 
-        if (filter.getCreatedDateFrom() != null) {
-            LocalDateTime dateCreatedFrom = convertToLocalDateTime(filter.getCreatedDateFrom());
+        if (campaignFilter.getCreatedDateFrom() != null) {
+            LocalDateTime dateCreatedFrom = convertToLocalDateTime(campaignFilter.getCreatedDateFrom());
             specification = specification.and(
                     CampaignSpecifications.createdDateGreaterThanOrEqualTo(dateCreatedFrom)
             );
         }
 
-        if (filter.getCreatedDateTo() != null) {
-            LocalDateTime dateCreatedTo = convertToLocalDateTime(filter.getCreatedDateTo());
+        if (campaignFilter.getCreatedDateTo() != null) {
+            LocalDateTime dateCreatedTo = convertToLocalDateTime(campaignFilter.getCreatedDateTo());
             specification = specification.and(
                     CampaignSpecifications.createdDateLessThanOrEqualTo(dateCreatedTo)
             );

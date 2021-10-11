@@ -1,7 +1,7 @@
 package by.shimakser.mapper;
 
 import by.shimakser.dto.UserDto;
-import by.shimakser.model.User;
+import by.shimakser.model.ad.User;
 import org.mapstruct.Mapper;
 
 import java.util.List;

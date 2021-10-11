@@ -1,12 +1,12 @@
-package by.shimakser.service;
+package by.shimakser.service.office;
 
 import by.shimakser.exception.ExceptionText;
-import by.shimakser.model.Contact;
-import by.shimakser.model.CSVRequest;
-import by.shimakser.model.Office;
-import by.shimakser.model.Status;
-import by.shimakser.repository.ContactRepository;
-import by.shimakser.repository.OfficeRepository;
+import by.shimakser.model.office.Contact;
+import by.shimakser.model.office.CSVRequest;
+import by.shimakser.model.office.Office;
+import by.shimakser.model.office.Status;
+import by.shimakser.repository.office.ContactRepository;
+import by.shimakser.repository.office.OfficeRepository;
 import javassist.NotFoundException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,13 +17,13 @@ import java.io.*;
 import java.util.*;
 
 @Service
-public class CSVService {
+public class OfficeService {
 
     private final OfficeRepository officeRepository;
     private final ContactRepository contactRepository;
 
     @Autowired
-    public CSVService(OfficeRepository officeRepository, ContactRepository contactRepository) {
+    public OfficeService(OfficeRepository officeRepository, ContactRepository contactRepository) {
         this.officeRepository = officeRepository;
         this.contactRepository = contactRepository;
     }
@@ -144,5 +144,10 @@ public class CSVService {
             throw new NotFoundException(ExceptionText.NotFound.getExceptionText());
         }
         return status.getPathForFile();
+    }
+
+    @Transactional
+    public List<Office> getAll() {
+        return officeRepository.findAll();
     }
 }

@@ -1,6 +1,6 @@
-package by.shimakser.repository;
+package by.shimakser.repository.office;
 
-import by.shimakser.model.Contact;
+import by.shimakser.model.office.Contact;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
