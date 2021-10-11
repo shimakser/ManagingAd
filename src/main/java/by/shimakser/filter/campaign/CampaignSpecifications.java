@@ -1,4 +1,4 @@
-package by.shimakser.filter;
+package by.shimakser.filter.campaign;
 
 import by.shimakser.model.ad.Campaign;
 import by.shimakser.model.ad.Campaign_;

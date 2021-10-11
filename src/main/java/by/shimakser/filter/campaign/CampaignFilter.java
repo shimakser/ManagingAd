@@ -1,4 +1,4 @@
-package by.shimakser.filter;
+package by.shimakser.filter.campaign;
 
 import lombok.Data;
 

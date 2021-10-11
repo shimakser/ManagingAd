@@ -1,8 +1,8 @@
 package by.shimakser.service.ad;
 
-import by.shimakser.filter.CampaignSpecifications;
-import by.shimakser.filter.CampaignFilter;
-import by.shimakser.filter.FilterRequest;
+import by.shimakser.filter.campaign.CampaignSpecifications;
+import by.shimakser.filter.campaign.CampaignFilter;
+import by.shimakser.filter.campaign.CampaignRequest;
 import by.shimakser.model.ad.Campaign;
 import by.shimakser.repository.ad.CampaignRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,10 +30,10 @@ public class CampaignFilterService {
     }
 
     @Transactional
-    public List<Campaign> getByFilter(FilterRequest filterRequest) {
+    public List<Campaign> getByFilter(CampaignRequest campaignRequest) {
         return campaignRepository.findAll(
-                        buildSpecification(filterRequest.getCampaignFilter()),
-                        buildPageable(filterRequest))
+                        buildSpecification(campaignRequest.getCampaignFilter()),
+                        buildPageable(campaignRequest))
                 .stream().collect(Collectors.toList());
     }
 
@@ -42,10 +42,10 @@ public class CampaignFilterService {
         return LocalDateTime.parse(date, pattern);
     }
 
-    private Pageable buildPageable(FilterRequest filterRequest) {
-        Integer pageNumber = filterRequest.getPage();
-        Integer pageSize = Optional.ofNullable(filterRequest.getSize()).orElse(10);
-        String sortFieldName = Optional.ofNullable(filterRequest.getSortBy()).orElse("id");
+    private Pageable buildPageable(CampaignRequest campaignRequest) {
+        Integer pageNumber = campaignRequest.getPage();
+        Integer pageSize = Optional.ofNullable(campaignRequest.getSize()).orElse(10);
+        String sortFieldName = Optional.ofNullable(campaignRequest.getSortBy()).orElse("id");
 
         if (pageNumber == null) {
             pageNumber = 0;

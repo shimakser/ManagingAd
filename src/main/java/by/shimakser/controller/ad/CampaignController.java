@@ -1,7 +1,7 @@
 package by.shimakser.controller.ad;
 
 import by.shimakser.dto.CampaignDto;
-import by.shimakser.filter.FilterRequest;
+import by.shimakser.filter.campaign.CampaignRequest;
 import by.shimakser.mapper.CampaignMapper;
 import by.shimakser.model.ad.Campaign;
 import by.shimakser.service.ad.CampaignFilterService;
@@ -47,8 +47,8 @@ public class CampaignController {
     }
 
     @PostMapping("/filter")
-    public List<CampaignDto> getByFilter(@RequestBody FilterRequest filterRequest) {
-        return campaignMapper.mapToListDto(campaignFilterService.getByFilter(filterRequest));
+    public List<CampaignDto> getByFilter(@RequestBody CampaignRequest campaignRequest) {
+        return campaignMapper.mapToListDto(campaignFilterService.getByFilter(campaignRequest));
     }
 
     @PutMapping(value = "/{id}")
