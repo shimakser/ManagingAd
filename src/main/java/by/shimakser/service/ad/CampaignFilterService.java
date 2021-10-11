@@ -1,14 +1,11 @@
 package by.shimakser.service.ad;
 
+import by.shimakser.filter.campaign.CampaignFilterRequest;
 import by.shimakser.filter.campaign.CampaignSpecifications;
-import by.shimakser.filter.campaign.CampaignFilter;
-import by.shimakser.filter.campaign.CampaignRequest;
 import by.shimakser.model.ad.Campaign;
 import by.shimakser.repository.ad.CampaignRepository;
+import by.shimakser.service.FilterService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,11 +13,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class CampaignFilterService {
+public class CampaignFilterService extends FilterService {
 
     private final CampaignRepository campaignRepository;
 
@@ -30,10 +26,10 @@ public class CampaignFilterService {
     }
 
     @Transactional
-    public List<Campaign> getByFilter(CampaignRequest campaignRequest) {
+    public List<Campaign> getByFilter(CampaignFilterRequest campaignFilterRequest) {
         return campaignRepository.findAll(
-                        buildSpecification(campaignRequest.getCampaignFilter()),
-                        buildPageable(campaignRequest))
+                        buildSpecification(campaignFilterRequest),
+                        buildPageable(campaignFilterRequest))
                 .stream().collect(Collectors.toList());
     }
 
@@ -42,53 +38,39 @@ public class CampaignFilterService {
         return LocalDateTime.parse(date, pattern);
     }
 
-    private Pageable buildPageable(CampaignRequest campaignRequest) {
-        Integer pageNumber = campaignRequest.getPage();
-        Integer pageSize = Optional.ofNullable(campaignRequest.getSize()).orElse(10);
-        String sortFieldName = Optional.ofNullable(campaignRequest.getSortBy()).orElse("id");
-
-        if (pageNumber == null) {
-            pageNumber = 0;
-        } else {
-            pageNumber -= 1;
-        }
-
-        return PageRequest.of(pageNumber, pageSize, Sort.by(sortFieldName));
-    }
-
-    private Specification<Campaign> buildSpecification(CampaignFilter campaignFilter) {
+    private Specification<Campaign> buildSpecification(CampaignFilterRequest campaignFilterRequest) {
         Specification<Campaign> specification = CampaignSpecifications.empty();
 
-        if (campaignFilter == null) {
+        if (campaignFilterRequest == null) {
             return specification;
         }
 
-        if (campaignFilter.getCountry() != null) {
+        if (campaignFilterRequest.getCountry() != null) {
             specification = specification.and(
-                    CampaignSpecifications.countryEqual(campaignFilter.getCountry())
+                    CampaignSpecifications.countryEqual(campaignFilterRequest.getCountry())
             );
         }
 
-        if (campaignFilter.getAge() != null) {
+        if (campaignFilterRequest.getAge() != null) {
             specification = specification.and(
-                    CampaignSpecifications.ageMatch(campaignFilter.getAge())
+                    CampaignSpecifications.ageMatch(campaignFilterRequest.getAge())
             );
         }
-        if (campaignFilter.getCampaignDeleteNotes() != null) {
+        if (campaignFilterRequest.getCampaignDeleteNotes() != null) {
             specification = specification.and(
-                    CampaignSpecifications.deleteNotesEqual(campaignFilter.getCampaignDeleteNotes())
+                    CampaignSpecifications.deleteNotesEqual(campaignFilterRequest.getCampaignDeleteNotes())
             );
         }
 
-        if (campaignFilter.getCreatedDateFrom() != null) {
-            LocalDateTime dateCreatedFrom = convertToLocalDateTime(campaignFilter.getCreatedDateFrom());
+        if (campaignFilterRequest.getCreatedDateFrom() != null) {
+            LocalDateTime dateCreatedFrom = convertToLocalDateTime(campaignFilterRequest.getCreatedDateFrom());
             specification = specification.and(
                     CampaignSpecifications.createdDateGreaterThanOrEqualTo(dateCreatedFrom)
             );
         }
 
-        if (campaignFilter.getCreatedDateTo() != null) {
-            LocalDateTime dateCreatedTo = convertToLocalDateTime(campaignFilter.getCreatedDateTo());
+        if (campaignFilterRequest.getCreatedDateTo() != null) {
+            LocalDateTime dateCreatedTo = convertToLocalDateTime(campaignFilterRequest.getCreatedDateTo());
             specification = specification.and(
                     CampaignSpecifications.createdDateLessThanOrEqualTo(dateCreatedTo)
             );

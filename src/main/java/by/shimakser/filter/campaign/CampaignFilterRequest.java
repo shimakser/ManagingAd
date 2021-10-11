@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.Set;
 
 @Data
-public class CampaignFilter extends Request {
+public class CampaignFilterRequest extends Request {
 
     private Set<String> age;
 
