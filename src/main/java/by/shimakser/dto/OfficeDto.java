@@ -12,7 +12,7 @@ public class OfficeDto {
     private Long id;
     private String officeTitle;
     private String officeAddress;
-    private Double convertedPrice;
+    private Double officePrice;
     private List<Contact> officeContacts;
     private JSONObject officeDescription;
 }
