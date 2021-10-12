@@ -145,9 +145,4 @@ public class OfficeService {
         }
         return status.getPathForFile();
     }
-
-    @Transactional
-    public List<Office> getAll() {
-        return officeRepository.findAll();
-    }
 }
