@@ -1,14 +1,14 @@
 package by.shimakser.controller.office;
 
+import by.shimakser.dto.OfficeDto;
 import by.shimakser.filter.office.OfficeFilterRequest;
-import by.shimakser.model.office.Office;
-import by.shimakser.service.office.CurrencyService;
+import by.shimakser.filter.office.OfficeFilterResponse;
+import by.shimakser.mapper.OfficeMapper;
 import by.shimakser.service.office.OfficeFilterService;
-import by.shimakser.service.office.OfficeService;
-import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -17,21 +17,24 @@ public class CurrencyController {
 
     private final OfficeFilterService officeFilterService;
 
-    private final CurrencyService currencyService;
+    private final OfficeMapper officeMapper;
 
     @Autowired
-    public CurrencyController(OfficeFilterService officeFilterService, CurrencyService currencyService) {
+    public CurrencyController(OfficeFilterService officeFilterService, OfficeMapper officeMapper) {
         this.officeFilterService = officeFilterService;
-        this.currencyService = currencyService;
+        this.officeMapper = officeMapper;
     }
 
     @PostMapping
-    public List<Office> getAllOffices(@RequestBody OfficeFilterRequest officeFilterRequest) {
-        return officeFilterService.getAllByFilter(officeFilterRequest);
-    }
+    public List<OfficeDto> getAllOffices(@RequestBody OfficeFilterRequest officeFilterRequest) {
+        List<OfficeFilterResponse> responseList = officeFilterService.getAllByFilter(officeFilterRequest);
 
-    @GetMapping(value = "/currencies")
-    public JSONObject getCurrenciesByExternalApi() {
-        return currencyService.getCurrencies();
+        List<OfficeDto> list = new ArrayList<>();
+        for (OfficeFilterResponse response: responseList) {
+            OfficeDto oDto = officeMapper.mapToDto(response.getOffice());
+            oDto.setConvertedPrice(response.getConvertedPrice());
+            list.add(oDto);
+        }
+        return list;
     }
 }
