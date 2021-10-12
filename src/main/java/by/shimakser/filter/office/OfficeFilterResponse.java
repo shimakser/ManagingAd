@@ -1,6 +1,6 @@
 package by.shimakser.filter.office;
 
-import by.shimakser.filter.Request;
+import by.shimakser.model.office.Office;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OfficeFilterRequest extends Request {
+public class OfficeFilterResponse {
 
-    private Currency currency = Currency.EUR;
+    private Double convertedPrice;
+    private Office office;
 }
