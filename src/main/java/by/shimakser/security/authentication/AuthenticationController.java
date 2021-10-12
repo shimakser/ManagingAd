@@ -1,9 +1,9 @@
 package by.shimakser.security.authentication;
 
 import by.shimakser.exception.ExceptionText;
-import by.shimakser.model.User;
+import by.shimakser.model.ad.User;
 import by.shimakser.security.jwt.JwtTokenProvider;
-import by.shimakser.service.UserService;
+import by.shimakser.service.ad.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;

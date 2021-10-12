@@ -1,7 +1,7 @@
 package by.shimakser.mapper;
 
 import by.shimakser.dto.CampaignDto;
-import by.shimakser.model.Campaign;
+import by.shimakser.model.ad.Campaign;
 import org.mapstruct.Mapper;
 
 import java.util.List;

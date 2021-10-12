@@ -1,7 +1,7 @@
 package by.shimakser.mapper;
 
 import by.shimakser.dto.FileDto;
-import by.shimakser.model.File;
+import by.shimakser.model.mongo.File;
 import org.mapstruct.Mapper;
 
 import java.util.List;

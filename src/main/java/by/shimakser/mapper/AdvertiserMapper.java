@@ -1,8 +1,7 @@
 package by.shimakser.mapper;
 
 import by.shimakser.dto.AdvertiserDto;
-import by.shimakser.model.Advertiser;
-import by.shimakser.model.User;
+import by.shimakser.model.ad.Advertiser;
 import org.mapstruct.Mapper;
 
 import java.util.List;
