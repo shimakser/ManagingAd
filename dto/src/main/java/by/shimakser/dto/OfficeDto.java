@@ -1,6 +1,5 @@
 package by.shimakser.dto;
 
-import by.shimakser.model.office.Contact;
 import lombok.Data;
 import org.json.JSONObject;
 
@@ -13,6 +12,6 @@ public class OfficeDto {
     private String officeTitle;
     private String officeAddress;
     private Double officePrice;
-    private List<Contact> officeContacts;
+    private List officeContacts;
     private JSONObject officeDescription;
 }
