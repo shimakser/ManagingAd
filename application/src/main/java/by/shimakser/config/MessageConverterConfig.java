@@ -9,7 +9,6 @@ import org.springframework.context.annotation.PropertySource;
 
 @Configuration
 @EnableFeignClients(basePackageClasses = CurrencyFeignClient.class)
-@PropertySource(value = "file:src/main/resources/application.properties")
 public class MessageConverterConfig {
 
     @Bean
