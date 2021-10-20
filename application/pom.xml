@@ -112,6 +112,8 @@
     </dependencies>
 
     <build>
+        <finalName>managingad</finalName>
+
         <plugins>
             <plugin>
                 <groupId>org.flywaydb</groupId>
