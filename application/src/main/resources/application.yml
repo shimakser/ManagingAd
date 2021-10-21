@@ -5,15 +5,15 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://postgresdb:5432/ManagingAd
-    username: postgres
-    password: root
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   flyway:
-    url: jdbc:postgresql://postgresdb:5432/ManagingAd
-    user: postgres
-    password: root
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${DB}
+    user: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
     locations: classpath:db/migration
 
   jpa:
@@ -21,9 +21,9 @@ spring:
 
   data:
     mongodb:
-      host: mongodb
-      port: 27017
-      database: ManagingAd
+      host: ${MONGO_HOST}
+      port: ${MONGO_PORT}
+      database: ${DB}
 
 jwt:
   token:
