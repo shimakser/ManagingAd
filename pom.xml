@@ -19,6 +19,7 @@
         <module>dto</module>
         <module>feign</module>
         <module>application</module>
+        <module>kafka</module>
     </modules>
 
     <properties>
