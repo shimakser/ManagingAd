@@ -1,6 +1,7 @@
 package by.shimakser.controller.ad;
 
 import by.shimakser.dto.UserDto;
+import by.shimakser.kafka.service.ProducerService;
 import by.shimakser.mapper.UserMapper;
 import by.shimakser.model.ad.User;
 import by.shimakser.service.ad.UserService;
@@ -24,15 +25,19 @@ public class UserController {
 
     private final UserMapper userMapper;
 
+    private final ProducerService producerService;
+
     @Autowired
-    public UserController(UserService userService, UserMapper userMapper) {
+    public UserController(UserService userService, UserMapper userMapper, ProducerService producerService) {
         this.userService = userService;
         this.userMapper = userMapper;
+        this.producerService = producerService;
     }
 
     @PostMapping
     public ResponseEntity<UserDto> addUser(@RequestBody UserDto userDto) throws AlreadyBoundException {
         User newUser = userMapper.mapToEntity(userDto);
+        producerService.send(userDto);
         userService.add(newUser);
         return new ResponseEntity<>(userDto, HttpStatus.CREATED);
     }
