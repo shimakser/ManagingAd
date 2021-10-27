@@ -29,7 +29,7 @@ spring:
     bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
     topic-name: registration
     consumer:
-      group-id: dms-app
+      group-id: auth-group
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
