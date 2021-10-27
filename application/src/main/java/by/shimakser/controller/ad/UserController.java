@@ -25,19 +25,15 @@ public class UserController {
 
     private final UserMapper userMapper;
 
-    private final ProducerService producerService;
-
     @Autowired
-    public UserController(UserService userService, UserMapper userMapper, ProducerService producerService) {
+    public UserController(UserService userService, UserMapper userMapper) {
         this.userService = userService;
         this.userMapper = userMapper;
-        this.producerService = producerService;
     }
 
     @PostMapping
     public ResponseEntity<UserDto> addUser(@RequestBody UserDto userDto) throws AlreadyBoundException {
         User newUser = userMapper.mapToEntity(userDto);
-        producerService.send(userDto);
         userService.add(newUser);
         return new ResponseEntity<>(userDto, HttpStatus.CREATED);
     }
