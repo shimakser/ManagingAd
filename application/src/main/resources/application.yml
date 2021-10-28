@@ -28,10 +28,12 @@ spring:
   kafka:
     bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
     topic:
+      registration-topic: registration-topic
       request-topic: request-topic
       requestreply-topic: requestreply-topic
     consumer:
-      group-id: requestreply-group
+      registration-group: registration-group
+      requestreply-group: requestreply-group
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer

@@ -1,4 +1,4 @@
-package by.shimakser.kafka.model;
+package by.shimakser.dto;
 
 import lombok.Getter;
 import lombok.Setter;

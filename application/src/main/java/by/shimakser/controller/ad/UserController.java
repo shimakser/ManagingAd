@@ -1,10 +1,10 @@
 package by.shimakser.controller.ad;
 
 import by.shimakser.dto.UserDto;
-import by.shimakser.kafka.service.ProducerService;
 import by.shimakser.mapper.UserMapper;
 import by.shimakser.model.ad.User;
 import by.shimakser.service.ad.UserService;
+import by.shimakser.service.kafka.ProducerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,15 +25,19 @@ public class UserController {
 
     private final UserMapper userMapper;
 
+    private final ProducerService producerService;
+
     @Autowired
-    public UserController(UserService userService, UserMapper userMapper) {
+    public UserController(UserService userService, UserMapper userMapper, ProducerService producerService) {
         this.userService = userService;
         this.userMapper = userMapper;
+        this.producerService = producerService;
     }
 
     @PostMapping
     public ResponseEntity<UserDto> addUser(@RequestBody UserDto userDto) throws AlreadyBoundException {
         User newUser = userMapper.mapToEntity(userDto);
+        producerService.sendUser(userDto);
         userService.add(newUser);
         return new ResponseEntity<>(userDto, HttpStatus.CREATED);
     }
@@ -71,7 +75,7 @@ public class UserController {
 
     @PreAuthorize("hasAuthority('user:write')")
     @GetMapping(value = "/deleted/{id}")
-    public UserDto getDeletedUserById(@PathVariable Long id)  {
+    public UserDto getDeletedUserById(@PathVariable Long id) {
         return userMapper.mapToDto(userService.getDeletedUser(id));
     }
 

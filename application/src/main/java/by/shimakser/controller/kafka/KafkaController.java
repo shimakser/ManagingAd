@@ -1,7 +1,7 @@
-package by.shimakser.controller;
+package by.shimakser.controller.kafka;
 
-import by.shimakser.kafka.model.NumbersRequest;
-import by.shimakser.kafka.service.ProducerService;
+import by.shimakser.dto.NumbersRequest;
+import by.shimakser.service.kafka.ProducerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,6 +23,6 @@ public class KafkaController {
 
     @PostMapping
     public NumbersRequest sum(@RequestBody NumbersRequest request) throws ExecutionException, InterruptedException {
-        return producerService.send(request);
+        return producerService.sendNumbers(request);
     }
 }
