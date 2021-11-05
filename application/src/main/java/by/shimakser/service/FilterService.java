@@ -6,6 +6,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 @Service
 public class FilterService {
 
@@ -15,5 +18,10 @@ public class FilterService {
         String sortFieldName = request.getSortBy();
 
         return PageRequest.of(pageNumber, pageSize, Sort.by(sortFieldName));
+    }
+
+    public LocalDateTime convertToLocalDateTime(String date) {
+        DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return LocalDateTime.parse(date, pattern);
     }
 }
