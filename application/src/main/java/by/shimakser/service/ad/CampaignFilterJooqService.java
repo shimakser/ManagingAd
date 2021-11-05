@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static by.shimakser.model.Tables.CAMPAIGN;
 
@@ -24,9 +25,13 @@ public class CampaignFilterJooqService extends FilterService {
     }
 
     @Transactional
-    public List<CampaignRecord> getAllByJooqAndFilter(CampaignFilterRequest campaignFilterRequest) {
+    public List<CampaignRecord> getAllByFilterWithJooq(CampaignFilterRequest campaignFilterRequest) {
         return context
-                .fetch(CAMPAIGN, buildCondition(campaignFilterRequest));
+                .fetch(CAMPAIGN, buildCondition(campaignFilterRequest))
+                .sortAsc(campaignFilterRequest.getSortBy())
+                .stream()
+                .limit(campaignFilterRequest.getSize())
+                .collect(Collectors.toList());
     }
 
     private Condition buildCondition(CampaignFilterRequest campaignFilterRequest) {

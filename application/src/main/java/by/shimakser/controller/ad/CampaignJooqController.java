@@ -27,8 +27,8 @@ public class CampaignJooqController {
     }
 
     @PostMapping(value = "/jooq")
-    public List<Campaign> getCampaignByFilterAndJooq(@RequestBody CampaignFilterRequest campaignFilterRequest) {
+    public List<Campaign> getCampaignByFilter(@RequestBody CampaignFilterRequest campaignFilterRequest) {
         return campaignRecordMapper.mapToListEntity(campaignFilterJooqService
-                .getAllByJooqAndFilter(campaignFilterRequest));
+                .getAllByFilterWithJooq(campaignFilterRequest));
     }
 }
