@@ -1,7 +1,8 @@
-package by.shimakser.security.authentication;
+package by.shimakser.controller;
 
 import by.shimakser.exception.ExceptionText;
 import by.shimakser.model.ad.User;
+import by.shimakser.security.jwt.AuthenticationRequest;
 import by.shimakser.security.jwt.JwtTokenProvider;
 import by.shimakser.service.ad.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

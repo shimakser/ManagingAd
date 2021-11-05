@@ -1,4 +1,4 @@
-package by.shimakser.jooq.service;
+package by.shimakser.service.ad;
 
 import by.shimakser.model.Tables;
 import by.shimakser.model.tables.records.CampaignRecord;

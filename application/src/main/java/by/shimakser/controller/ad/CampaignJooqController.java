@@ -1,12 +1,9 @@
-package by.shimakser.jooq.controller;
+package by.shimakser.controller.ad;
 
-import by.shimakser.jooq.mapper.CampaignRecordMapper;
-import by.shimakser.jooq.service.CampaignFilterJooqService;
-import by.shimakser.mapper.CampaignMapper;
+import by.shimakser.mapper.CampaignRecordMapper;
+import by.shimakser.service.ad.CampaignFilterJooqService;
 import by.shimakser.model.ad.Campaign;
-import by.shimakser.model.tables.records.CampaignRecord;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,14 +13,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/campaigns/jooq")
-public class JooqController {
+public class CampaignJooqController {
 
     private final CampaignRecordMapper campaignRecordMapper;
 
     private final CampaignFilterJooqService campaignFilterJooqService;
 
     @Autowired
-    public JooqController(CampaignRecordMapper campaignRecordMapper, CampaignFilterJooqService campaignFilterJooqService) {
+    public CampaignJooqController(CampaignRecordMapper campaignRecordMapper, CampaignFilterJooqService campaignFilterJooqService) {
         this.campaignRecordMapper = campaignRecordMapper;
         this.campaignFilterJooqService = campaignFilterJooqService;
     }
