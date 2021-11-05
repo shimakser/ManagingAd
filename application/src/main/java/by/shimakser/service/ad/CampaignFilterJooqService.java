@@ -1,13 +1,13 @@
 package by.shimakser.service.ad;
 
-import by.shimakser.model.Tables;
+import by.shimakser.filter.campaign.CampaignFilterRequest;
 import by.shimakser.model.tables.records.CampaignRecord;
 import by.shimakser.service.FilterService;
-import org.jetbrains.annotations.NotNull;
+import org.jooq.Condition;
 import org.jooq.DSLContext;
-import org.jooq.SelectWhereStep;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -23,13 +23,48 @@ public class CampaignFilterJooqService extends FilterService {
         this.context = context;
     }
 
-    public List<CampaignRecord> getAllByJooq() {
-        return (List<CampaignRecord>) context
-                .fetch(Tables.CAMPAIGN);
+    @Transactional
+    public List<CampaignRecord> getAllByJooqAndFilter(CampaignFilterRequest campaignFilterRequest) {
+        return context
+                .fetch(CAMPAIGN, buildCondition(campaignFilterRequest));
     }
 
-    public CampaignRecord getByJooq(Integer id) {
-        return context
-                .fetchOne(Tables.CAMPAIGN, CAMPAIGN.ID.eq(id));
+    private Condition buildCondition(CampaignFilterRequest campaignFilterRequest) {
+        Condition condition = null;
+
+        if (campaignFilterRequest.getCountry() != null) {
+            condition = append(condition, CAMPAIGN.COUNTRY.eq(campaignFilterRequest.getCountry()));
+        }
+
+        if (campaignFilterRequest.getCampaignDeleteNotes() != null) {
+            condition = append(condition, CAMPAIGN.CAMPAIGN_DELETE_NOTES.eq(campaignFilterRequest.getCampaignDeleteNotes()));
+        }
+
+        if (campaignFilterRequest.getCreatedDateFrom() != null) {
+            condition = append(condition, CAMPAIGN.CAMPAIGN_CREATED_DATE.
+                    eq(convertToLocalDateTime(campaignFilterRequest.getCreatedDateFrom())));
+        }
+
+        if (campaignFilterRequest.getCreatedDateTo() != null) {
+            condition = append(condition,
+                    CAMPAIGN.CAMPAIGN_CREATED_DATE
+                            .eq(convertToLocalDateTime(campaignFilterRequest.getCreatedDateTo())));
+        }
+
+        if (campaignFilterRequest.getAge() != null) {
+            for (String age : campaignFilterRequest.getAge()) {
+                condition = append(condition, CAMPAIGN.AGE.eq(age));
+            }
+        }
+
+        return condition;
+    }
+
+    private Condition append(Condition base, Condition next) {
+        if (base == null) {
+            return next;
+        } else {
+            return base.and(next);
+        }
     }
 }

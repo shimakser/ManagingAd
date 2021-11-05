@@ -1,18 +1,19 @@
 package by.shimakser.controller.ad;
 
+import by.shimakser.filter.campaign.CampaignFilterRequest;
 import by.shimakser.mapper.CampaignRecordMapper;
-import by.shimakser.service.ad.CampaignFilterJooqService;
 import by.shimakser.model.ad.Campaign;
+import by.shimakser.service.ad.CampaignFilterJooqService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/campaigns/jooq")
+@RequestMapping("/campaigns/filter")
 public class CampaignJooqController {
 
     private final CampaignRecordMapper campaignRecordMapper;
@@ -25,13 +26,9 @@ public class CampaignJooqController {
         this.campaignFilterJooqService = campaignFilterJooqService;
     }
 
-    @GetMapping
-    public List<Campaign> getAllCampaignByJooq() {
-        return campaignRecordMapper.mapToListEntity(campaignFilterJooqService.getAllByJooq());
-    }
-
-    @GetMapping(value = "/{id}")
-    public Campaign getCampaignByIdAndJooq(@PathVariable Integer id) {
-        return campaignRecordMapper.mapToEntity(campaignFilterJooqService.getByJooq(id));
+    @PostMapping(value = "/jooq")
+    public List<Campaign> getCampaignByFilterAndJooq(@RequestBody CampaignFilterRequest campaignFilterRequest) {
+        return campaignRecordMapper.mapToListEntity(campaignFilterJooqService
+                .getAllByJooqAndFilter(campaignFilterRequest));
     }
 }
