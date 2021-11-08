@@ -1,14 +1,17 @@
 package by.shimakser.service.ad;
 
 import by.shimakser.filter.campaign.CampaignFilterRequest;
+import by.shimakser.model.Tables;
 import by.shimakser.model.tables.records.CampaignRecord;
 import by.shimakser.service.FilterService;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,11 +30,13 @@ public class CampaignFilterJooqService extends FilterService {
     @Transactional
     public List<CampaignRecord> getAllByFilterWithJooq(CampaignFilterRequest campaignFilterRequest) {
         return context
-                .fetch(CAMPAIGN, buildCondition(campaignFilterRequest))
-                .sortAsc(campaignFilterRequest.getSortBy())
-                .stream()
+                .select(CAMPAIGN.fields())
+                .from(CAMPAIGN)
+                .where(buildCondition(campaignFilterRequest))
+                .orderBy(CAMPAIGN.ID.asc())
                 .limit(campaignFilterRequest.getSize())
-                .collect(Collectors.toList());
+                .offset(campaignFilterRequest.getPage())
+                .fetchInto(CampaignRecord.class);
     }
 
     private Condition buildCondition(CampaignFilterRequest campaignFilterRequest) {
