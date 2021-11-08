@@ -1,9 +1,9 @@
-package by.shimakser.controller.ad;
+package by.shimakser.controller.jooq;
 
 import by.shimakser.filter.campaign.CampaignFilterRequest;
 import by.shimakser.mapper.CampaignRecordMapper;
 import by.shimakser.model.ad.Campaign;
-import by.shimakser.service.ad.CampaignFilterJooqService;
+import by.shimakser.service.jooq.CampaignFilterJooqService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

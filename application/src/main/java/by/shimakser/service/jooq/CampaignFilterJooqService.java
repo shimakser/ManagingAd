@@ -1,19 +1,15 @@
-package by.shimakser.service.ad;
+package by.shimakser.service.jooq;
 
 import by.shimakser.filter.campaign.CampaignFilterRequest;
-import by.shimakser.model.Tables;
 import by.shimakser.model.tables.records.CampaignRecord;
 import by.shimakser.service.FilterService;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static by.shimakser.model.Tables.CAMPAIGN;
 
