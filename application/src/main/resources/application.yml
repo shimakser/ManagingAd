@@ -5,28 +5,22 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${DB}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://localhost:5432/ManagingAd
+    username: postgres
+    password: root
     driver-class-name: org.postgresql.Driver
 
-  flyway:
-    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${DB}
-    user: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
-    locations: classpath:db/migration
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: ManagingAd
 
   jpa:
     open-in-view: true
 
-  data:
-    mongodb:
-      host: ${MONGO_HOST}
-      port: ${MONGO_PORT}
-      database: ${DB}
-
   kafka:
-    bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
+    bootstrap-servers: localhost:29092
     topic:
       registration-topic: registration-topic
       request-topic: request-topic
@@ -44,9 +38,6 @@ spring:
 
   jooq:
     sql-dialect: postgres
-    generator:
-      package-name: by.shimakser.model
-      target-directory: application/target/generated-sources/jooq
 
 jwt:
   token:

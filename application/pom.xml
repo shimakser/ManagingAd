@@ -22,6 +22,10 @@
         <org.flywaydb>8.0.3</org.flywaydb>
         <org.jooq.version>3.14.11</org.jooq.version>
         <org.testcontainers>1.16.2</org.testcontainers>
+
+        <db.url>jdbc:postgresql://localhost:5432/ManagingAd</db.url>
+        <db.name>postgres</db.name>
+        <db.pw>root</db.pw>
     </properties>
 
     <dependencies>
@@ -160,8 +164,31 @@
         <finalName>managingad</finalName>
 
         <plugins>
+            <!--Flyway-->
+            <plugin>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>${org.flywaydb}</version>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>migrate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <driver>org.postgresql.Driver</driver>
+                    <url>${db.url}</url>
+                    <user>${db.name}</user>
+                    <password>${db.pw}</password>
+                    <locations>
+                        <location>filesystem:src/main/resources/db/migration</location>
+                    </locations>
+                </configuration>
+            </plugin>
 
-        <!-- Jooq Generator Model
+            <!--Jooq-->
             <plugin>
                 <groupId>org.jooq</groupId>
                 <artifactId>jooq-codegen-maven</artifactId>
@@ -177,9 +204,9 @@
                 <configuration>
                     <jdbc>
                         <driver>org.postgresql.Driver</driver>
-                        <url>jdbc:postgresql://localhost:5432/ManagingAd</url>
-                        <user>postgres</user>
-                        <password>root</password>
+                        <url>${db.url}</url>
+                        <user>${db.name}</user>
+                        <password>${db.pw}</password>
                     </jdbc>
                     <generator>
                         <database>
@@ -198,12 +225,6 @@
                         </target>
                     </generator>
                 </configuration>
-            </plugin>
-        -->
-            <plugin>
-                <groupId>org.flywaydb</groupId>
-                <artifactId>flyway-maven-plugin</artifactId>
-                <version>${org.flywaydb}</version>
             </plugin>
 
             <plugin>
