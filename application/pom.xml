@@ -17,6 +17,10 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
+
+        <spring.boot.version>2.5.5</spring.boot.version>
+        <org.flywaydb>8.0.3</org.flywaydb>
+        <org.testcontainers>1.16.2</org.testcontainers>
     </properties>
 
     <dependencies>
@@ -30,6 +34,13 @@
             <groupId>by.shimakser.kafka</groupId>
             <artifactId>kafka</artifactId>
             <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <!--Starters -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>${spring.boot.version}</version>
         </dependency>
 
         <!--DB-->
@@ -46,46 +57,33 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-            <version>5.3.9</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <version>2.5.4</version>
+            <version>${org.flywaydb}</version>
         </dependency>
 
         <!--JPA-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
+            <version>${spring.boot.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
-            <version>2.5.5</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <version>${spring.boot.version}</version>
         </dependency>
 
         <!--Rest-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-rest</artifactId>
+            <version>${spring.boot.version}</version>
         </dependency>
 
         <!--Security-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
+            <version>${spring.boot.version}</version>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
@@ -93,12 +91,14 @@
             <version>0.9.1</version>
         </dependency>
 
+        <!--Mapstruct-->
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
             <version>1.4.2.Final</version>
         </dependency>
 
+        <!--Hibernate JpaModelGen-->
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-jpamodelgen</artifactId>
@@ -110,6 +110,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <version>${spring.boot.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -121,13 +122,13 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
-            <version>1.16.0</version>
+            <version>${org.testcontainers}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>
-            <version>1.16.0</version>
+            <version>${org.testcontainers}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -136,15 +137,17 @@
         <finalName>managingad</finalName>
 
         <plugins>
+            <!--Flyway-->
             <plugin>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
-                <version>4.0.3</version>
+                <version>${org.flywaydb}</version>
             </plugin>
 
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring.boot.version}</version>
             </plugin>
 
             <plugin>
