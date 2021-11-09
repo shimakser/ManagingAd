@@ -2,13 +2,11 @@ package by.shimakser.service.jooq;
 
 import by.shimakser.filter.Request;
 import by.shimakser.model.jooq.Car;
-import by.shimakser.model.tables.records.CarRecord;
 import org.jooq.DSLContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static by.shimakser.model.Tables.CAR;
@@ -25,28 +23,18 @@ public class CarService {
 
     @Transactional
     public List<Car> getAllCars(Request request) {
-        List<CarRecord> carRecords = context
-                .select(CAR.fields())
+        return context
+                .select(
+                        CAR.CAR_ID.as("id"),
+                        CAR.CAR_NAME.as("title"),
+                        CAR.CAR_CREATION_DATE.as("date"),
+                        CAR.CAR_COUNT.as("num")
+                )
                 .from(CAR)
-                .orderBy(CAR.ID.asc())
+                .orderBy(CAR.CAR_ID.asc())
                 .limit(request.getSize())
                 .offset(request.getPage())
-                .fetchInto(CarRecord.class);
+                .fetchInto(Car.class);
 
-        return carConverter(carRecords);
-    }
-
-    private List<Car> carConverter(List<CarRecord> carRecords) {
-        List<Car> cars = new ArrayList<>();
-
-        for (CarRecord carRecord: carRecords) {
-            Car car = new Car();
-            car.setId(carRecord.field1().getValue(carRecord));
-            car.setTitle(carRecord.field2().getValue(carRecord));
-            car.setDate(carRecord.field3().getValue(carRecord));
-            car.setNum(Integer.parseInt(carRecord.field4().getValue(carRecord)));
-            cars.add(car);
-        }
-        return cars;
     }
 }
