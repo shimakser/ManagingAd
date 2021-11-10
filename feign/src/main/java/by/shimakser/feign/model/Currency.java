@@ -1,15 +1,12 @@
-package by.shimakser.model.office;
+package by.shimakser.feign.model;
 
-import lombok.Data;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-@Data
 @Document(collection = "Currency")
 public class Currency {
 
-    @Id
+    @Field(value = "_id")
     private String id;
 
     @Field(value = "num_code")
@@ -32,4 +29,36 @@ public class Currency {
 
     @Field(value = "num")
     private String num;
+
+    public String getId() {
+        return id;
+    }
+
+    public String getNumCode() {
+        return numCode;
+    }
+
+    public String getCharCode() {
+        return charCode;
+    }
+
+    public String getNominal() {
+        return nominal;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public String getPrevious() {
+        return previous;
+    }
+
+    public String getNum() {
+        return num;
+    }
 }

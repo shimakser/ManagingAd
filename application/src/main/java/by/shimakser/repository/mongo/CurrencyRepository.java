@@ -1,6 +1,6 @@
 package by.shimakser.repository.mongo;
 
-import by.shimakser.model.office.Currency;
+import by.shimakser.feign.model.Currency;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
