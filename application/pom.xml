@@ -91,6 +91,13 @@
             <version>0.9.1</version>
         </dependency>
 
+        <!--Cache-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+            <version>${spring.boot.version}</version>
+        </dependency>
+
         <!--Mapstruct-->
         <dependency>
             <groupId>org.mapstruct</groupId>
