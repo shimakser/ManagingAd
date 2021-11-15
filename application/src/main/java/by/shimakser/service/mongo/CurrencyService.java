@@ -4,7 +4,6 @@ import by.shimakser.feign.CurrencyFeignClient;
 import by.shimakser.feign.model.Currency;
 import by.shimakser.repository.mongo.CurrencyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@CacheConfig(cacheNames = {"currency"})
 public class CurrencyService {
 
     private final CurrencyFeignClient currencyFeignClient;
@@ -25,13 +23,18 @@ public class CurrencyService {
         this.currencyRepository = currencyRepository;
     }
 
-    @Cacheable
     @Transactional
-    public List<Currency> getChosenCurrency() {
-        List<Currency> currencies = currencyFeignClient.getCurrency();
+    public List<Currency> getChosenCurrencies() {
+        List<Currency> currencies = currencyFeignClient.getCurrencies();
 
         //currencyRepository.insert(currencies);
 
         return currencies;
+    }
+
+    @Cacheable(value = "currency", cacheManager = "compositeCacheManager", key = "#id")
+    @Transactional
+    public Currency getCurrency(String id) {
+        return currencyFeignClient.getCurrency(id);
     }
 }
