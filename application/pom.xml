@@ -26,11 +26,6 @@
     <dependencies>
         <!--Modules-->
         <dependency>
-            <groupId>by.shimakser.feign</groupId>
-            <artifactId>feign</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
             <groupId>by.shimakser.kafka</groupId>
             <artifactId>kafka</artifactId>
             <version>1.0-SNAPSHOT</version>

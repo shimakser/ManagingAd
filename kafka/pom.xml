@@ -32,9 +32,10 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
 
+        <!--Module-->
         <dependency>
-            <groupId>by.shimakser.dto</groupId>
-            <artifactId>dto</artifactId>
+            <groupId>by.shimakser.feign</groupId>
+            <artifactId>feign</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>

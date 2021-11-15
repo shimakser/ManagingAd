@@ -4,6 +4,7 @@ import by.shimakser.feign.model.Currency;
 import by.shimakser.service.mongo.CurrencyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,7 +22,12 @@ public class CurrencyController {
     }
 
     @GetMapping("/currency")
-    public List<Currency> getChosenCurrencyFromCustomExternalService() {
-        return currencyService.getChosenCurrency();
+    public List<Currency> getChosenCurrenciesFromCustomExternalService() {
+        return currencyService.getChosenCurrencies();
+    }
+
+    @GetMapping("/currency/{id}")
+    public Currency getCurrencyByIdFromCustomExternalService(@PathVariable String id) {
+        return currencyService.getCurrency(id);
     }
 }

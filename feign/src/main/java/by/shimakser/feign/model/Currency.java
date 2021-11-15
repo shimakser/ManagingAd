@@ -1,18 +1,25 @@
 package by.shimakser.feign.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.mongodb.core.mapping.MongoId;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Document(collection = "Currency")
 public class Currency {
 
-    @Field(value = "_id")
+    @MongoId
     private String id;
 
     @Field(value = "num_code")
     private String numCode;
 
-    @Field(value = "created_date")
+    @Field(value = "char_code")
     private String charCode;
 
     @Field(value = "nominal")
@@ -27,38 +34,8 @@ public class Currency {
     @Field(value = "previous")
     private String previous;
 
-    @Field(value = "num")
-    private String num;
-
-    public String getId() {
-        return id;
-    }
-
-    public String getNumCode() {
-        return numCode;
-    }
-
-    public String getCharCode() {
-        return charCode;
-    }
-
-    public String getNominal() {
-        return nominal;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public String getPrevious() {
-        return previous;
-    }
-
-    public String getNum() {
-        return num;
+    public Currency(String id, String charCode) {
+        this.id = id;
+        this.charCode = charCode;
     }
 }
