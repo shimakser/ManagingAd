@@ -33,9 +33,4 @@ public class Currency {
 
     @Field(value = "previous")
     private String previous;
-
-    public Currency(String id, String charCode) {
-        this.id = id;
-        this.charCode = charCode;
-    }
 }

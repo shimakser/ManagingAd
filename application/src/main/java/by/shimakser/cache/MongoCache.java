@@ -11,10 +11,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.CriteriaDefinition;
 import org.springframework.data.mongodb.core.query.Query;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.util.Base64;
 import java.util.concurrent.Callable;
 
 public class MongoCache implements Cache {
@@ -37,50 +33,28 @@ public class MongoCache implements Cache {
         initialize();
     }
 
-    private Index initialize() {
+    private void initialize() {
         mongoTemplate.getCollection(collectionName);
 
-        final Index index = new Index();
-        index.named(INDEX_NAME);
-        index.on(INDEX_KEY_NAME, Sort.Direction.ASC);
-        index.expire(ttl);
-
-        return index;
-    }
-
-    @Override
-    public String getName() {
-        return cacheName;
-    }
-
-    @Override
-    public Object getNativeCache() {
-        return mongoTemplate;
+        final Index expireIndex = new Index();
+        expireIndex.named(INDEX_NAME);
+        expireIndex.on(INDEX_KEY_NAME, Sort.Direction.ASC);
+        expireIndex.expire(ttl);
     }
 
     @Override
     public ValueWrapper get(Object key) {
-        final Currency value = getFromCache(key);
-        return new SimpleValueWrapper(value);
+        final Currency value = (Currency) getFromCache(key);
+
+        if (value != null) {
+            return new SimpleValueWrapper(value);
+        }
+        return null;
     }
 
     private Currency getFromCache(Object key) {
         final String id = key.toString();
-        final Currency cache = mongoTemplate.findById(id, Currency.class, collectionName);
-        return cache;
-    }
-
-    private String serialize(Object value) throws IOException {
-        try (final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-             final ObjectOutputStream output = new ObjectOutputStream(buffer)) {
-
-            output.writeObject(value);
-
-            final byte[] data = buffer.toByteArray();
-
-            final Base64.Encoder encoder = Base64.getEncoder();
-            return encoder.encodeToString(data);
-        }
+        return mongoTemplate.findById(id, Currency.class, collectionName);
     }
 
     @Override
@@ -129,18 +103,8 @@ public class MongoCache implements Cache {
 
     @Override
     public void put(Object key, Object value) {
-        try {
-            final String id = (String) key;
-            String code = null;
-            if (value != null) {
-                code = serialize(value);
-            }
-
-            final Currency cache = new Currency(id, code);
-            mongoTemplate.save(cache, collectionName);
-        } catch (IOException e) {
-            throw new RuntimeException(String.format("Can not serialize the value: %s", key), e);
-        }
+        final Currency cache = (Currency) value;
+        mongoTemplate.save(cache, collectionName);
     }
 
     @Override
@@ -155,5 +119,15 @@ public class MongoCache implements Cache {
     @Override
     public void clear() {
         mongoTemplate.remove(new Query(), Currency.class, collectionName);
+    }
+
+    @Override
+    public String getName() {
+        return cacheName;
+    }
+
+    @Override
+    public Object getNativeCache() {
+        return mongoTemplate;
     }
 }
