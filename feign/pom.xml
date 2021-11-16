@@ -21,10 +21,25 @@
     </properties>
 
     <dependencies>
+        <!--Feign-->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
             <version>3.0.4</version>
+        </dependency>
+
+        <!--Module-->
+        <dependency>
+            <groupId>by.shimakser.dto</groupId>
+            <artifactId>dto</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <!--JPA, Mongo-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+            <version>2.5.5</version>
         </dependency>
     </dependencies>
 </project>

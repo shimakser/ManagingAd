@@ -1,8 +1,9 @@
-package by.shimakser.service.office;
+package by.shimakser.service.mongo;
 
 import by.shimakser.feign.CurrencyFeignClient;
-import by.shimakser.model.office.Currency;
+import by.shimakser.feign.model.Currency;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +20,13 @@ public class CurrencyService {
     }
 
     @Transactional
-    public List<Currency> getChosenCurrency() {
-        return currencyFeignClient.getCurrency();
+    public List<Currency> getChosenCurrencies() {
+        return currencyFeignClient.getCurrencies();
+    }
+
+    @Cacheable(value = "currency", cacheManager = "compositeCacheManager", key = "#id")
+    @Transactional
+    public Currency getCurrency(String id) {
+        return currencyFeignClient.getCurrency(id);
     }
 }
