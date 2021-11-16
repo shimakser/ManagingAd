@@ -1,4 +1,4 @@
-package by.shimakser.security.authentication;
+package by.shimakser.security.jwt;
 
 import lombok.Data;
 
