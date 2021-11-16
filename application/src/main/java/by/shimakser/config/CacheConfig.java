@@ -54,7 +54,7 @@ public class CacheConfig {
     @Bean
     @Primary
     public CompositeCacheManager compositeCacheManager() {
-        return new CompositeCacheManager(caffeineCacheManager(), mongoCacheManager());
+        return new CompositeCacheManager(mongoCacheManager(), caffeineCacheManager());
     }
 
     @Bean

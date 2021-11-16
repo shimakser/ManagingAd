@@ -2,7 +2,6 @@ package by.shimakser.service.mongo;
 
 import by.shimakser.feign.CurrencyFeignClient;
 import by.shimakser.feign.model.Currency;
-import by.shimakser.repository.mongo.CurrencyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -15,21 +14,14 @@ public class CurrencyService {
 
     private final CurrencyFeignClient currencyFeignClient;
 
-    private final CurrencyRepository currencyRepository;
-
     @Autowired
-    public CurrencyService(CurrencyFeignClient currencyFeignClient, CurrencyRepository currencyRepository) {
+    public CurrencyService(CurrencyFeignClient currencyFeignClient) {
         this.currencyFeignClient = currencyFeignClient;
-        this.currencyRepository = currencyRepository;
     }
 
     @Transactional
     public List<Currency> getChosenCurrencies() {
-        List<Currency> currencies = currencyFeignClient.getCurrencies();
-
-        //currencyRepository.insert(currencies);
-
-        return currencies;
+        return currencyFeignClient.getCurrencies();
     }
 
     @Cacheable(value = "currency", cacheManager = "compositeCacheManager", key = "#id")
