@@ -1,6 +1,6 @@
 package by.shimakser.controller.mongo;
 
-import by.shimakser.feign.model.Currency;
+import by.shimakser.model.mongo.Currency;
 import by.shimakser.service.mongo.CurrencyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;

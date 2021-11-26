@@ -1,4 +1,4 @@
-package by.shimakser.feign.model;
+package by.shimakser.model.mongo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
