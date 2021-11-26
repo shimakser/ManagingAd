@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
-@FeignClient(value = "Currencies", url = "localhost:8081/currencies")
+@FeignClient(value = "Currencies", url = "${feign.application-url}")
 public interface CurrencyFeignClient {
 
     @GetMapping

@@ -1,0 +1,5 @@
+server:
+  port: 8081
+
+feign:
+  currencies-url: www.cbr-xml-daily.ru/daily_json.js
