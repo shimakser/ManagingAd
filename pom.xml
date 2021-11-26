@@ -20,6 +20,7 @@
         <module>feign</module>
         <module>application</module>
         <module>kafka</module>
+        <module>currencies</module>
     </modules>
 
     <properties>
