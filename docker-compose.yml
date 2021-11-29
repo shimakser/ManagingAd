@@ -153,6 +153,8 @@ services:
     build: currencies
     ports:
       - "8081:8081"
+    environment:
+      CURRENCIES_URL: www.cbr-xml-daily.ru/daily_json.js
     depends_on:
       - app
 
