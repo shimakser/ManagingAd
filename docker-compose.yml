@@ -9,7 +9,7 @@ services:
       - "9300:9300"
     volumes:
       - type: bind
-        source: ./docker/elasticsearch/config/elasticsearch.yml
+        source: ./application/docker/elasticsearch/config/elasticsearch.yml
         target: /usr/share/elasticsearch/config/elasticsearch.yml
         read_only: true
       - type: volume
@@ -31,11 +31,11 @@ services:
         target: /managingad/log
         read_only: true
       - type: bind
-        source: ./docker/logstash/config/logstash.yml
+        source: ./application/docker/logstash/config/logstash.yml
         target: /usr/share/logstash/config/logstash.yml
         read_only: true
       - type: bind
-        source: ./docker/logstash/pipeline
+        source: ./application/docker/logstash/pipeline
         target: /usr/share/logstash/pipeline
         read_only: true
     environment:
@@ -55,7 +55,7 @@ services:
     image: docker.elastic.co/kibana/kibana:7.5.1
     volumes:
       - type: bind
-        source: ./docker/kibana/config/kibana.yml
+        source: ./application/docker/kibana/config/kibana.yml
         target: /usr/share/kibana/config/kibana.yml
         read_only: true
     ports:
@@ -125,8 +125,8 @@ services:
 
   app:
     container_name: managingad
-    image: springboot-app
-    build: .
+    image: application-app
+    build: application
     ports:
       - "8080:8080"
     environment:
@@ -139,11 +139,22 @@ services:
       DB: ManagingAd
       KAFKA_PORT: 29092
       KAFKA_HOST: broker
+      CURRENCIES_HOST: currencies
+      CURRENCIES_PORT: 8081
     volumes:
       - log:/managingad/log
     depends_on:
       - postgres
       - mongo
+
+  currencies:
+    container_name: currencies
+    image: currencies-app
+    build: currencies
+    ports:
+      - "8081:8081"
+    depends_on:
+      - app
 
 networks:
   elk:

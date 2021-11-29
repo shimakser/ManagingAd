@@ -47,7 +47,7 @@ spring:
     cache-name: currency
 
 feign:
-  application-url: localhost:8081/currencies
+  application-url: ${CURRENCIES_HOST}:${CURRENCIES_PORT}/currencies
 
 jwt:
   token:
