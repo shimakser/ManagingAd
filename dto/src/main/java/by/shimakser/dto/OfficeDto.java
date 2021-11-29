@@ -12,6 +12,6 @@ public class OfficeDto {
     private String officeTitle;
     private String officeAddress;
     private Double officePrice;
-    private List officeContacts;
+    private List<ContactDto> officeContacts;
     private JSONObject officeDescription;
 }
