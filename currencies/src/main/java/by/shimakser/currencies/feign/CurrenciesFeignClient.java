@@ -1,7 +1,7 @@
 package by.shimakser.currencies.feign;
 
 import by.shimakser.currencies.config.MessageConverterConfig;
-import net.minidev.json.JSONObject;
+import by.shimakser.currencies.model.Currencies;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -9,5 +9,5 @@ import org.springframework.web.bind.annotation.GetMapping;
 public interface CurrenciesFeignClient {
 
     @GetMapping
-    JSONObject getCurrencies();
+    Currencies getCurrencies();
 }
