@@ -33,11 +33,6 @@ public class CampaignFilterService extends FilterService {
                 .stream().collect(Collectors.toList());
     }
 
-    private LocalDateTime convertToLocalDateTime(String date) {
-        DateTimeFormatter pattern = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        return LocalDateTime.parse(date, pattern);
-    }
-
     private Specification<Campaign> buildSpecification(CampaignFilterRequest campaignFilterRequest) {
         Specification<Campaign> specification = CampaignSpecifications.empty();
 

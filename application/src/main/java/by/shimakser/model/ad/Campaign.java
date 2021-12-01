@@ -1,5 +1,6 @@
 package by.shimakser.model.ad;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -24,7 +25,9 @@ public class Campaign {
     private Advertiser advertiser;
 
     private boolean campaignDeleted = Boolean.FALSE;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime campaignCreatedDate;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime campaignDeletedDate;
     private String campaignDeleteNotes;
 }
