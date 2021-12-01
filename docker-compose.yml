@@ -1,0 +1,171 @@
+version: '3.3'
+
+services:
+  elasticsearch:
+    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.1
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - type: bind
+        source: ./elk/elasticsearch/config/elasticsearch.yml
+        target: /usr/share/elasticsearch/config/elasticsearch.yml
+        read_only: true
+      - type: volume
+        source: elasticsearch
+        target: /usr/share/elasticsearch/data
+    environment:
+      ES_JAVA_OPTS: "-Xmx256m -Xms256m"
+      ELASTIC_PASSWORD: changeme
+      discovery.type: single-node
+    networks:
+      - elk
+
+  logstash:
+    container_name: logstash
+    image: docker.elastic.co/logstash/logstash:7.5.1
+    volumes:
+      - type: volume
+        source: log
+        target: /managingad/log
+        read_only: true
+      - type: bind
+        source: ./elk/logstash/config/logstash.yml
+        target: /usr/share/logstash/config/logstash.yml
+        read_only: true
+      - type: bind
+        source: ./elk/logstash/pipeline
+        target: /usr/share/logstash/pipeline
+        read_only: true
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    ports:
+      - "5044:5044"
+      - "5000:5000/tcp"
+      - "5000:5000/udp"
+      - "9600:9600"
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+
+  kibana:
+    container_name: kibana
+    image: docker.elastic.co/kibana/kibana:7.5.1
+    volumes:
+      - type: bind
+        source: ./elk/kibana/config/kibana.yml
+        target: /usr/share/kibana/config/kibana.yml
+        read_only: true
+    ports:
+      - "5601:5601"
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:6.2.1
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  broker:
+    image: confluentinc/cp-kafka:6.2.1
+    hostname: broker
+    container_name: broker
+    depends_on:
+      - zookeeper
+    ports:
+      - "29092:29092"
+      - "9092:9092"
+      - "9101:9101"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+
+  postgres:
+    container_name: postgresdb
+    image: postgres:14
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: ManagingAd
+    depends_on:
+      - zookeeper
+      - broker
+    restart: always
+
+  mongo:
+    container_name: mongodb
+    image: mongo:4.2.17
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_DB: ManagingAd
+      MONGO_HOST: mongodb
+    depends_on:
+      - postgres
+    restart: always
+
+  app:
+    container_name: managingad
+    image: application-app
+    build:
+      context: .
+      dockerfile: Dockerfile-app
+    ports:
+      - "8080:8080"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_HOST: postgresdb
+      POSTGRES_PORT: 5432
+      MONGO_HOST: mongo
+      MONGO_PORT: 27017
+      DB: ManagingAd
+      KAFKA_PORT: 29092
+      KAFKA_HOST: broker
+      CURRENCIES_HOST: currencies
+      CURRENCIES_PORT: 8081
+    volumes:
+      - log:/managingad/log
+    depends_on:
+      - postgres
+      - mongo
+
+  currencies:
+    container_name: currencies
+    image: currencies-app
+    build:
+      context: .
+      dockerfile: Dockerfile-currencies
+    ports:
+      - "8081:8081"
+    environment:
+      CURRENCIES_URL: www.cbr-xml-daily.ru/daily_json.js
+    depends_on:
+      - app
+
+networks:
+  elk:
+    driver: bridge
+
+volumes:
+  elasticsearch:
+  log:

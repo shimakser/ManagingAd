@@ -35,9 +35,16 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-
+  
   jooq:
     sql-dialect: postgres
+
+  cache:
+    collection-name: Currency
+    cache-name: currency
+
+feign:
+  application-url: ${CURRENCIES_HOST}:${CURRENCIES_PORT}/currencies
 
 jwt:
   token:

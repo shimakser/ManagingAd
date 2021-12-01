@@ -1,0 +1,11 @@
+FROM openjdk:11 as builder
+COPY . /ManagingAd
+WORKDIR /ManagingAd
+RUN chmod +x mvnw && ./mvnw package -DskipTests
+
+FROM openjdk:11
+ENV JAR_FILE_NAME="currencies.jar"
+EXPOSE 8081
+RUN mkdir /currencies
+COPY --from=builder ManagingAd/currencies/target/$JAR_FILE_NAME /currencies/$JAR_FILE_NAME
+ENTRYPOINT ["java", "-jar","/currencies/currencies.jar"]

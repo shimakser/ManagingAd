@@ -6,11 +6,14 @@
         <artifactId>ManagingAd</artifactId>
         <groupId>by.shimakser</groupId>
         <version>1.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
+
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>by.shimakser.application</groupId>
     <artifactId>application</artifactId>
+    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -26,15 +29,11 @@
         <db.url>jdbc:postgresql://localhost:5432/ManagingAd</db.url>
         <db.name>postgres</db.name>
         <db.pw>root</db.pw>
+        <org.testcontainers>1.16.2</org.testcontainers>
     </properties>
 
     <dependencies>
         <!--Modules-->
-        <dependency>
-            <groupId>by.shimakser.feign</groupId>
-            <artifactId>feign</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
         <dependency>
             <groupId>by.shimakser.kafka</groupId>
             <artifactId>kafka</artifactId>
@@ -94,6 +93,18 @@
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>
             <version>0.9.1</version>
+        </dependency>
+
+        <!--Cache-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+            <version>${spring.boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+            <version>2.5.5</version>
         </dependency>
 
         <!--Mapstruct-->
@@ -157,6 +168,13 @@
             <artifactId>postgresql</artifactId>
             <version>${org.testcontainers}</version>
             <scope>test</scope>
+        </dependency>
+
+        <!--Log4j-->
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.17</version>
         </dependency>
     </dependencies>
 

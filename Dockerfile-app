@@ -1,0 +1,11 @@
+FROM openjdk:11 as builder
+COPY . /ManagingAd
+WORKDIR /ManagingAd
+RUN chmod +x mvnw && ./mvnw package -DskipTests
+
+FROM openjdk:11
+ENV JAR_FILE_NAME="managingad.jar"
+EXPOSE 8080
+RUN mkdir /app
+COPY --from=builder ManagingAd/application/target/$JAR_FILE_NAME /app/$JAR_FILE_NAME
+ENTRYPOINT ["java", "-jar","/app/managingad.jar"]
