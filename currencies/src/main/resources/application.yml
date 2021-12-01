@@ -3,3 +3,10 @@ server:
 
 feign:
   currencies-url: ${CURRENCIES_URL}
+
+spring:
+  data:
+    mongodb:
+      host: ${MONGO_HOST}
+      port: ${MONGO_PORT}
+      database: ${DB}
