@@ -29,8 +29,9 @@ public class CurrenciesService {
 
     @Transactional
     public List<Currency> getCurrencies() {
-        return  !currenciesRepository.findAll().isEmpty()
-                ? currenciesRepository.findAll()
+        List<Currency> currencies = currenciesRepository.findAll();
+        return  !currencies.isEmpty()
+                ? currencies
                 : new ArrayList<>(currenciesFeignClient.getCurrencies().getValute().values());
     }
 
