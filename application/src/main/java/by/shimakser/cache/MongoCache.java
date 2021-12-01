@@ -1,6 +1,6 @@
 package by.shimakser.cache;
 
-import by.shimakser.model.mongo.Currency;
+import by.shimakser.model.currency.Currency;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.support.SimpleValueWrapper;

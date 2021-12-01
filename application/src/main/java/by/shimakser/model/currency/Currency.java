@@ -1,4 +1,4 @@
-package by.shimakser.model.mongo;
+package by.shimakser.model.currency;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

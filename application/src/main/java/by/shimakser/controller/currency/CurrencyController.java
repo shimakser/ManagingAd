@@ -1,7 +1,7 @@
-package by.shimakser.controller.mongo;
+package by.shimakser.controller.currency;
 
-import by.shimakser.model.mongo.Currency;
-import by.shimakser.service.mongo.CurrencyService;
+import by.shimakser.model.currency.Currency;
+import by.shimakser.service.currency.CurrencyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

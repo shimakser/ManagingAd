@@ -2,7 +2,7 @@ package by.shimakser.mapper;
 
 import by.shimakser.dto.CurrencyDto;
 
-import by.shimakser.model.mongo.Currency;
+import by.shimakser.model.currency.Currency;
 import org.mapstruct.Mapper;
 
 import java.util.List;

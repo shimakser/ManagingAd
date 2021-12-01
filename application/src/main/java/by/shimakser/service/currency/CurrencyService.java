@@ -1,8 +1,8 @@
-package by.shimakser.service.mongo;
+package by.shimakser.service.currency;
 
 import by.shimakser.feign.CurrencyFeignClient;
 import by.shimakser.mapper.CurrencyMapper;
-import by.shimakser.model.mongo.Currency;
+import by.shimakser.model.currency.Currency;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
