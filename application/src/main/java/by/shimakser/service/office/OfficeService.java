@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class OfficeService {
@@ -28,10 +29,10 @@ public class OfficeService {
         this.contactRepository = contactRepository;
     }
 
-    private final Map<Long, Status> statusOfImport = new HashMap<>();
-    private final Map<Long, Status> statusOfExport = new HashMap<>();
+    private final Map<AtomicLong, Status> statusOfImport = new HashMap<>();
+    private final Map<AtomicLong, Status> statusOfExport = new HashMap<>();
 
-    private static Long idOfOperation = 0L;
+    private final AtomicLong idOfOperation = new AtomicLong(0);
 
     @Transactional(rollbackFor = {FileNotFoundException.class})
     public Long exportFromFile(CSVRequest csvRequest) throws FileNotFoundException {
@@ -41,7 +42,7 @@ public class OfficeService {
             throw new FileNotFoundException(ExceptionText.FileNotFound.getExceptionText());
         }
 
-        idOfOperation++;
+        idOfOperation.set(idOfOperation.get() + 1);
         Runnable exportTask = () -> {
             try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
                 String line;
@@ -88,13 +89,13 @@ public class OfficeService {
         };
         Thread exportThread = new Thread(exportTask);
         exportThread.start();
-        return idOfOperation;
+        return idOfOperation.get();
     }
 
     @Transactional
     public Long importToFile(CSVRequest csvRequest) {
         String path = csvRequest.getPathToFile();
-        idOfOperation++;
+        idOfOperation.set(idOfOperation.get() + 1);
         Runnable importTask = () -> {
             Status.In_Process.setPathForFile(path);
             statusOfImport.put(idOfOperation, Status.In_Process);
@@ -116,12 +117,12 @@ public class OfficeService {
         Thread importThread = new Thread(importTask);
         importThread.start();
 
-        return idOfOperation;
+        return idOfOperation.get();
     }
 
     @Transactional(rollbackFor = NotFoundException.class)
     public Status getStatusOfImportById(Long id) throws NotFoundException {
-        Status status = statusOfImport.get(id);
+        Status status = statusOfImport.get(new AtomicLong(id));
         if (status == null) {
             throw new NotFoundException(ExceptionText.NotFound.getExceptionText());
         }
@@ -130,7 +131,7 @@ public class OfficeService {
 
     @Transactional(rollbackFor = NotFoundException.class)
     public Status getStatusOfExportById(Long id) throws NotFoundException {
-        Status status = statusOfExport.get(id);
+        Status status = statusOfExport.get(new AtomicLong(id));
         if (status == null) {
             throw new NotFoundException(ExceptionText.NotFound.getExceptionText());
         }
@@ -139,7 +140,7 @@ public class OfficeService {
 
     @Transactional(rollbackFor = NotFoundException.class)
     public String getImportedFileById(Long id) throws NotFoundException {
-        Status status = statusOfImport.get(id);
+        Status status = statusOfImport.get(new AtomicLong(id));
         if (status == null || !status.equals(Status.Uploaded)) {
             throw new NotFoundException(ExceptionText.NotFound.getExceptionText());
         }
