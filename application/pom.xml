@@ -23,12 +23,6 @@
 
         <spring.boot.version>2.5.5</spring.boot.version>
         <org.flywaydb>8.0.3</org.flywaydb>
-        <org.jooq.version>3.14.11</org.jooq.version>
-        <org.testcontainers>1.16.2</org.testcontainers>
-
-        <db.url>jdbc:postgresql://localhost:5432/ManagingAd</db.url>
-        <db.name>postgres</db.name>
-        <db.pw>root</db.pw>
         <org.testcontainers>1.16.2</org.testcontainers>
     </properties>
 
@@ -122,28 +116,6 @@
             <version>5.4.27.Final</version>
         </dependency>
 
-        <!--Jooq-->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jooq</artifactId>
-            <version>${spring.boot.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jooq</groupId>
-            <artifactId>jooq</artifactId>
-            <version>${org.jooq.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jooq</groupId>
-            <artifactId>jooq-meta</artifactId>
-            <version>${org.jooq.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jooq</groupId>
-            <artifactId>jooq-codegen</artifactId>
-            <version>${org.jooq.version}</version>
-        </dependency>
-
         <!--Tests-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -187,62 +159,6 @@
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
                 <version>${org.flywaydb}</version>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>migrate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <driver>org.postgresql.Driver</driver>
-                    <url>${db.url}</url>
-                    <user>${db.name}</user>
-                    <password>${db.pw}</password>
-                    <locations>
-                        <location>filesystem:src/main/resources/db/migration</location>
-                    </locations>
-                </configuration>
-            </plugin>
-
-            <!--Jooq-->
-            <plugin>
-                <groupId>org.jooq</groupId>
-                <artifactId>jooq-codegen-maven</artifactId>
-                <version>${org.jooq.version}</version>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <jdbc>
-                        <driver>org.postgresql.Driver</driver>
-                        <url>${db.url}</url>
-                        <user>${db.name}</user>
-                        <password>${db.pw}</password>
-                    </jdbc>
-                    <generator>
-                        <database>
-                            <includes>.*</includes>
-                            <excludes>
-                                flyway_schema_history
-                            </excludes>
-                            <inputSchema>public</inputSchema>
-                        </database>
-                        <generate>
-                            <records>true</records>
-                        </generate>
-                        <target>
-                            <packageName>by.shimakser.model</packageName>
-                            <directory>target/generated-sources/jooq</directory>
-                        </target>
-                    </generator>
-                </configuration>
             </plugin>
 
             <plugin>
