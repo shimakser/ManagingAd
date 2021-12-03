@@ -23,4 +23,9 @@ public class OfficeOpenCsvController {
     public Long exportFile(@RequestBody CSVRequest csvRequest) {
         return officeOpenCsvService.exportFromFile(csvRequest);
     }
+
+    @PostMapping("/import/opencsv")
+    public Long importFile(@RequestBody CSVRequest csvRequest) {
+        return officeOpenCsvService.importToFile(csvRequest);
+    }
 }
