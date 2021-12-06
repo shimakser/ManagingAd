@@ -2,6 +2,7 @@ package by.shimakser.service.office;
 
 import by.shimakser.dto.CSVRequest;
 import by.shimakser.model.office.Office;
+import by.shimakser.model.office.OfficeOperationInfo;
 import by.shimakser.model.office.Status;
 import by.shimakser.repository.office.ContactRepository;
 import by.shimakser.repository.office.OfficeRepository;
@@ -38,6 +39,8 @@ public class OfficeOpenCsvService extends BaseOfficeService {
         idOfOperation.set(idOfOperation.get() + 1);
         Runnable exportTask = () -> {
             try (Reader reader = new BufferedReader(new FileReader(path))) {
+                statusOfExport.put(idOfOperation, new OfficeOperationInfo(Status.In_Process, path));
+
                 CsvToBean<Office> csvToBean = new CsvToBeanBuilder<Office>(reader)
                         .withType(Office.class)
                         .withSeparator(',')
@@ -47,9 +50,9 @@ public class OfficeOpenCsvService extends BaseOfficeService {
 
                 list.forEach(office -> contactRepository.saveAll(office.getOfficeContacts()));
                 officeRepository.saveAll(list);
+                statusOfExport.put(idOfOperation, new OfficeOperationInfo(Status.Uploaded, path));
             } catch (IOException e) {
-                Status.Not_Loaded.setPathForFile(path);
-                statusOfExport.put(idOfOperation, Status.Not_Loaded);
+                statusOfExport.put(idOfOperation, new OfficeOperationInfo(Status.Not_Loaded, path));
                 e.printStackTrace();
             }
         };
@@ -65,8 +68,8 @@ public class OfficeOpenCsvService extends BaseOfficeService {
         String path = csvRequest.getPathToFile();
         idOfOperation.set(idOfOperation.get() + 1);
         Runnable importTask = () -> {
-            Status.In_Process.setPathForFile(path);
             try (FileWriter writer = new FileWriter(path)) {
+                statusOfExport.put(idOfOperation, new OfficeOperationInfo(Status.In_Process, path));
 
                 ColumnPositionMappingStrategy<Office> mappingStrategy = new ColumnPositionMappingStrategy<>();
                 mappingStrategy.setType(Office.class);
@@ -79,11 +82,9 @@ public class OfficeOpenCsvService extends BaseOfficeService {
 
                 beanWriter.write(officeRepository.findAll());
 
-                Status.Uploaded.setPathForFile(path);
-                statusOfImport.put(idOfOperation, Status.Uploaded);
+                statusOfExport.put(idOfOperation, new OfficeOperationInfo(Status.Uploaded, path));
             } catch (IOException | CsvRequiredFieldEmptyException | CsvDataTypeMismatchException e) {
-                Status.Not_Loaded.setPathForFile(path);
-                statusOfImport.put(idOfOperation, Status.Not_Loaded);
+                statusOfExport.put(idOfOperation, new OfficeOperationInfo(Status.Not_Loaded, path));
                 e.printStackTrace();
             }
         };

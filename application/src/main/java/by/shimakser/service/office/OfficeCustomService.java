@@ -4,6 +4,7 @@ import by.shimakser.dto.CSVRequest;
 import by.shimakser.exception.ExceptionText;
 import by.shimakser.model.office.Contact;
 import by.shimakser.model.office.Office;
+import by.shimakser.model.office.OfficeOperationInfo;
 import by.shimakser.model.office.Status;
 import by.shimakser.repository.office.ContactRepository;
 import by.shimakser.repository.office.OfficeRepository;
@@ -33,7 +34,7 @@ public class OfficeCustomService extends BaseOfficeService {
     private final AtomicLong idOfOperation = new AtomicLong(0);
 
     @Override
-    @Transactional(rollbackFor = {FileNotFoundException.class})
+    @Transactional(rollbackFor = {IOException.class, FileNotFoundException.class})
     public Long exportFromFile(CSVRequest csvRequest) throws FileNotFoundException {
         String path = csvRequest.getPathToFile();
         File file = new File(path);
@@ -45,8 +46,7 @@ public class OfficeCustomService extends BaseOfficeService {
         Runnable exportTask = () -> {
             try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
                 String line;
-                Status.In_Process.setPathForFile(path);
-                statusOfExport.put(idOfOperation, Status.In_Process);
+                statusOfExport.put(idOfOperation, new OfficeOperationInfo(Status.In_Process, path));
 
                 while ((line = reader.readLine()) != null) {
                     String[] arrayOfOffices = line.split(",", 5);
@@ -77,12 +77,10 @@ public class OfficeCustomService extends BaseOfficeService {
                             arrayOfOffices[2], Double.parseDouble(arrayOfOffices[3]), listOfContacts, jsonObject);
                     officeRepository.save(office);
 
-                    Status.Uploaded.setPathForFile(path);
-                    statusOfExport.put(idOfOperation, Status.Uploaded);
+                    statusOfExport.put(idOfOperation, new OfficeOperationInfo(Status.Uploaded, path));
                 }
             } catch (IOException ex) {
-                Status.Not_Loaded.setPathForFile(path);
-                statusOfExport.put(idOfOperation, Status.Not_Loaded);
+                statusOfExport.put(idOfOperation, new OfficeOperationInfo(Status.Not_Loaded, path));
                 ex.printStackTrace();
             }
         };
@@ -92,28 +90,26 @@ public class OfficeCustomService extends BaseOfficeService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = IOException.class)
     public Long importToFile(CSVRequest csvRequest) {
         String path = csvRequest.getPathToFile();
+
         idOfOperation.set(idOfOperation.get() + 1);
         Runnable importTask = () -> {
-            Status.In_Process.setPathForFile(path);
-            statusOfImport.put(idOfOperation, Status.In_Process);
+            statusOfExport.put(idOfOperation, new OfficeOperationInfo(Status.In_Process, path));
             try (FileWriter writer = new FileWriter(path, false)) {
                 List<Office> offices = officeRepository.findAll();
                 for (Office office : offices) {
                     writer.write(office.toString());
                     writer.write("\n");
                 }
-                Status.Uploaded.setPathForFile(path);
-                statusOfImport.put(idOfOperation, Status.Uploaded);
+
+                statusOfExport.put(idOfOperation, new OfficeOperationInfo(Status.Uploaded, path));
             } catch (IOException e) {
-                Status.Not_Loaded.setPathForFile(path);
-                statusOfImport.put(idOfOperation, Status.Not_Loaded);
+                statusOfExport.put(idOfOperation, new OfficeOperationInfo(Status.Not_Loaded, path));
                 e.printStackTrace();
             }
         };
-
         Thread importThread = new Thread(importTask);
         importThread.start();
 
