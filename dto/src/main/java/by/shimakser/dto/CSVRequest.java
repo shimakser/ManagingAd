@@ -1,4 +1,4 @@
-package by.shimakser.model.office;
+package by.shimakser.dto;
 
 import lombok.Data;
 
