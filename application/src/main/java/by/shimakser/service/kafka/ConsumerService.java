@@ -2,6 +2,7 @@ package by.shimakser.service.kafka;
 
 import by.shimakser.dto.NumbersRequest;
 import by.shimakser.dto.UserDto;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,14 +10,13 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class ConsumerService {
 
-    private final Logger LOG = LoggerFactory.getLogger(getClass());
-
     @KafkaListener(topics = "${spring.kafka.topic.registration-topic}")
     public void registrationListener(ConsumerRecord<String, UserDto> record) {
-        LOG.info("New user: " + record.value().toString());
+        log.info("New user: " + record.value().toString());
     }
 
     @KafkaListener(topics = "${spring.kafka.topic.request-topic}")
