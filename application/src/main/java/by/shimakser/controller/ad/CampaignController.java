@@ -1,7 +1,7 @@
 package by.shimakser.controller.ad;
 
 import by.shimakser.dto.CampaignDto;
-import by.shimakser.filter.campaign.CampaignFilterRequest;
+import by.shimakser.dto.CampaignFilterRequest;
 import by.shimakser.mapper.CampaignMapper;
 import by.shimakser.model.ad.Campaign;
 import by.shimakser.service.ad.CampaignFilterService;

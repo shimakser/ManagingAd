@@ -1,6 +1,6 @@
 package by.shimakser.service.ad;
 
-import by.shimakser.filter.campaign.CampaignFilterRequest;
+import by.shimakser.dto.CampaignFilterRequest;
 import by.shimakser.filter.campaign.CampaignSpecifications;
 import by.shimakser.model.ad.Campaign;
 import by.shimakser.repository.ad.CampaignRepository;
