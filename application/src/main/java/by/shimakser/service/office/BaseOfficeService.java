@@ -42,7 +42,7 @@ public abstract class BaseOfficeService implements OfficeService {
     public String getImportedFileById(Long id) throws NotFoundException {
         OfficeOperationInfo operationInfo = statusOfImport.get(new AtomicLong(id));
         Status status = operationInfo.getStatus();
-        if (status == null || !status.equals(Status.Uploaded)) {
+        if (status == null || !status.equals(Status.UPLOADED)) {
             throw new NotFoundException(ExceptionText.NOT_FOUND.getExceptionText());
         }
         return operationInfo.getPath();

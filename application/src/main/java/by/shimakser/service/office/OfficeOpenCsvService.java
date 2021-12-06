@@ -30,7 +30,8 @@ public class OfficeOpenCsvService extends BaseOfficeService {
         this.contactRepository = contactRepository;
     }
 
-    private final AtomicLong idOfOperation = new AtomicLong(0);
+    private final String[] OFFICES_FIELDS = new String[]{"id", "officeTitle", "officeAddress", "officePrice", "officeContacts", "officeDescription"};
+    private final AtomicLong ID_OF_OPERATION = new AtomicLong(0);
 
     @Override
     @Transactional(rollbackFor = {IOException.class})
@@ -41,10 +42,10 @@ public class OfficeOpenCsvService extends BaseOfficeService {
             throw new FileNotFoundException(ExceptionText.FILE_NOT_FOUND.getExceptionText());
         }
 
-        idOfOperation.set(idOfOperation.get() + 1);
+        ID_OF_OPERATION.set(ID_OF_OPERATION.get() + 1);
         Runnable exportTask = () -> {
             try (Reader reader = new BufferedReader(new FileReader(path))) {
-                statusOfExport.put(idOfOperation, new OfficeOperationInfo(Status.In_Process, path));
+                statusOfExport.put(ID_OF_OPERATION, new OfficeOperationInfo(Status.IN_PROCESS, path));
 
                 CsvToBean<Office> csvToBean = new CsvToBeanBuilder<Office>(reader)
                         .withType(Office.class)
@@ -55,16 +56,16 @@ public class OfficeOpenCsvService extends BaseOfficeService {
 
                 list.forEach(office -> contactRepository.saveAll(office.getOfficeContacts()));
                 officeRepository.saveAll(list);
-                statusOfExport.put(idOfOperation, new OfficeOperationInfo(Status.Uploaded, path));
+                statusOfExport.put(ID_OF_OPERATION, new OfficeOperationInfo(Status.UPLOADED, path));
             } catch (IOException e) {
-                statusOfExport.put(idOfOperation, new OfficeOperationInfo(Status.Not_Loaded, path));
+                statusOfExport.put(ID_OF_OPERATION, new OfficeOperationInfo(Status.NOT_LOADED, path));
                 e.printStackTrace();
             }
         };
         Thread exportThread = new Thread(exportTask);
         exportThread.start();
 
-        return idOfOperation.get();
+        return ID_OF_OPERATION.get();
     }
 
     @Override
@@ -72,31 +73,30 @@ public class OfficeOpenCsvService extends BaseOfficeService {
     public Long importToFile(CSVRequest csvRequest) {
         String path = csvRequest.getPathToFile();
 
-        idOfOperation.set(idOfOperation.get() + 1);
+        ID_OF_OPERATION.set(ID_OF_OPERATION.get() + 1);
         Runnable importTask = () -> {
             try (FileWriter writer = new FileWriter(path)) {
-                statusOfExport.put(idOfOperation, new OfficeOperationInfo(Status.In_Process, path));
+                statusOfExport.put(ID_OF_OPERATION, new OfficeOperationInfo(Status.IN_PROCESS, path));
 
                 ColumnPositionMappingStrategy<Office> mappingStrategy = new ColumnPositionMappingStrategy<>();
                 mappingStrategy.setType(Office.class);
 
-                final String[] columns = new String[]{"id", "officeTitle", "officeAddress", "officePrice", "officeContacts", "officeDescription"};
-                mappingStrategy.setColumnMapping(columns);
+                mappingStrategy.setColumnMapping(OFFICES_FIELDS);
 
                 StatefulBeanToCsvBuilder<Office> builder = new StatefulBeanToCsvBuilder<>(writer);
                 StatefulBeanToCsv<Office> beanWriter = builder.withMappingStrategy(mappingStrategy).build();
 
                 beanWriter.write(officeRepository.findAll());
 
-                statusOfExport.put(idOfOperation, new OfficeOperationInfo(Status.Uploaded, path));
+                statusOfExport.put(ID_OF_OPERATION, new OfficeOperationInfo(Status.UPLOADED, path));
             } catch (IOException | CsvRequiredFieldEmptyException | CsvDataTypeMismatchException e) {
-                statusOfExport.put(idOfOperation, new OfficeOperationInfo(Status.Not_Loaded, path));
+                statusOfExport.put(ID_OF_OPERATION, new OfficeOperationInfo(Status.NOT_LOADED, path));
                 e.printStackTrace();
             }
         };
         Thread importThread = new Thread(importTask);
         importThread.start();
 
-        return idOfOperation.get();
+        return ID_OF_OPERATION.get();
     }
 }

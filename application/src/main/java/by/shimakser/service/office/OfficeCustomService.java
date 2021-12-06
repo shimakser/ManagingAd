@@ -31,7 +31,7 @@ public class OfficeCustomService extends BaseOfficeService {
         this.contactRepository = contactRepository;
     }
 
-    private final AtomicLong idOfOperation = new AtomicLong(0);
+    private final AtomicLong ID_OF_OPERATION = new AtomicLong(0);
 
     @Override
     @Transactional(rollbackFor = {IOException.class, FileNotFoundException.class})
@@ -42,11 +42,11 @@ public class OfficeCustomService extends BaseOfficeService {
             throw new FileNotFoundException(ExceptionText.FILE_NOT_FOUND.getExceptionText());
         }
 
-        idOfOperation.set(idOfOperation.get() + 1);
+        ID_OF_OPERATION.set(ID_OF_OPERATION.get() + 1);
         Runnable exportTask = () -> {
             try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
                 String line;
-                statusOfExport.put(idOfOperation, new OfficeOperationInfo(Status.In_Process, path));
+                statusOfExport.put(ID_OF_OPERATION, new OfficeOperationInfo(Status.IN_PROCESS, path));
 
                 while ((line = reader.readLine()) != null) {
                     String[] arrayOfOffices = line.split(",", 5);
@@ -77,16 +77,16 @@ public class OfficeCustomService extends BaseOfficeService {
                             arrayOfOffices[2], Double.parseDouble(arrayOfOffices[3]), listOfContacts, jsonObject);
                     officeRepository.save(office);
 
-                    statusOfExport.put(idOfOperation, new OfficeOperationInfo(Status.Uploaded, path));
+                    statusOfExport.put(ID_OF_OPERATION, new OfficeOperationInfo(Status.UPLOADED, path));
                 }
             } catch (IOException ex) {
-                statusOfExport.put(idOfOperation, new OfficeOperationInfo(Status.Not_Loaded, path));
+                statusOfExport.put(ID_OF_OPERATION, new OfficeOperationInfo(Status.NOT_LOADED, path));
                 ex.printStackTrace();
             }
         };
         Thread exportThread = new Thread(exportTask);
         exportThread.start();
-        return idOfOperation.get();
+        return ID_OF_OPERATION.get();
     }
 
     @Override
@@ -94,9 +94,9 @@ public class OfficeCustomService extends BaseOfficeService {
     public Long importToFile(CSVRequest csvRequest) {
         String path = csvRequest.getPathToFile();
 
-        idOfOperation.set(idOfOperation.get() + 1);
+        ID_OF_OPERATION.set(ID_OF_OPERATION.get() + 1);
         Runnable importTask = () -> {
-            statusOfExport.put(idOfOperation, new OfficeOperationInfo(Status.In_Process, path));
+            statusOfExport.put(ID_OF_OPERATION, new OfficeOperationInfo(Status.IN_PROCESS, path));
             try (FileWriter writer = new FileWriter(path, false)) {
                 List<Office> offices = officeRepository.findAll();
                 for (Office office : offices) {
@@ -104,15 +104,15 @@ public class OfficeCustomService extends BaseOfficeService {
                     writer.write("\n");
                 }
 
-                statusOfExport.put(idOfOperation, new OfficeOperationInfo(Status.Uploaded, path));
+                statusOfExport.put(ID_OF_OPERATION, new OfficeOperationInfo(Status.UPLOADED, path));
             } catch (IOException e) {
-                statusOfExport.put(idOfOperation, new OfficeOperationInfo(Status.Not_Loaded, path));
+                statusOfExport.put(ID_OF_OPERATION, new OfficeOperationInfo(Status.NOT_LOADED, path));
                 e.printStackTrace();
             }
         };
         Thread importThread = new Thread(importTask);
         importThread.start();
 
-        return idOfOperation.get();
+        return ID_OF_OPERATION.get();
     }
 }
