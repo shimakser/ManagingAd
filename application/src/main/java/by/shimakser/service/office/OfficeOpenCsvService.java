@@ -60,7 +60,7 @@ public class OfficeOpenCsvService extends BaseOfficeService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = {IOException.class, CsvRequiredFieldEmptyException.class, CsvDataTypeMismatchException.class})
     public Long importToFile(CSVRequest csvRequest) {
         String path = csvRequest.getPathToFile();
         idOfOperation.set(idOfOperation.get() + 1);
@@ -71,7 +71,7 @@ public class OfficeOpenCsvService extends BaseOfficeService {
                 ColumnPositionMappingStrategy<Office> mappingStrategy = new ColumnPositionMappingStrategy<>();
                 mappingStrategy.setType(Office.class);
 
-                String[] columns = new String[]{"id", "officeTitle", "officeAddress", "officePrice", "officeContacts", "officeDescription"};
+                final String[] columns = new String[]{"id", "officeTitle", "officeAddress", "officePrice", "officeContacts", "officeDescription"};
                 mappingStrategy.setColumnMapping(columns);
 
                 StatefulBeanToCsvBuilder<Office> builder = new StatefulBeanToCsvBuilder<>(writer);
