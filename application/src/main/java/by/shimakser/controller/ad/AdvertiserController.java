@@ -58,8 +58,7 @@ public class AdvertiserController {
                                               @RequestBody AdvertiserDto newAdvertiserDto,
                                               Principal creator) throws AuthenticationException {
         Advertiser advertiser = advertiserMapper.mapToEntity(newAdvertiserDto);
-        advertiserService.update(id, advertiser, creator);
-        return newAdvertiserDto;
+        return advertiserMapper.mapToDto(advertiserService.update(id, advertiser, creator));
     }
 
     @DeleteMapping(value = "/{id}")
