@@ -5,7 +5,6 @@ import by.shimakser.model.office.Office;
 import by.shimakser.model.office.Status;
 import by.shimakser.repository.office.ContactRepository;
 import by.shimakser.repository.office.OfficeRepository;
-import com.opencsv.CSVReader;
 import com.opencsv.bean.*;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
@@ -13,9 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,25 +39,19 @@ public class OfficeOpenCsvService {
     public Long exportFromFile(CSVRequest csvRequest) {
         String path = csvRequest.getPathToFile();
 
-        Map<String, String> mapping = new HashMap<>();
-        mapping.put("id", "id");
-        mapping.put("office_title", "officeTitle");
-        mapping.put("office_address", "officeAddress");
-        mapping.put("office_price", "officePrice");
-
-        HeaderColumnNameTranslateMappingStrategy<Office> strategy = new HeaderColumnNameTranslateMappingStrategy<>();
-        strategy.setType(Office.class);
-        strategy.setColumnMapping(mapping);
 
         idOfOperation.set(idOfOperation.get() + 1);
         Runnable exportTask = () -> {
-            try (CSVReader csvReader = new CSVReader(new FileReader(path))) {
-                CsvToBean<Office> csvToBean = new CsvToBean<>();
-                csvToBean.setCsvReader(csvReader);
-                csvToBean.setMappingStrategy(strategy);
-
+            try (Reader reader = new BufferedReader(new FileReader(path))) {
+                CsvToBean<Office> csvToBean = new CsvToBeanBuilder<Office>(reader)
+                        .withType(Office.class)
+                        .withSeparator(',')
+                        .withIgnoreLeadingWhiteSpace(true)
+                        .build();
                 List<Office> list = csvToBean.parse();
+                System.out.println(list);
 
+                list.forEach(office -> contactRepository.saveAll(office.getOfficeContacts()));
                 officeRepository.saveAll(list);
             } catch (IOException e) {
                 Status.Not_Loaded.setPathForFile(path);
@@ -110,6 +101,4 @@ public class OfficeOpenCsvService {
 
         return idOfOperation.get();
     }
-
-
 }
