@@ -22,7 +22,7 @@ public abstract class BaseOfficeService implements OfficeService {
     public Status getStatusOfImportById(Long id) throws NotFoundException {
         Status status = statusOfImport.get(new AtomicLong(id)).getStatus();
         if (status == null) {
-            throw new NotFoundException(ExceptionText.NotFound.getExceptionText());
+            throw new NotFoundException(ExceptionText.NOT_FOUND.getExceptionText());
         }
         return status;
     }
@@ -32,7 +32,7 @@ public abstract class BaseOfficeService implements OfficeService {
     public Status getStatusOfExportById(Long id) throws NotFoundException {
         Status status = statusOfExport.get(new AtomicLong(id)).getStatus();
         if (status == null) {
-            throw new NotFoundException(ExceptionText.NotFound.getExceptionText());
+            throw new NotFoundException(ExceptionText.NOT_FOUND.getExceptionText());
         }
         return status;
     }
@@ -43,7 +43,7 @@ public abstract class BaseOfficeService implements OfficeService {
         OfficeOperationInfo operationInfo = statusOfImport.get(new AtomicLong(id));
         Status status = operationInfo.getStatus();
         if (status == null || !status.equals(Status.Uploaded)) {
-            throw new NotFoundException(ExceptionText.NotFound.getExceptionText());
+            throw new NotFoundException(ExceptionText.NOT_FOUND.getExceptionText());
         }
         return operationInfo.getPath();
     }

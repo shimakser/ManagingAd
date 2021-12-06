@@ -45,7 +45,7 @@ public class AuthenticationController {
             response.put("token", token);
             return ResponseEntity.ok(response);
         } catch (AuthenticationException e) {
-            throw new javax.naming.AuthenticationException(ExceptionText.Authentication.getExceptionText());
+            throw new javax.naming.AuthenticationException(ExceptionText.AUTHENTICATION.getExceptionText());
         }
     }
 }

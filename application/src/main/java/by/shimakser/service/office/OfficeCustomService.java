@@ -39,7 +39,7 @@ public class OfficeCustomService extends BaseOfficeService {
         String path = csvRequest.getPathToFile();
         File file = new File(path);
         if (!file.isFile()) {
-            throw new FileNotFoundException(ExceptionText.FileNotFound.getExceptionText());
+            throw new FileNotFoundException(ExceptionText.FILE_NOT_FOUND.getExceptionText());
         }
 
         idOfOperation.set(idOfOperation.get() + 1);

@@ -1,6 +1,7 @@
 package by.shimakser.service.office;
 
 import by.shimakser.dto.CSVRequest;
+import by.shimakser.exception.ExceptionText;
 import by.shimakser.model.office.Office;
 import by.shimakser.model.office.OfficeOperationInfo;
 import by.shimakser.model.office.Status;
@@ -33,8 +34,12 @@ public class OfficeOpenCsvService extends BaseOfficeService {
 
     @Override
     @Transactional(rollbackFor = {IOException.class})
-    public Long exportFromFile(CSVRequest csvRequest) {
+    public Long exportFromFile(CSVRequest csvRequest) throws FileNotFoundException {
         String path = csvRequest.getPathToFile();
+        File file = new File(path);
+        if (!file.isFile()) {
+            throw new FileNotFoundException(ExceptionText.FILE_NOT_FOUND.getExceptionText());
+        }
 
         idOfOperation.set(idOfOperation.get() + 1);
         Runnable exportTask = () -> {
@@ -66,6 +71,7 @@ public class OfficeOpenCsvService extends BaseOfficeService {
     @Transactional(rollbackFor = {IOException.class, CsvRequiredFieldEmptyException.class, CsvDataTypeMismatchException.class})
     public Long importToFile(CSVRequest csvRequest) {
         String path = csvRequest.getPathToFile();
+
         idOfOperation.set(idOfOperation.get() + 1);
         Runnable importTask = () -> {
             try (FileWriter writer = new FileWriter(path)) {

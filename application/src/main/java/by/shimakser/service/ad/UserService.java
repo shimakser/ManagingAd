@@ -38,7 +38,7 @@ public class UserService {
         boolean isUserByEmailExist = userRepository.existsUserByUserEmail(user.getUserEmail());
 
         if (isUserByEmailExist) {
-            throw new AlreadyBoundException(ExceptionText.AlreadyBound.getExceptionText());
+            throw new AlreadyBoundException(ExceptionText.ALREADY_BOUND.getExceptionText());
         }
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         user.setUserRole(Role.USER);
@@ -50,16 +50,16 @@ public class UserService {
     @Transactional(rollbackFor = EntityNotFoundException.class)
     public User get(Long id) throws EntityNotFoundException {
         User userById = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.EntityNotFound.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionText()));
         return Optional.of(userById)
                 .filter(not(User::isUserDeleted))
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.EntityNotFound.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionText()));
     }
 
     @Transactional(rollbackFor = EntityNotFoundException.class)
     public User getByEmail(String email) throws EntityNotFoundException {
         return userRepository.findByUserEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.EntityNotFound.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionText()));
     }
 
     @Transactional
@@ -77,13 +77,13 @@ public class UserService {
     public User update(Long id, User newUser, Principal user)
             throws EntityNotFoundException,AuthenticationException, AuthorizationServiceException {
         User userById = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.EntityNotFound.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionText()));
 
         User principalUser = userRepository.findByUsername(user.getName())
-                .orElseThrow(() -> new AuthorizationServiceException(ExceptionText.AuthorizationService.getExceptionText()));
+                .orElseThrow(() -> new AuthorizationServiceException(ExceptionText.AUTHORIZATION_SERVICE.getExceptionText()));
         if (!principalUser.getUserRole().equals(Role.ADMIN)
                 || principalUser.getId().equals(id)) {
-            throw new AuthenticationException(ExceptionText.InsufficientRights.getExceptionText());
+            throw new AuthenticationException(ExceptionText.INSUFFICIENT_RIGHTS.getExceptionText());
         }
         newUser.setId(id);
         newUser.setPassword(bCryptPasswordEncoder.encode(userById.getPassword()));
@@ -94,7 +94,7 @@ public class UserService {
     @Transactional(rollbackFor = EntityNotFoundException.class)
     public void delete(Long id) throws EntityNotFoundException {
         User userById = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.EntityNotFound.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionText()));
         userById.setUserDeleted(Boolean.TRUE);
         userRepository.save(userById);
     }
@@ -102,7 +102,7 @@ public class UserService {
     @Transactional(rollbackFor = EntityNotFoundException.class)
     public User getDeletedUser(Long id) throws EntityNotFoundException {
         return userRepository.findByIdAndUserDeletedTrue(id)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.EntityNotFound.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionText()));
     }
 
     @Transactional
