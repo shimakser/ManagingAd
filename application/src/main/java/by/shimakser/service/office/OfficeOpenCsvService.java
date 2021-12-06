@@ -1,6 +1,6 @@
 package by.shimakser.service.office;
 
-import by.shimakser.model.office.CSVRequest;
+import by.shimakser.dto.CSVRequest;
 import by.shimakser.model.office.Office;
 import by.shimakser.model.office.Status;
 import by.shimakser.repository.office.ContactRepository;
@@ -13,13 +13,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.*;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-@Service
-public class OfficeOpenCsvService {
+@Service("officeOpenCsvService")
+public class OfficeOpenCsvService extends BaseOfficeService {
 
     private final OfficeRepository officeRepository;
     private final ContactRepository contactRepository;
@@ -30,15 +28,12 @@ public class OfficeOpenCsvService {
         this.contactRepository = contactRepository;
     }
 
-    private final Map<AtomicLong, Status> statusOfExport = new HashMap<>();
-    private final Map<AtomicLong, Status> statusOfImport = new HashMap<>();
-
     private final AtomicLong idOfOperation = new AtomicLong(0);
 
+    @Override
     @Transactional(rollbackFor = {IOException.class})
     public Long exportFromFile(CSVRequest csvRequest) {
         String path = csvRequest.getPathToFile();
-
 
         idOfOperation.set(idOfOperation.get() + 1);
         Runnable exportTask = () -> {
@@ -49,7 +44,6 @@ public class OfficeOpenCsvService {
                         .withIgnoreLeadingWhiteSpace(true)
                         .build();
                 List<Office> list = csvToBean.parse();
-                System.out.println(list);
 
                 list.forEach(office -> contactRepository.saveAll(office.getOfficeContacts()));
                 officeRepository.saveAll(list);
@@ -65,13 +59,14 @@ public class OfficeOpenCsvService {
         return idOfOperation.get();
     }
 
+    @Override
     @Transactional
     public Long importToFile(CSVRequest csvRequest) {
         String path = csvRequest.getPathToFile();
         idOfOperation.set(idOfOperation.get() + 1);
         Runnable importTask = () -> {
             Status.In_Process.setPathForFile(path);
-            try (FileWriter writer = new FileWriter(path);) {
+            try (FileWriter writer = new FileWriter(path)) {
 
                 ColumnPositionMappingStrategy<Office> mappingStrategy = new ColumnPositionMappingStrategy<>();
                 mappingStrategy.setType(Office.class);
@@ -86,11 +81,7 @@ public class OfficeOpenCsvService {
 
                 Status.Uploaded.setPathForFile(path);
                 statusOfImport.put(idOfOperation, Status.Uploaded);
-            } catch (IOException e) {
-                Status.Not_Loaded.setPathForFile(path);
-                statusOfImport.put(idOfOperation, Status.Not_Loaded);
-                e.printStackTrace();
-            } catch (CsvRequiredFieldEmptyException | CsvDataTypeMismatchException e) {
+            } catch (IOException | CsvRequiredFieldEmptyException | CsvDataTypeMismatchException e) {
                 Status.Not_Loaded.setPathForFile(path);
                 statusOfImport.put(idOfOperation, Status.Not_Loaded);
                 e.printStackTrace();

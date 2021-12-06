@@ -1,22 +1,23 @@
 package by.shimakser.controller.office;
 
-import by.shimakser.model.office.CSVRequest;
+import by.shimakser.dto.CSVRequest;
 import by.shimakser.model.office.Status;
 import by.shimakser.service.office.OfficeService;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.FileNotFoundException;
 
 @RestController
 @RequestMapping("/offices")
-public class OfficeController {
+public class OfficeCustomController {
 
     private final OfficeService officeService;
 
     @Autowired
-    public OfficeController(OfficeService officeService) {
+    public OfficeCustomController(@Qualifier("officeCustomService") OfficeService officeService) {
         this.officeService = officeService;
     }
 
