@@ -56,8 +56,7 @@ public class CampaignController {
                                           @RequestBody CampaignDto newCampaignDto,
                                           Principal creator) throws AuthenticationException {
         Campaign campaign = campaignMapper.mapToEntity(newCampaignDto);
-        campaignService.update(id, campaign, creator);
-        return newCampaignDto;
+        return campaignMapper.mapToDto(campaignService.update(id, campaign, creator));
     }
 
     @DeleteMapping(value = "/{id}")

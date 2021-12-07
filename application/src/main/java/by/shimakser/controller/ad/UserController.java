@@ -5,6 +5,7 @@ import by.shimakser.mapper.UserMapper;
 import by.shimakser.model.ad.User;
 import by.shimakser.service.ad.UserService;
 import by.shimakser.service.kafka.ProducerService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -27,8 +29,6 @@ public class UserController {
     private final UserMapper userMapper;
 
     private final ProducerService producerService;
-
-    private static final Logger LOG = Logger.getLogger(UserController.class);
 
     @Autowired
     public UserController(UserService userService, UserMapper userMapper, ProducerService producerService) {
@@ -42,13 +42,13 @@ public class UserController {
         User newUser = userMapper.mapToEntity(userDto);
         producerService.sendUser(userDto);
         userService.add(newUser);
-        LOG.info("Added user: " + userDto);
+        log.info("Added user: " + userDto);
         return new ResponseEntity<>(userDto, HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/{id}")
     public UserDto getUserById(@PathVariable Long id) {
-        LOG.info("Search user with id: " + id);
+        log.info("Search user with id: " + id);
         return userMapper.mapToDto(userService.get(id));
     }
 
@@ -59,7 +59,7 @@ public class UserController {
             @RequestParam Optional<Integer> size,
             @RequestParam Optional<String> sortBy
     ) {
-        LOG.info("Search all users");
+        log.info("Search all users");
         return userMapper.mapToListDto(userService.getAll(page, size, sortBy));
     }
 
@@ -68,16 +68,15 @@ public class UserController {
                                   @RequestBody UserDto newUserDto,
                                   Principal principal) throws AuthenticationException {
         User user = userMapper.mapToEntity(newUserDto);
-        userService.update(id, user, principal);
-        LOG.info("Updated user with id: " + id);
-        return newUserDto;
+        log.info("Updated user with id: " + id);
+        return userMapper.mapToDto(userService.update(id, user, principal));
     }
 
     @PreAuthorize("hasAuthority('user:write')")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<HttpStatus> deleteUserById(@PathVariable("id") Long id) {
         userService.delete(id);
-        LOG.info("Deleted user with id: " + id);
+        log.info("Deleted user with id: " + id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
