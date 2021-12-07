@@ -42,28 +42,23 @@ public class OfficeOpenCsvService extends BaseOfficeService {
             throw new FileNotFoundException(ExceptionText.FILE_NOT_FOUND.getExceptionText());
         }
 
-        ID_OF_OPERATION.set(ID_OF_OPERATION.get() + 1);
-        Runnable exportTask = () -> {
-            try (Reader reader = new BufferedReader(new FileReader(path))) {
-                statusOfExport.put(ID_OF_OPERATION, new OfficeOperationInfo(Status.IN_PROCESS, path));
+        ID_OF_OPERATION.getAndIncrement();
+        statusOfExport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.IN_PROCESS, path));
+        try (Reader reader = new BufferedReader(new FileReader(path))) {
+            CsvToBean<Office> csvToBean = new CsvToBeanBuilder<Office>(reader)
+                    .withType(Office.class)
+                    .withSeparator(',')
+                    .withIgnoreLeadingWhiteSpace(true)
+                    .build();
+            List<Office> list = csvToBean.parse();
 
-                CsvToBean<Office> csvToBean = new CsvToBeanBuilder<Office>(reader)
-                        .withType(Office.class)
-                        .withSeparator(',')
-                        .withIgnoreLeadingWhiteSpace(true)
-                        .build();
-                List<Office> list = csvToBean.parse();
-
-                list.forEach(office -> contactRepository.saveAll(office.getOfficeContacts()));
-                officeRepository.saveAll(list);
-                statusOfExport.put(ID_OF_OPERATION, new OfficeOperationInfo(Status.UPLOADED, path));
-            } catch (IOException e) {
-                statusOfExport.put(ID_OF_OPERATION, new OfficeOperationInfo(Status.NOT_LOADED, path));
-                e.printStackTrace();
-            }
-        };
-        Thread exportThread = new Thread(exportTask);
-        exportThread.start();
+            list.forEach(office -> contactRepository.saveAll(office.getOfficeContacts()));
+            officeRepository.saveAll(list);
+            statusOfExport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.UPLOADED, path));
+        } catch (IOException e) {
+            statusOfExport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.NOT_LOADED, path));
+            e.printStackTrace();
+        }
 
         return ID_OF_OPERATION.get();
     }
@@ -71,32 +66,28 @@ public class OfficeOpenCsvService extends BaseOfficeService {
     @Override
     @Transactional(rollbackFor = {IOException.class, CsvRequiredFieldEmptyException.class, CsvDataTypeMismatchException.class})
     public Long importToFile(CSVRequest csvRequest) {
+
         String importFileName = "/offices_import_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMYYYY_HH_mm_ss"));
         String path = csvRequest.getPathToFile() + importFileName;
 
-        ID_OF_OPERATION.set(ID_OF_OPERATION.get() + 1);
-        Runnable importTask = () -> {
-            try (FileWriter writer = new FileWriter(path)) {
-                statusOfExport.put(ID_OF_OPERATION, new OfficeOperationInfo(Status.IN_PROCESS, path));
+        ID_OF_OPERATION.incrementAndGet();
+        statusOfImport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.IN_PROCESS, path));
+        try (FileWriter writer = new FileWriter(path)) {
+            ColumnPositionMappingStrategy<Office> mappingStrategy = new ColumnPositionMappingStrategy<>();
+            mappingStrategy.setType(Office.class);
 
-                ColumnPositionMappingStrategy<Office> mappingStrategy = new ColumnPositionMappingStrategy<>();
-                mappingStrategy.setType(Office.class);
+            mappingStrategy.setColumnMapping(OFFICES_FIELDS);
 
-                mappingStrategy.setColumnMapping(OFFICES_FIELDS);
+            StatefulBeanToCsvBuilder<Office> builder = new StatefulBeanToCsvBuilder<>(writer);
+            StatefulBeanToCsv<Office> beanWriter = builder.withMappingStrategy(mappingStrategy).build();
 
-                StatefulBeanToCsvBuilder<Office> builder = new StatefulBeanToCsvBuilder<>(writer);
-                StatefulBeanToCsv<Office> beanWriter = builder.withMappingStrategy(mappingStrategy).build();
+            beanWriter.write(officeRepository.findAll());
 
-                beanWriter.write(officeRepository.findAll());
-
-                statusOfExport.put(ID_OF_OPERATION, new OfficeOperationInfo(Status.UPLOADED, path));
-            } catch (IOException | CsvRequiredFieldEmptyException | CsvDataTypeMismatchException e) {
-                statusOfExport.put(ID_OF_OPERATION, new OfficeOperationInfo(Status.NOT_LOADED, path));
-                e.printStackTrace();
-            }
-        };
-        Thread importThread = new Thread(importTask);
-        importThread.start();
+            statusOfImport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.UPLOADED, path));
+        } catch (IOException | CsvRequiredFieldEmptyException | CsvDataTypeMismatchException e) {
+            statusOfImport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.NOT_LOADED, path));
+            e.printStackTrace();
+        }
 
         return ID_OF_OPERATION.get();
     }

@@ -41,11 +41,11 @@ public class OfficeCustomService extends BaseOfficeService {
             throw new FileNotFoundException(ExceptionText.FILE_NOT_FOUND.getExceptionText());
         }
 
-        ID_OF_OPERATION.set(ID_OF_OPERATION.get() + 1);
+        ID_OF_OPERATION.getAndIncrement();
         Runnable exportTask = () -> {
             try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
                 String line;
-                statusOfExport.put(ID_OF_OPERATION, new OfficeOperationInfo(Status.IN_PROCESS, path));
+                statusOfExport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.IN_PROCESS, path));
 
                 while ((line = reader.readLine()) != null) {
                     String[] arrayOfOffices = line.split(",", 5);
@@ -76,10 +76,10 @@ public class OfficeCustomService extends BaseOfficeService {
                             arrayOfOffices[2], Double.parseDouble(arrayOfOffices[3]), listOfContacts, jsonObject);
                     officeRepository.save(office);
 
-                    statusOfExport.put(ID_OF_OPERATION, new OfficeOperationInfo(Status.UPLOADED, path));
+                    statusOfExport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.UPLOADED, path));
                 }
             } catch (IOException ex) {
-                statusOfExport.put(ID_OF_OPERATION, new OfficeOperationInfo(Status.NOT_LOADED, path));
+                statusOfExport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.NOT_LOADED, path));
                 ex.printStackTrace();
             }
         };
@@ -96,7 +96,7 @@ public class OfficeCustomService extends BaseOfficeService {
 
         ID_OF_OPERATION.set(ID_OF_OPERATION.get() + 1);
         Runnable importTask = () -> {
-            statusOfExport.put(ID_OF_OPERATION, new OfficeOperationInfo(Status.IN_PROCESS, path));
+            statusOfExport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.IN_PROCESS, path));
             try (FileWriter writer = new FileWriter(path, false)) {
                 List<Office> offices = officeRepository.findAll();
                 for (Office office : offices) {
@@ -104,9 +104,9 @@ public class OfficeCustomService extends BaseOfficeService {
                     writer.write("\n");
                 }
 
-                statusOfExport.put(ID_OF_OPERATION, new OfficeOperationInfo(Status.UPLOADED, path));
+                statusOfExport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.UPLOADED, path));
             } catch (IOException e) {
-                statusOfExport.put(ID_OF_OPERATION, new OfficeOperationInfo(Status.NOT_LOADED, path));
+                statusOfExport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.NOT_LOADED, path));
                 e.printStackTrace();
             }
         };

@@ -6,6 +6,7 @@ import by.shimakser.service.office.OfficeService;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.FileNotFoundException;
@@ -41,8 +42,8 @@ public class OfficeCustomController {
         return officeService.getStatusOfExportById(id);
     }
 
-    @GetMapping("/import/{id}/file")
-    public String getImportedFile(@PathVariable Long id) throws NotFoundException {
-        return officeService.getImportedFileById(id);
+    @GetMapping("/export/{id}/file")
+    public FileSystemResource getExportedFile(@PathVariable Long id) throws NotFoundException {
+        return officeService.getExportedFileById(id);
     }
 }
