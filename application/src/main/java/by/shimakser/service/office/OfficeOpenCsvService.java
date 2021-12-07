@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -71,7 +73,8 @@ public class OfficeOpenCsvService extends BaseOfficeService {
     @Override
     @Transactional(rollbackFor = {IOException.class, CsvRequiredFieldEmptyException.class, CsvDataTypeMismatchException.class})
     public Long importToFile(CSVRequest csvRequest) {
-        String path = csvRequest.getPathToFile();
+        String importFileName = "/offices_import_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMYYYY_HH_mm_ss"));
+        String path = csvRequest.getPathToFile() + importFileName;
 
         ID_OF_OPERATION.set(ID_OF_OPERATION.get() + 1);
         Runnable importTask = () -> {
