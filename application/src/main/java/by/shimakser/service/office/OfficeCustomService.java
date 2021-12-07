@@ -19,7 +19,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Service("officeCustomService")
 public class OfficeCustomService extends BaseOfficeService {
@@ -32,8 +31,6 @@ public class OfficeCustomService extends BaseOfficeService {
         this.officeRepository = officeRepository;
         this.contactRepository = contactRepository;
     }
-
-    private final AtomicLong ID_OF_OPERATION = new AtomicLong(0);
 
     @Override
     @Transactional(rollbackFor = {IOException.class, FileNotFoundException.class})

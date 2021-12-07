@@ -16,6 +16,7 @@ public abstract class BaseOfficeService implements OfficeService {
 
     protected final Map<AtomicLong, OfficeOperationInfo> statusOfImport = new HashMap<>();
     protected final Map<AtomicLong, OfficeOperationInfo> statusOfExport = new HashMap<>();
+    protected final AtomicLong ID_OF_OPERATION = new AtomicLong(0);
 
     @Override
     @Transactional(rollbackFor = NotFoundException.class)

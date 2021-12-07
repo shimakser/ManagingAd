@@ -18,7 +18,6 @@ import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Service("officeOpenCsvService")
 public class OfficeOpenCsvService extends BaseOfficeService {
@@ -33,7 +32,6 @@ public class OfficeOpenCsvService extends BaseOfficeService {
     }
 
     private final String[] OFFICES_FIELDS = new String[]{"id", "officeTitle", "officeAddress", "officePrice", "officeContacts", "officeDescription"};
-    private final AtomicLong ID_OF_OPERATION = new AtomicLong(0);
 
     @Override
     @Transactional(rollbackFor = {IOException.class})
