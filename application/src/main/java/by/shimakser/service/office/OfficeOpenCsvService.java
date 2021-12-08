@@ -54,6 +54,7 @@ public class OfficeOpenCsvService extends BaseOfficeService {
 
             list.forEach(office -> contactRepository.saveAll(office.getOfficeContacts()));
             officeRepository.saveAll(list);
+
             statusOfExport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.UPLOADED, path));
         } catch (IOException e) {
             statusOfExport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.NOT_LOADED, path));
@@ -66,8 +67,7 @@ public class OfficeOpenCsvService extends BaseOfficeService {
     @Override
     @Transactional(rollbackFor = {IOException.class, CsvRequiredFieldEmptyException.class, CsvDataTypeMismatchException.class})
     public Long importToFile(CSVRequest csvRequest) {
-
-        String importFileName = "/offices_import_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMYYYY_HH_mm_ss"));
+        String importFileName = "/offices_import_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMYYYY_HH_mm_ss")) + ".csv";
         String path = csvRequest.getPathToFile() + importFileName;
 
         ID_OF_OPERATION.incrementAndGet();
@@ -75,7 +75,6 @@ public class OfficeOpenCsvService extends BaseOfficeService {
         try (FileWriter writer = new FileWriter(path)) {
             ColumnPositionMappingStrategy<Office> mappingStrategy = new ColumnPositionMappingStrategy<>();
             mappingStrategy.setType(Office.class);
-
             mappingStrategy.setColumnMapping(OFFICES_FIELDS);
 
             StatefulBeanToCsvBuilder<Office> builder = new StatefulBeanToCsvBuilder<>(writer);

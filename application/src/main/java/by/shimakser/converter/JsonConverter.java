@@ -10,14 +10,9 @@ import org.json.JSONObject;
 public class JsonConverter extends AbstractBeanField {
 
     @Override
-    protected Object convert(String value) throws CsvDataTypeMismatchException, CsvConstraintViolationException {
-
-        JSONObject jsonData;
-        try {
-            jsonData = new JSONObject(value);
-        } catch (Exception ex) {
-            jsonData = null;
-        }
-        return jsonData;
+    protected JSONObject convert(String value) throws CsvDataTypeMismatchException, CsvConstraintViolationException {
+        return (value.equals("") || value.equals("{}"))
+                ? new JSONObject()
+                : new JSONObject(value);
     }
 }
