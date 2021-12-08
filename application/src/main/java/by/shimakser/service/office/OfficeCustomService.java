@@ -16,9 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service("officeCustomService")
 public class OfficeCustomService extends BaseOfficeService {
@@ -48,32 +48,16 @@ public class OfficeCustomService extends BaseOfficeService {
                 statusOfExport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.IN_PROCESS, path));
 
                 while ((line = reader.readLine()) != null) {
-                    String[] arrayOfOffices = line.split(",", 5);
-                    List<Contact> listOfContacts = new ArrayList<>();
+                    String[] arrayOfOffices = line.replace("\"", "").split(",", 5);
 
                     int indexOfClosSqBracket = arrayOfOffices[4].indexOf("]");
+                    String strListOfContacts = arrayOfOffices[4].substring(8, indexOfClosSqBracket);
 
-                    String[] splitContacts = arrayOfOffices[4].substring(1, indexOfClosSqBracket).split(", ");
-                    Arrays.stream(splitContacts)
-                            .filter(str -> str.length() > 2)
-                            .forEach(str -> {
-                                String[] contactsField = str.split(",");
-
-                                Contact contact = new Contact(Long.parseLong(contactsField[0]), contactsField[1],
-                                        contactsField[2], contactsField[3]);
-                                contactRepository.save(contact);
-
-                                listOfContacts.add(contact);
-                            });
-
-                    JSONObject jsonObject = null;
                     String descriptions = arrayOfOffices[4].substring(indexOfClosSqBracket + 2);
-                    if (descriptions.length() > 4) {
-                        jsonObject = new org.json.JSONObject(descriptions);
-                    }
 
                     Office office = new Office(Long.parseLong(arrayOfOffices[0]), arrayOfOffices[1],
-                            arrayOfOffices[2], Double.parseDouble(arrayOfOffices[3]), listOfContacts, jsonObject);
+                            arrayOfOffices[2], Double.parseDouble(arrayOfOffices[3]),
+                            contactConverterForExport(strListOfContacts), jsonConvertForExport(descriptions));
                     officeRepository.save(office);
 
                     statusOfExport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.UPLOADED, path));
@@ -91,7 +75,7 @@ public class OfficeCustomService extends BaseOfficeService {
     @Override
     @Transactional(rollbackFor = IOException.class)
     public Long importToFile(CSVRequest csvRequest) {
-        String importFileName = "/offices_import_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMYYYY_HH_mm_ss"));
+        String importFileName = "/offices_import_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMYYYY_HH_mm_ss")) + ".csv";
         String path = csvRequest.getPathToFile() + importFileName;
 
         ID_OF_OPERATION.set(ID_OF_OPERATION.get() + 1);
@@ -114,5 +98,24 @@ public class OfficeCustomService extends BaseOfficeService {
         importThread.start();
 
         return ID_OF_OPERATION.get();
+    }
+
+    private List<Contact> contactConverterForExport(String strContacts) {
+        String[] arrWithContacts;
+        if (strContacts.contains(", Contact")) {
+            arrWithContacts = strContacts.split(", Contact");
+        } else arrWithContacts = new String[]{strContacts};
+
+        return Arrays.stream(arrWithContacts)
+                .map(contacts -> contacts.substring(1, contacts.length() - 1))
+                .map(contact -> contact.split(","))
+                .map(fields -> new Contact(Long.parseLong(fields[0]), fields[1].trim(), fields[2].trim(), fields[3].trim()))
+                .collect(Collectors.toList());
+    }
+
+    protected JSONObject jsonConvertForExport(String json) {
+        return (json.equals("") || json.equals("{}"))
+                ? new JSONObject()
+                : new JSONObject(json);
     }
 }

@@ -35,7 +35,6 @@ public abstract class BaseOfficeService implements OfficeService {
         OfficeOperationInfo operationInfo = Optional.ofNullable(statusOfExport.get(id))
                 .filter(info -> info.getStatus().equals(Status.UPLOADED))
                 .orElseThrow(() -> new NotFoundException(ExceptionText.NOT_FOUND.getExceptionText()));
-        ;
         return new FileSystemResource(operationInfo.getPath());
     }
 }
