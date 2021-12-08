@@ -5,15 +5,15 @@ import by.shimakser.converter.JsonConverter;
 import by.shimakser.converter.ListConverter;
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvCustomBindByName;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.json.JSONObject;
 
 import javax.persistence.*;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
+@ToString(includeFieldNames = false)
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -41,9 +41,4 @@ public class Office {
     @CsvCustomBindByName(column = "office_description", converter = JsonConverter.class)
     @Convert(converter = JSONObjectConverter.class)
     private JSONObject officeDescription;
-
-    @Override
-    public String toString() {
-        return id + "," + officeTitle + "," + officeAddress + "," + officePrice + "," + officeContacts + "," + officeDescription;
-    }
 }

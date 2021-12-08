@@ -1,14 +1,14 @@
 package by.shimakser.model.office;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-@Data
+@Getter
+@Setter
+@ToString(includeFieldNames = false)
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -20,9 +20,4 @@ public class Contact {
     private String contactPhoneNumber;
     private String contactEmail;
     private String contactSite;
-
-    @Override
-    public String toString() {
-        return id + "," + contactPhoneNumber + "," + contactEmail + "," + contactSite;
-    }
 }
