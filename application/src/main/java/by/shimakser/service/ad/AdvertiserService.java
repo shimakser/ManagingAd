@@ -40,11 +40,10 @@ public class AdvertiserService {
                 .existsAdvertiserByAdvertiserTitle(advertiser.getAdvertiserTitle());
 
         if (isAdvertiserByTitleExist) {
-            throw new AlreadyBoundException(ExceptionText.ALREADY_BOUND.getExceptionText());
+            throw new AlreadyBoundException(ExceptionText.ALREADY_BOUND.getExceptionDescription());
         }
         User principalUser = userRepository.findByUsername(user.getName())
-                .orElseThrow(() -> new AuthorizationServiceException(ExceptionText.AUTHORIZATION_SERVICE.getExceptionText()));
-        ;
+                .orElseThrow(() -> new AuthorizationServiceException(ExceptionText.AUTHORIZATION_SERVICE.getExceptionDescription()));
         advertiser.setCreator(principalUser);
         advertiserRepository.save(advertiser);
         return advertiser;
@@ -53,10 +52,10 @@ public class AdvertiserService {
     @Transactional(rollbackFor = EntityNotFoundException.class)
     public Advertiser get(Long id) throws EntityNotFoundException {
         Advertiser advertiserById = advertiserRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionDescription()));
         return Optional.of(advertiserById)
                 .filter(not(Advertiser::isAdvertiserDeleted))
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionDescription()));
     }
 
     @Transactional
@@ -90,7 +89,7 @@ public class AdvertiserService {
     @Transactional(rollbackFor = EntityNotFoundException.class)
     public Advertiser getDeletedAdvertiser(Long id) throws EntityNotFoundException {
         return advertiserRepository.findByIdAndAdvertiserDeletedTrue(id)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionDescription()));
     }
 
     @Transactional
@@ -101,14 +100,14 @@ public class AdvertiserService {
     public Advertiser checkAdvertiserByIdAndUserByPrincipal(Long id, Principal user)
             throws EntityNotFoundException, AuthenticationException {
         Advertiser advertiserById = advertiserRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionDescription()));
 
         User principalUser = userRepository.findByUsername(user.getName())
-                .orElseThrow(() -> new AuthorizationServiceException(ExceptionText.AUTHORIZATION_SERVICE.getExceptionText()));
+                .orElseThrow(() -> new AuthorizationServiceException(ExceptionText.AUTHORIZATION_SERVICE.getExceptionDescription()));
         boolean checkAccess = principalUser.getUserRole().equals(Role.ADMIN)
                 || principalUser.getId().equals(advertiserById.getCreator().getId());
         if (!checkAccess) {
-            throw new AuthenticationException(ExceptionText.INSUFFICIENT_RIGHTS.getExceptionText());
+            throw new AuthenticationException(ExceptionText.INSUFFICIENT_RIGHTS.getExceptionDescription());
         }
         return advertiserById;
     }

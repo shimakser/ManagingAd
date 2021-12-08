@@ -42,7 +42,7 @@ public class MongoCache implements Cache {
 
     @Override
     public ValueWrapper get(Object key) {
-        final Currency value = (Currency) getFromCache(key);
+        final Currency value = getFromCache(key);
 
         if (value != null) {
             return new SimpleValueWrapper(value);
@@ -86,7 +86,7 @@ public class MongoCache implements Cache {
             T value;
             try {
                 value = valueLoader.call();
-            } catch (Throwable ex) {
+            } catch (Exception ex) {
                 throw new ValueRetrievalException(key, valueLoader, ex);
             }
 

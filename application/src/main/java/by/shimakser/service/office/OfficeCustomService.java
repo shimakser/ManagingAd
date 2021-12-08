@@ -6,7 +6,6 @@ import by.shimakser.model.office.Contact;
 import by.shimakser.model.office.Office;
 import by.shimakser.model.office.OfficeOperationInfo;
 import by.shimakser.model.office.Status;
-import by.shimakser.repository.office.ContactRepository;
 import by.shimakser.repository.office.OfficeRepository;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,12 +23,10 @@ import java.util.stream.Collectors;
 public class OfficeCustomService extends BaseOfficeService {
 
     private final OfficeRepository officeRepository;
-    private final ContactRepository contactRepository;
 
     @Autowired
-    public OfficeCustomService(OfficeRepository officeRepository, ContactRepository contactRepository) {
+    public OfficeCustomService(OfficeRepository officeRepository) {
         this.officeRepository = officeRepository;
-        this.contactRepository = contactRepository;
     }
 
     @Override
@@ -38,10 +35,10 @@ public class OfficeCustomService extends BaseOfficeService {
         String path = csvRequest.getPathToFile();
         File file = new File(path);
         if (!file.isFile()) {
-            throw new FileNotFoundException(ExceptionText.FILE_NOT_FOUND.getExceptionText());
+            throw new FileNotFoundException(ExceptionText.FILE_NOT_FOUND.getExceptionDescription());
         }
 
-        ID_OF_OPERATION.getAndIncrement();
+        ID_OF_OPERATION.incrementAndGet();
         Runnable exportTask = () -> {
             try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
                 String line;
@@ -75,12 +72,12 @@ public class OfficeCustomService extends BaseOfficeService {
     @Override
     @Transactional(rollbackFor = IOException.class)
     public Long importToFile(CSVRequest csvRequest) {
-        String importFileName = "/offices_import_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMYYYY_HH_mm_ss")) + ".csv";
+        String importFileName = "/offices_import_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMyyyy_HH_mm_ss")) + ".csv";
         String path = csvRequest.getPathToFile() + importFileName;
 
-        ID_OF_OPERATION.set(ID_OF_OPERATION.get() + 1);
+        ID_OF_OPERATION.incrementAndGet();
         Runnable importTask = () -> {
-            statusOfExport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.IN_PROCESS, path));
+            statusOfImport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.IN_PROCESS, path));
             try (FileWriter writer = new FileWriter(path, false)) {
                 List<Office> offices = officeRepository.findAll();
                 for (Office office : offices) {
@@ -88,9 +85,9 @@ public class OfficeCustomService extends BaseOfficeService {
                     writer.write("\n");
                 }
 
-                statusOfExport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.UPLOADED, path));
+                statusOfImport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.UPLOADED, path));
             } catch (IOException e) {
-                statusOfExport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.NOT_LOADED, path));
+                statusOfImport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.NOT_LOADED, path));
                 e.printStackTrace();
             }
         };

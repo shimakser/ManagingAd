@@ -1,7 +1,5 @@
 package by.shimakser.model.office;
 
-import by.shimakser.converter.JSONObjectConverter;
-import by.shimakser.converter.JsonConverter;
 import by.shimakser.converter.ListConverter;
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvCustomBindByName;
@@ -10,7 +8,6 @@ import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import lombok.*;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-import org.hibernate.annotations.TypeDefs;
 
 import javax.persistence.*;
 import java.util.List;
@@ -22,10 +19,8 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "office")
-@TypeDefs({
-        @TypeDef(name = "json", typeClass = JsonStringType.class),
-        @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
-})
+@TypeDef(name = "json", typeClass = JsonStringType.class)
+@TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
 public class Office {
 
     @Id

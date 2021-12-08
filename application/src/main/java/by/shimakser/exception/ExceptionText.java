@@ -13,17 +13,13 @@ public enum ExceptionText {
     INSUFFICIENT_RIGHTS("Insufficient rights to edit the user."),
     AUTHENTICATION("Invalid email or password.");
 
-    private String exceptionText;
+    private String exceptionDescription;
 
-    ExceptionText(String exceptionText) {
-        this.exceptionText = exceptionText;
+    ExceptionText(String exceptionDescription) {
+        this.exceptionDescription = exceptionDescription;
     }
 
-    public String getExceptionText() {
-        return exceptionText;
-    }
-
-    public void setExceptionText(String exceptionText) {
-        this.exceptionText = exceptionText;
+    public String getExceptionDescription() {
+        return exceptionDescription;
     }
 }

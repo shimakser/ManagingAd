@@ -43,9 +43,9 @@ public class ProducerService {
     }
 
     public NumbersRequest sendNumbers(NumbersRequest numbersRequest) throws InterruptedException, ExecutionException {
-        ProducerRecord<String, NumbersRequest> record = new ProducerRecord<>(requestTopic, numbersRequest);
-        record.headers().add(new RecordHeader(KafkaHeaders.REPLY_TOPIC, requestReplyTopic.getBytes()));
-        RequestReplyFuture<String, NumbersRequest, NumbersRequest> sendAndReceive = requestReplyKafkaTemplate.sendAndReceive(record);
+        ProducerRecord<String, NumbersRequest> producerRecord = new ProducerRecord<>(requestTopic, numbersRequest);
+        producerRecord.headers().add(new RecordHeader(KafkaHeaders.REPLY_TOPIC, requestReplyTopic.getBytes()));
+        RequestReplyFuture<String, NumbersRequest, NumbersRequest> sendAndReceive = requestReplyKafkaTemplate.sendAndReceive(producerRecord);
 
         ConsumerRecord<String, NumbersRequest> consumerRecord = sendAndReceive.get();
         return consumerRecord.value();

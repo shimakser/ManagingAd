@@ -35,7 +35,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> authenticate(@RequestBody AuthenticationRequest request) throws EntityNotFoundException, javax.naming.AuthenticationException {
+    public ResponseEntity<Map<Object, Object>> authenticate(@RequestBody AuthenticationRequest request) throws EntityNotFoundException, javax.naming.AuthenticationException {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
             User user = userService.getByEmail(request.getEmail());
@@ -45,7 +45,7 @@ public class AuthenticationController {
             response.put("token", token);
             return ResponseEntity.ok(response);
         } catch (AuthenticationException e) {
-            throw new javax.naming.AuthenticationException(ExceptionText.AUTHENTICATION.getExceptionText());
+            throw new javax.naming.AuthenticationException(ExceptionText.AUTHENTICATION.getExceptionDescription());
         }
     }
 }

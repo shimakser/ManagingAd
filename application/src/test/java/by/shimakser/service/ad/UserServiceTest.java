@@ -43,21 +43,22 @@ public class UserServiceTest {
 
         Assert.assertNotNull(userRepository.findById(4L));
         assertThat(userRepository.findById(4L)).contains(newUser);
-        Assert.assertEquals(userRepository.findById(4L).get().getUserEmail(), "newuser@gmail.com");
+        Assert.assertEquals("newuser@gmail.com",
+                userRepository.findById(4L).get().getUserEmail());
     }
 
     @Test
     @Transactional
     public void get() {
         Assert.assertNotNull(userRepository.findById(1L));
-        Assert.assertEquals(userRepository.findById(1L).get().getUsername(), "admin");
+        Assert.assertEquals("admin", userRepository.findById(1L).get().getUsername());
     }
 
     @Test
     @Transactional
     public void getAllWithFindingUser() {
-        Assert.assertEquals(userRepository.findAllByUserDeletedFalse(PageRequest
-                .of(0, 2, Sort.by("id"))).size(), 2);
+        Assert.assertEquals(2, userRepository.findAllByUserDeletedFalse(PageRequest
+                .of(0, 2, Sort.by("id"))).size());
     }
 
     @Test

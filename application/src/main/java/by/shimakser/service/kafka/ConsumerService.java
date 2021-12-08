@@ -15,8 +15,8 @@ import org.springframework.stereotype.Service;
 public class ConsumerService {
 
     @KafkaListener(topics = "${spring.kafka.topic.registration-topic}")
-    public void registrationListener(ConsumerRecord<String, UserDto> record) {
-        log.info("New user: " + record.value().toString());
+    public void registrationListener(ConsumerRecord<String, UserDto> consumerRecord) {
+        log.info("New user: " + consumerRecord.value().toString());
     }
 
     @KafkaListener(topics = "${spring.kafka.topic.request-topic}")

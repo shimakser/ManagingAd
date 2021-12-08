@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import org.json.JSONObject;
 
 @NoArgsConstructor
-public class JsonConverter extends AbstractBeanField {
+public class JsonConverter extends AbstractBeanField<JSONObject> {
 
     @Override
     protected JSONObject convert(String value) throws CsvDataTypeMismatchException, CsvConstraintViolationException {

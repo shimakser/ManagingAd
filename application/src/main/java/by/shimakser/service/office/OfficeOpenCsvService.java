@@ -39,10 +39,10 @@ public class OfficeOpenCsvService extends BaseOfficeService {
         String path = csvRequest.getPathToFile();
         File file = new File(path);
         if (!file.isFile()) {
-            throw new FileNotFoundException(ExceptionText.FILE_NOT_FOUND.getExceptionText());
+            throw new FileNotFoundException(ExceptionText.FILE_NOT_FOUND.getExceptionDescription());
         }
 
-        ID_OF_OPERATION.getAndIncrement();
+        ID_OF_OPERATION.incrementAndGet();
         statusOfExport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.IN_PROCESS, path));
         try (Reader reader = new BufferedReader(new FileReader(path))) {
             CsvToBean<Office> csvToBean = new CsvToBeanBuilder<Office>(reader)
@@ -67,7 +67,7 @@ public class OfficeOpenCsvService extends BaseOfficeService {
     @Override
     @Transactional(rollbackFor = {IOException.class, CsvRequiredFieldEmptyException.class, CsvDataTypeMismatchException.class})
     public Long importToFile(CSVRequest csvRequest) {
-        String importFileName = "/offices_import_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMYYYY_HH_mm_ss")) + ".csv";
+        String importFileName = "/offices_import_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMyyyy_HH_mm_ss")) + ".csv";
         String path = csvRequest.getPathToFile() + importFileName;
 
         ID_OF_OPERATION.incrementAndGet();

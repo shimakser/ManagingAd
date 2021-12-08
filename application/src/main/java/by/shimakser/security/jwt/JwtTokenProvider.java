@@ -6,6 +6,7 @@ import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -68,7 +69,7 @@ public class JwtTokenProvider {
 
             return !claimsJws.getBody().getExpiration().before(new Date());
         } catch (JwtException | IllegalArgumentException e) {
-            throw new JwtAuthenticationException(ExceptionText.JWT_AUTHENTICATION.getExceptionText());
+            throw new JwtAuthenticationException(ExceptionText.JWT_AUTHENTICATION.getExceptionDescription(), HttpStatus.UNAUTHORIZED);
         }
     }
 

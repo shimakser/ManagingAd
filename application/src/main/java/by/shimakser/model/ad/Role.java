@@ -27,7 +27,7 @@ public enum Role implements GrantedAuthority {
 
     public Set<SimpleGrantedAuthority> getAuthorities(){
         return getPermissions().stream()
-                .map(permission -> new SimpleGrantedAuthority(permission.getPermission()))
+                .map(permission -> new SimpleGrantedAuthority(permission.getUserPermission()))
                 .collect(Collectors.toSet());
     }
 }

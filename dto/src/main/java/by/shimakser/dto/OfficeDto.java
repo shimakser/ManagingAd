@@ -1,7 +1,6 @@
 package by.shimakser.dto;
 
 import lombok.Data;
-import org.json.JSONObject;
 
 import java.util.List;
 

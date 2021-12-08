@@ -39,7 +39,7 @@ public class CampaignService {
                 .existsCampaignByCampaignTitle(campaign.getCampaignTitle());
 
         if (isCampaignByTitleExist) {
-            throw new AlreadyBoundException(ExceptionText.ALREADY_BOUND.getExceptionText());
+            throw new AlreadyBoundException(ExceptionText.ALREADY_BOUND.getExceptionDescription());
         }
         LocalDateTime date = LocalDateTime.now();
         campaign.setCampaignCreatedDate(date);
@@ -50,10 +50,10 @@ public class CampaignService {
     @Transactional(rollbackFor = EntityNotFoundException.class)
     public Campaign get(Long id) throws EntityNotFoundException {
         Campaign campaignById = campaignRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionDescription()));
         return Optional.of(campaignById)
                 .filter(not(Campaign::isCampaignDeleted))
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionDescription()));
     }
 
     @Transactional(rollbackFor = {EntityNotFoundException.class, AuthenticationException.class, AuthorizationServiceException.class})
@@ -76,7 +76,7 @@ public class CampaignService {
     @Transactional(rollbackFor = EntityNotFoundException.class)
     public Campaign getDeletedCampaign(Long id) throws EntityNotFoundException {
         return campaignRepository.findByIdAndCampaignDeletedTrue(id)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionDescription()));
     }
 
     @Transactional
@@ -87,13 +87,13 @@ public class CampaignService {
     public Campaign checkCampaignByIdAndUserByPrincipal(Long id, Principal user)
             throws EntityNotFoundException, AuthenticationException {
         Campaign campaignById = campaignRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionText()));
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionDescription()));
         User principalUser = userRepository.findByUsername(user.getName())
-                .orElseThrow(() -> new AuthorizationServiceException(ExceptionText.AUTHORIZATION_SERVICE.getExceptionText()));
+                .orElseThrow(() -> new AuthorizationServiceException(ExceptionText.AUTHORIZATION_SERVICE.getExceptionDescription()));
         boolean checkAccess = principalUser.getUserRole().equals(Role.ADMIN)
                 || principalUser.getId().equals(campaignById.getAdvertiser().getCreator().getId());
         if (!checkAccess) {
-            throw new AuthenticationException(ExceptionText.INSUFFICIENT_RIGHTS.getExceptionText());
+            throw new AuthenticationException(ExceptionText.INSUFFICIENT_RIGHTS.getExceptionDescription());
         }
         return campaignById;
     }

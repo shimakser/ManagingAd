@@ -1,5 +1,6 @@
 package by.shimakser.dto;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.domain.PageRequest;
@@ -9,6 +10,7 @@ import java.util.Set;
 
 @Getter
 @Setter
+@EqualsAndHashCode(callSuper = false)
 public class CampaignFilterRequest extends PageRequest {
 
     private Set<String> age;
