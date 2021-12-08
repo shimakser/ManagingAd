@@ -57,7 +57,7 @@ public class OfficeCustomService extends BaseOfficeService {
 
                     Office office = new Office(Long.parseLong(arrayOfOffices[0]), arrayOfOffices[1],
                             arrayOfOffices[2], Double.parseDouble(arrayOfOffices[3]),
-                            contactConverterForExport(strListOfContacts), jsonConvertForExport(descriptions));
+                            contactConverterForExport(strListOfContacts), jsonConvertForExport(descriptions).toString());
                     officeRepository.save(office);
 
                     statusOfExport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.UPLOADED, path));

@@ -5,8 +5,12 @@ import by.shimakser.converter.JsonConverter;
 import by.shimakser.converter.ListConverter;
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvCustomBindByName;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import lombok.*;
-import org.json.JSONObject;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.TypeDefs;
 
 import javax.persistence.*;
 import java.util.List;
@@ -18,6 +22,10 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 @Table(name = "office")
+@TypeDefs({
+        @TypeDef(name = "json", typeClass = JsonStringType.class),
+        @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
+})
 public class Office {
 
     @Id
@@ -38,7 +46,7 @@ public class Office {
     @JoinColumn(name = "office_id")
     private List<Contact> officeContacts;
 
-    @CsvCustomBindByName(column = "office_description", converter = JsonConverter.class)
-    @Convert(converter = JSONObjectConverter.class)
-    private JSONObject officeDescription;
+    @Type(type = "jsonb")
+    @Column(name = "office_description", columnDefinition = "jsonb")
+    private String officeDescription;
 }
