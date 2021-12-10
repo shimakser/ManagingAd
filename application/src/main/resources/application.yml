@@ -2,6 +2,13 @@ server:
   port: 8080
   servlet:
     context-path: /managingad
+  ssl:
+  # keytool -genkeypair -alias managingad -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore managingad.p12 keypass password -storepass password -validity 3650
+    enabled: true
+    key-store-type: PKCS12
+    key-store: classpath:keystore/managingad.p12
+    key-store-password: password
+    key-alias: managingad
 
 spring:
   datasource:
