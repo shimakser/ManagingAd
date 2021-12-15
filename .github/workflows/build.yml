@@ -15,4 +15,4 @@ jobs:
       - name: Clone repo
         uses: actions/checkout@v1 
       - name: Package services
-        run: ./mvnw package
+        run: mvn package
