@@ -162,6 +162,23 @@ services:
     depends_on:
       - app
 
+  offices:
+    container_name: offices
+    image: offices-app
+    build:
+      context: .
+      dockerfile: Dockerfile-offices
+    ports:
+      - "8082:8082"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_HOST: postgresdb
+      POSTGRES_PORT: 5432
+      DB: ManagingAd
+    depends_on:
+      - app
+
 networks:
   elk:
     driver: bridge
