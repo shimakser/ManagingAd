@@ -6,7 +6,6 @@ import by.shimakser.model.ad.User;
 import by.shimakser.service.ad.UserService;
 import by.shimakser.service.kafka.ProducerService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
