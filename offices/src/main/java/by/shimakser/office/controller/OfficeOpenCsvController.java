@@ -1,7 +1,7 @@
 package by.shimakser.office.controller;
 
-import by.shimakser.dto.CSVRequest;
-import by.shimakser.office.service.OfficeService;
+import by.shimakser.dto.OfficeRequest;
+import by.shimakser.office.service.csv.OfficeCsvService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -14,23 +14,23 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.FileNotFoundException;
 
 @RestController
-@RequestMapping("/offices")
+@RequestMapping("/offices/opencsv")
 public class OfficeOpenCsvController {
 
-    private final OfficeService officeService;
+    private final OfficeCsvService officeCsvService;
 
     @Autowired
-    public OfficeOpenCsvController(@Qualifier("officeOpenCsvService") OfficeService officeService) {
-        this.officeService = officeService;
+    public OfficeOpenCsvController(@Qualifier("officeOpenCsvService") OfficeCsvService officeCsvService) {
+        this.officeCsvService = officeCsvService;
     }
 
-    @PostMapping("/export/opencsv")
-    public ResponseEntity<Long> exportFile(@RequestBody CSVRequest csvRequest) throws FileNotFoundException {
-        return new ResponseEntity<>(officeService.exportFromFile(csvRequest), HttpStatus.CREATED);
+    @PostMapping("/export")
+    public ResponseEntity<Long> exportFile(@RequestBody OfficeRequest officeRequest) throws FileNotFoundException {
+        return new ResponseEntity<>(officeCsvService.exportFromFile(officeRequest), HttpStatus.CREATED);
     }
 
-    @PostMapping("/import/opencsv")
-    public ResponseEntity<Long> importFile(@RequestBody CSVRequest csvRequest) {
-        return new ResponseEntity<>(officeService.importToFile(csvRequest), HttpStatus.CREATED);
+    @PostMapping("/import")
+    public ResponseEntity<Long> importFile(@RequestBody OfficeRequest officeRequest) {
+        return new ResponseEntity<>(officeCsvService.importToFile(officeRequest), HttpStatus.CREATED);
     }
 }

@@ -1,6 +1,6 @@
-package by.shimakser.office.service;
+package by.shimakser.office.service.csv;
 
-import by.shimakser.dto.CSVRequest;
+import by.shimakser.dto.OfficeRequest;
 import by.shimakser.office.exception.ExceptionOfficeText;
 import by.shimakser.office.model.Office;
 import by.shimakser.office.model.OfficeOperationInfo;
@@ -20,7 +20,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service("officeOpenCsvService")
-public class OfficeOpenCsvService extends BaseOfficeService {
+public class OfficeOpenCsvService extends BaseOfficeCsvService {
 
     private final OfficeRepository officeRepository;
     private final ContactRepository contactRepository;
@@ -35,8 +35,8 @@ public class OfficeOpenCsvService extends BaseOfficeService {
 
     @Override
     @Transactional(rollbackFor = {IOException.class})
-    public Long exportFromFile(CSVRequest csvRequest) throws FileNotFoundException {
-        String path = csvRequest.getPathToFile();
+    public Long exportFromFile(OfficeRequest officeRequest) throws FileNotFoundException {
+        String path = officeRequest.getPathToFile();
         File file = new File(path);
         if (!file.isFile()) {
             throw new FileNotFoundException(ExceptionOfficeText.FILE_NOT_FOUND.getExceptionDescription());
@@ -66,9 +66,9 @@ public class OfficeOpenCsvService extends BaseOfficeService {
 
     @Override
     @Transactional(rollbackFor = {IOException.class, CsvRequiredFieldEmptyException.class, CsvDataTypeMismatchException.class})
-    public Long importToFile(CSVRequest csvRequest) {
+    public Long importToFile(OfficeRequest officeRequest) {
         String importFileName = "/offices_import_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMyyyy_HH_mm_ss")) + ".csv";
-        String path = csvRequest.getPathToFile() + importFileName;
+        String path = officeRequest.getPathToFile() + importFileName;
 
         ID_OF_OPERATION.incrementAndGet();
         statusOfImport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.IN_PROCESS, path));

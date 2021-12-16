@@ -1,4 +1,4 @@
-package by.shimakser.office.service;
+package by.shimakser.office.service.csv;
 
 import by.shimakser.office.exception.ExceptionOfficeText;
 import by.shimakser.office.model.OfficeOperationInfo;
@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 @Service
-public abstract class BaseOfficeService implements OfficeService {
+public abstract class BaseOfficeCsvService implements OfficeCsvService {
 
     protected static ConcurrentMap<Long, OfficeOperationInfo> statusOfImport = new ConcurrentHashMap<>();
     protected static ConcurrentMap<Long, OfficeOperationInfo> statusOfExport = new ConcurrentHashMap<>();

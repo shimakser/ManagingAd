@@ -1,8 +1,8 @@
 package by.shimakser.office.controller;
 
-import by.shimakser.dto.CSVRequest;
+import by.shimakser.dto.OfficeRequest;
 import by.shimakser.office.model.Status;
-import by.shimakser.office.service.OfficeService;
+import by.shimakser.office.service.csv.OfficeCsvService;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,38 +18,38 @@ import java.net.URI;
 @RequestMapping("/offices")
 public class OfficeCustomController {
 
-    private final OfficeService officeService;
+    private final OfficeCsvService officeCsvService;
 
     @Autowired
-    public OfficeCustomController(@Qualifier("officeCustomService") OfficeService officeService) {
-        this.officeService = officeService;
+    public OfficeCustomController(@Qualifier("officeCustomService") OfficeCsvService officeCsvService) {
+        this.officeCsvService = officeCsvService;
     }
 
-    @PostMapping("/export")
-    public ResponseEntity<Long> exportFile(@RequestBody CSVRequest csvRequest) throws FileNotFoundException {
-        return new ResponseEntity<>(officeService.exportFromFile(csvRequest), HttpStatus.OK);
+    @PostMapping("/csv/export")
+    public ResponseEntity<Long> exportFile(@RequestBody OfficeRequest officeRequest) throws FileNotFoundException {
+        return new ResponseEntity<>(officeCsvService.exportFromFile(officeRequest), HttpStatus.OK);
     }
 
-    @PostMapping("/import")
-    public ResponseEntity<Long> importFile(@RequestBody CSVRequest csvRequest) {
-        return new ResponseEntity<>(officeService.importToFile(csvRequest), HttpStatus.CREATED);
+    @PostMapping("/csv/import")
+    public ResponseEntity<Long> importFile(@RequestBody OfficeRequest officeRequest) {
+        return new ResponseEntity<>(officeCsvService.importToFile(officeRequest), HttpStatus.CREATED);
     }
 
     @GetMapping("/import/{id}")
     public ResponseEntity<Status> getStatusOfImport(@PathVariable Long id) throws NotFoundException {
-        return new ResponseEntity<>(officeService.getStatusOfImportById(id), HttpStatus.OK);
+        return new ResponseEntity<>(officeCsvService.getStatusOfImportById(id), HttpStatus.OK);
     }
 
     @GetMapping("/export/{id}")
     public ResponseEntity<Status> getStatusOfExport(@PathVariable Long id) throws NotFoundException {
-        Status status = officeService.getStatusOfExportById(id);
+        Status status = officeCsvService.getStatusOfExportById(id);
         if (status.equals(Status.UPLOADED)) {
-            return ResponseEntity.status(HttpStatus.PERMANENT_REDIRECT).location(URI.create("/managingad/offices/export/" + id + "/file")).build();
+            return ResponseEntity.status(HttpStatus.PERMANENT_REDIRECT).location(URI.create("/offices/export/" + id + "/file")).build();
         } else return new ResponseEntity<>(status, HttpStatus.OK);
     }
 
     @GetMapping("/export/{id}/file")
     public ResponseEntity<FileSystemResource> getExportedFile(@PathVariable Long id) throws NotFoundException {
-        return new ResponseEntity<>(officeService.getExportedFileById(id), HttpStatus.OK);
+        return new ResponseEntity<>(officeCsvService.getExportedFileById(id), HttpStatus.OK);
     }
 }

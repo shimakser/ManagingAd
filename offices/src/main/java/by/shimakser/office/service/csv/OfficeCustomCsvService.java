@@ -1,6 +1,6 @@
-package by.shimakser.office.service;
+package by.shimakser.office.service.csv;
 
-import by.shimakser.dto.CSVRequest;
+import by.shimakser.dto.OfficeRequest;
 import by.shimakser.office.exception.ExceptionOfficeText;
 import by.shimakser.office.model.Contact;
 import by.shimakser.office.model.Office;
@@ -20,19 +20,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service("officeCustomService")
-public class OfficeCustomService extends BaseOfficeService {
+public class OfficeCustomCsvService extends BaseOfficeCsvService {
 
     private final OfficeRepository officeRepository;
 
     @Autowired
-    public OfficeCustomService(OfficeRepository officeRepository) {
+    public OfficeCustomCsvService(OfficeRepository officeRepository) {
         this.officeRepository = officeRepository;
     }
 
     @Override
     @Transactional(rollbackFor = {IOException.class, FileNotFoundException.class})
-    public Long exportFromFile(CSVRequest csvRequest) throws FileNotFoundException {
-        String path = csvRequest.getPathToFile();
+    public Long exportFromFile(OfficeRequest officeRequest) throws FileNotFoundException {
+        String path = officeRequest.getPathToFile();
         File file = new File(path);
         if (!file.isFile()) {
             throw new FileNotFoundException(ExceptionOfficeText.FILE_NOT_FOUND.getExceptionDescription());
@@ -71,9 +71,9 @@ public class OfficeCustomService extends BaseOfficeService {
 
     @Override
     @Transactional(rollbackFor = IOException.class)
-    public Long importToFile(CSVRequest csvRequest) {
+    public Long importToFile(OfficeRequest officeRequest) {
         String importFileName = "/offices_import_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMyyyy_HH_mm_ss")) + ".csv";
-        String path = csvRequest.getPathToFile() + importFileName;
+        String path = officeRequest.getPathToFile() + importFileName;
 
         ID_OF_OPERATION.incrementAndGet();
         Runnable importTask = () -> {

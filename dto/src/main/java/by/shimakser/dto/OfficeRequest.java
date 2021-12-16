@@ -3,7 +3,7 @@ package by.shimakser.dto;
 import lombok.Data;
 
 @Data
-public class CSVRequest {
+public class OfficeRequest {
 
     private Long id;
     private String pathToFile;
