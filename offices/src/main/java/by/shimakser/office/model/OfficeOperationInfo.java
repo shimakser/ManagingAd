@@ -1,4 +1,4 @@
-package by.shimakser.model.office;
+package by.shimakser.office.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

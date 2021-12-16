@@ -1,7 +1,7 @@
-package by.shimakser.service.office;
+package by.shimakser.office.service;
 
 import by.shimakser.dto.CSVRequest;
-import by.shimakser.model.office.Status;
+import by.shimakser.office.model.Status;
 import javassist.NotFoundException;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;

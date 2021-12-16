@@ -1,6 +1,6 @@
-package by.shimakser.converter;
+package by.shimakser.office.converter;
 
-import by.shimakser.model.office.Contact;
+import by.shimakser.office.model.Contact;
 import com.opencsv.bean.AbstractBeanField;
 import com.opencsv.exceptions.CsvConstraintViolationException;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;

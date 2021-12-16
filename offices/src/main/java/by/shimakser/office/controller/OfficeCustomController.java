@@ -1,8 +1,8 @@
-package by.shimakser.controller.office;
+package by.shimakser.office.controller;
 
 import by.shimakser.dto.CSVRequest;
-import by.shimakser.model.office.Status;
-import by.shimakser.service.office.OfficeService;
+import by.shimakser.office.model.Status;
+import by.shimakser.office.service.OfficeService;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

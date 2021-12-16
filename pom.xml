@@ -21,6 +21,7 @@
         <module>application</module>
         <module>kafka</module>
         <module>currencies</module>
+        <module>offices</module>
     </modules>
 
     <properties>

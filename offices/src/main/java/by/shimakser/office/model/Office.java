@@ -1,6 +1,6 @@
-package by.shimakser.model.office;
+package by.shimakser.office.model;
 
-import by.shimakser.converter.ListConverter;
+import by.shimakser.office.converter.ListConverter;
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvCustomBindByName;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;

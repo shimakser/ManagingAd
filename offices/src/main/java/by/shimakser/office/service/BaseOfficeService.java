@@ -1,8 +1,8 @@
-package by.shimakser.service.office;
+package by.shimakser.office.service;
 
-import by.shimakser.exception.ExceptionText;
-import by.shimakser.model.office.OfficeOperationInfo;
-import by.shimakser.model.office.Status;
+import by.shimakser.office.exception.ExceptionOfficeText;
+import by.shimakser.office.model.OfficeOperationInfo;
+import by.shimakser.office.model.Status;
 import javassist.NotFoundException;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ public abstract class BaseOfficeService implements OfficeService {
     @Transactional(rollbackFor = {NullPointerException.class, NotFoundException.class})
     public Status getStatusOfImportById(Long id) throws NotFoundException {
         OfficeOperationInfo operationInfo = Optional.ofNullable(statusOfImport.get(id))
-                .orElseThrow(() -> new NotFoundException(ExceptionText.NOT_FOUND.getExceptionDescription()));
+                .orElseThrow(() -> new NotFoundException(ExceptionOfficeText.NOT_FOUND.getExceptionDescription()));
         return operationInfo.getStatus();
     }
 
@@ -30,7 +30,7 @@ public abstract class BaseOfficeService implements OfficeService {
     @Transactional(rollbackFor = {NullPointerException.class, NotFoundException.class})
     public Status getStatusOfExportById(Long id) throws NotFoundException {
         OfficeOperationInfo operationInfo = Optional.ofNullable(statusOfExport.get(id))
-                .orElseThrow(() -> new NotFoundException(ExceptionText.NOT_FOUND.getExceptionDescription()));
+                .orElseThrow(() -> new NotFoundException(ExceptionOfficeText.NOT_FOUND.getExceptionDescription()));
         return operationInfo.getStatus();
     }
 
@@ -39,7 +39,7 @@ public abstract class BaseOfficeService implements OfficeService {
     public FileSystemResource getExportedFileById(Long id) throws NotFoundException {
         OfficeOperationInfo operationInfo = Optional.ofNullable(statusOfExport.get(id))
                 .filter(info -> info.getStatus().equals(Status.UPLOADED))
-                .orElseThrow(() -> new NotFoundException(ExceptionText.NOT_FOUND.getExceptionDescription()));
+                .orElseThrow(() -> new NotFoundException(ExceptionOfficeText.NOT_FOUND.getExceptionDescription()));
         return new FileSystemResource(operationInfo.getPath());
     }
 }

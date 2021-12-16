@@ -1,12 +1,12 @@
-package by.shimakser.service.office;
+package by.shimakser.office.service;
 
 import by.shimakser.dto.CSVRequest;
-import by.shimakser.exception.ExceptionText;
-import by.shimakser.model.office.Office;
-import by.shimakser.model.office.OfficeOperationInfo;
-import by.shimakser.model.office.Status;
-import by.shimakser.repository.office.ContactRepository;
-import by.shimakser.repository.office.OfficeRepository;
+import by.shimakser.office.exception.ExceptionOfficeText;
+import by.shimakser.office.model.Office;
+import by.shimakser.office.model.OfficeOperationInfo;
+import by.shimakser.office.model.Status;
+import by.shimakser.office.repository.ContactRepository;
+import by.shimakser.office.repository.OfficeRepository;
 import com.opencsv.bean.*;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
@@ -39,7 +39,7 @@ public class OfficeOpenCsvService extends BaseOfficeService {
         String path = csvRequest.getPathToFile();
         File file = new File(path);
         if (!file.isFile()) {
-            throw new FileNotFoundException(ExceptionText.FILE_NOT_FOUND.getExceptionDescription());
+            throw new FileNotFoundException(ExceptionOfficeText.FILE_NOT_FOUND.getExceptionDescription());
         }
 
         ID_OF_OPERATION.incrementAndGet();

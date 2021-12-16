@@ -141,19 +141,6 @@
             <version>${org.testcontainers}</version>
             <scope>test</scope>
         </dependency>
-
-        <!--OpenCSV-->
-        <dependency>
-            <groupId>com.opencsv</groupId>
-            <artifactId>opencsv</artifactId>
-            <version>4.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.vladmihalcea</groupId>
-            <artifactId>hibernate-types-52</artifactId>
-            <version>2.9.11</version>
-        </dependency>
     </dependencies>
 
     <build>

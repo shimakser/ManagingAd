@@ -1,4 +1,4 @@
-package by.shimakser.converter;
+package by.shimakser.office.converter;
 
 import com.opencsv.bean.AbstractBeanField;
 import com.opencsv.exceptions.CsvConstraintViolationException;
