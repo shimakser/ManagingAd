@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 public interface OfficeService {
 
     String[] OFFICES_FIELDS = new String[]{"id", "officeTitle", "officeAddress", "officePrice", "officeContacts", "officeDescription"};
+    String[] CONTACTS_FIELDS = new String[]{"id", "contactPhoneNumber", "contactEmail", "contactSite"};
 
     void importToFile(OfficeRequest officeRequest);
 }

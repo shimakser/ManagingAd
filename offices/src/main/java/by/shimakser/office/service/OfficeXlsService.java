@@ -38,34 +38,28 @@ public class OfficeXlsService implements OfficeService {
 
             Sheet sheet = workbook.createSheet("Offices");
 
-            XSSFFont font = ((XSSFWorkbook) workbook).createFont();
-            font.setFontName("Times New Roman");
-            font.setFontHeightInPoints((short) 14);
-            font.setBold(true);
-            CellStyle style = workbook.createCellStyle();
-            style.setFont(font);
-
             Cell info = sheet.createRow(0).createCell(0);
-            info.setCellValue("Offices export | "+ LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy_HH:mm:ss")));
-            info.setCellStyle(style);
+            info.setCellValue("Offices import | "+ LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy_HH:mm:ss")));
+            info.setCellStyle(getStyle(workbook));
 
-            Row header = sheet.createRow(1);
-            header.setRowStyle(style);
+            Row header = sheet.createRow(2);
+
             Cell headerCell;
             for (int i= 0; i < OFFICES_FIELDS.length; i++) {
                 headerCell = header.createCell(i);
                 headerCell.setCellValue(OFFICES_FIELDS[i]);
+                headerCell.setCellStyle(getStyle(workbook));
             }
 
             List<Office> offices = officeRepository.findAll();
-            for (int i = 2; i <= offices.size(); i++) {
+            for (int i = 3; i <= offices.size(); i++) {
                 Row row = sheet.createRow(i);
-                row.setRowStyle(style);
+                row.createCell(0).setCellValue(offices.get(i-1).getId());
                 row.createCell(0).setCellValue(offices.get(i-1).getId());
                 row.createCell(1).setCellValue(offices.get(i-1).getOfficeTitle());
                 row.createCell(2).setCellValue(offices.get(i-1).getOfficeAddress());
                 row.createCell(3).setCellValue(offices.get(i-1).getOfficePrice());
-                row.createCell(4).setCellValue(offices.get(i-1).getOfficeContacts().toString());
+
                 row.createCell(5).setCellValue(offices.get(i-1).getOfficeDescription());
             }
 
@@ -73,6 +67,19 @@ public class OfficeXlsService implements OfficeService {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    private CellStyle getStyle(Workbook workbook) {
+        XSSFFont font = ((XSSFWorkbook) workbook).createFont();
+        font.setFontName("Times New Roman");
+        font.setFontHeightInPoints((short) 14);
+
+        CellStyle style = workbook.createCellStyle();
+        style.setBorderTop(BorderStyle.MEDIUM);
+        style.setBorderBottom(BorderStyle.MEDIUM);
+        style.setBorderLeft(BorderStyle.MEDIUM);
+        style.setBorderRight(BorderStyle.MEDIUM);
+        style.setFont(font);
+        return style;
     }
 }

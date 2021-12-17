@@ -59,6 +59,9 @@ public class OfficePdfService implements OfficeService {
 
             // Add PDF Table Header
             PdfPTable table = new PdfPTable(OFFICES_FIELDS.length);
+            table.setWidthPercentage(100);
+            float[] officeColumnWidths = new float[] {3f, 12f, 15f, 7f, 44f, 20f};
+            table.setWidths(officeColumnWidths);
             Arrays.stream(OFFICES_FIELDS).forEach(headerTitle -> {
                 PdfPCell header = new PdfPCell();
                 Font headFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD);
@@ -88,12 +91,18 @@ public class OfficePdfService implements OfficeService {
                 priceCell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 table.addCell(priceCell);
 
-                PdfPCell contactsCell = new PdfPCell(new Phrase(office.getOfficeContacts().
-                        toString()));
-                table.addCell(contactsCell);
+                PdfPTable contactsTable = new PdfPTable(CONTACTS_FIELDS.length);
+                float[] contactColumnWidths = new float[] {2f, 13f, 13f, 13f};
+                contactsTable.setWidths(contactColumnWidths);
+                office.getOfficeContacts().forEach(contact -> {
+                    contactsTable.addCell(new PdfPCell(new Phrase(contact.getId().toString())));
+                    contactsTable.addCell(new PdfPCell(new Phrase(contact.getContactPhoneNumber())));
+                    contactsTable.addCell(new PdfPCell(new Phrase(contact.getContactEmail())));
+                    contactsTable.addCell(new PdfPCell(new Phrase(contact.getContactSite())));
+                });
+               table.addCell(new PdfPCell(contactsTable));
 
-                PdfPCell descriptionCell = new PdfPCell(new Phrase(office.getOfficeDescription()));
-                table.addCell(descriptionCell);
+                table.addCell(new PdfPCell(new Phrase(office.getOfficeDescription())));
             }
             document.add(table);
 
