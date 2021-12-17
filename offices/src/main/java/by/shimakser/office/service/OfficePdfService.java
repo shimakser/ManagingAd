@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -37,15 +38,23 @@ public class OfficePdfService implements OfficeService {
         String path = officeRequest.getPathToFile() + importFileName;
 
         Document document = new Document();
-        try(FileOutputStream out = new FileOutputStream(path);) {
+        try (FileOutputStream out = new FileOutputStream(path)) {
             PdfWriter.getInstance(document, out);
             document.open();
 
             Font font = FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, BaseColor.BLACK);
-            Paragraph para = new Paragraph("Offices export | "+ LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy_HH:mm:ss")), font);
 
-            para.setAlignment(Element.ALIGN_CENTER);
-            document.add(para);
+            Paragraph title = new Paragraph("Offices import | " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy_HH:mm:ss")), font);
+            title.setAlignment(Element.ALIGN_CENTER);
+            document.add(title);
+            document.add(Chunk.NEWLINE);
+
+            URL imageUrl = new URL("https://i.redd.it/fsal3ipywty21.png");
+            Image image = Image.getInstance(imageUrl);
+            image.scaleAbsoluteHeight(200);
+            image.scaleAbsoluteWidth(200);
+            image.setAlignment(Element.ALIGN_CENTER);
+            document.add(image);
             document.add(Chunk.NEWLINE);
 
             // Add PDF Table Header
@@ -79,7 +88,7 @@ public class OfficePdfService implements OfficeService {
                 priceCell.setHorizontalAlignment(Element.ALIGN_CENTER);
                 table.addCell(priceCell);
 
-                PdfPCell contactsCell = new PdfPCell(new Phrase(office.getOfficePrice().
+                PdfPCell contactsCell = new PdfPCell(new Phrase(office.getOfficeContacts().
                         toString()));
                 table.addCell(contactsCell);
 
