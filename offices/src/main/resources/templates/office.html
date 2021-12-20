@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Office to PDF</title>
+
+    <style>
+        table, th, td {
+            border: 1px solid black;
+            margin-left: auto;
+            margin-right: auto;
+            width: 55%;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div align="center">
+        <h3 th:text="${header}" style="text-align: center"/>
+        <img src="https://i.redd.it/fsal3ipywty21.png" width="10%" height="10%">
+        <table>
+            <tr style="background-color: gray">
+                <th>#</th>
+                <th>title</th>
+                <th>address</th>
+                <th>price</th>
+                <th>description</th>
+            </tr>
+            <tr th:each="el:${offices}">
+                <th th:text="${el.id}"></th>
+                <th th:text="${el.officeTitle}"></th>
+                <th th:text="${el.officeAddress}"></th>
+                <th th:text="${el.officePrice}"></th>
+                <th th:text="${el.officeDescription}"></th>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>
