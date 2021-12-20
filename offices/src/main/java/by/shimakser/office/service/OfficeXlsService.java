@@ -40,21 +40,7 @@ public class OfficeXlsService implements OfficeService {
 
             Sheet sheet = workbook.createSheet("Offices");
 
-            URL imageUrl = new URL("https://i.redd.it/fsal3ipywty21.png");
-            BufferedImage bufferedImage = ImageIO.read(imageUrl);
-            File file = new File("/home/shimakser/logo.png");
-            ImageIO.write(bufferedImage, "png", file);
-            InputStream inputStream = new FileInputStream(file);
-            byte[] bytes = IOUtils.toByteArray(inputStream);
-            int pictureId = workbook.addPicture(bytes, Workbook.PICTURE_TYPE_JPEG);
-            inputStream.close();
-            CreationHelper helper = workbook.getCreationHelper();
-            Drawing drawing = sheet.createDrawingPatriarch();
-            ClientAnchor anchor = helper.createClientAnchor();
-            anchor.setCol1(1);
-            anchor.setRow1(1);
-            Picture image = drawing.createPicture(anchor, pictureId);
-            image.resize(0.1);
+            setImageToTable(workbook, sheet);
 
             Cell info = sheet.createRow(10).createCell(1);
             info.setCellValue("Offices import | " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy_HH:mm:ss")));
@@ -116,5 +102,30 @@ public class OfficeXlsService implements OfficeService {
         style.setBorderRight(BorderStyle.MEDIUM);
         style.setFont(font);
         return style;
+    }
+
+    private void setImageToTable(Workbook workbook, Sheet sheet) {
+        try {
+            URL imageUrl = new URL("https://i.redd.it/fsal3ipywty21.png");
+            BufferedImage bufferedImage = ImageIO.read(imageUrl);
+            File file = new File("/home/shimakser/logo.png");
+            ImageIO.write(bufferedImage, "png", file);
+
+            InputStream inputStream = new FileInputStream(file);
+            byte[] bytes = IOUtils.toByteArray(inputStream);
+            int pictureId = workbook.addPicture(bytes, Workbook.PICTURE_TYPE_JPEG);
+            inputStream.close();
+
+            CreationHelper helper = workbook.getCreationHelper();
+            Drawing drawing = sheet.createDrawingPatriarch();
+            ClientAnchor anchor = helper.createClientAnchor();
+            anchor.setCol1(1);
+            anchor.setRow1(1);
+
+            Picture image = drawing.createPicture(anchor, pictureId);
+            image.resize(0.1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
