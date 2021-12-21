@@ -22,9 +22,9 @@ public class OfficePdfController {
         this.officeService = officeService;
     }
 
-    @PostMapping("/import")
-    public ResponseEntity<HttpStatus> exportFromFileToXls(@RequestBody OfficeRequest officeRequest) {
-        officeService.importToFile(officeRequest);
+    @PostMapping("/export")
+    public ResponseEntity<HttpStatus> exportFromDBToPdf(@RequestBody OfficeRequest officeRequest) {
+        officeService.exportToFile(officeRequest);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

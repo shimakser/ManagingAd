@@ -14,12 +14,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
-public class OfficeHtmlService implements OfficeService {
+public class OfficeHtmlService extends BaseOfficeService {
 
     private final OfficeRepository officeRepository;
 
@@ -35,9 +33,8 @@ public class OfficeHtmlService implements OfficeService {
     }
 
     @Override
-    public void importToFile(OfficeRequest officeRequest) {
-        String importFileName = "/offices_import_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMyyyy_HH_mm_ss")) + ".pdf";
-        String outputPdf = officeRequest.getPathToFile() + importFileName;
+    public void exportToFile(OfficeRequest officeRequest) {
+        String outputPdf = getExportFilePath(officeRequest)  + ".pdf";
         File inputHtml = new File(PATH_TO_HTML);
 
         try (OutputStream os = new FileOutputStream(outputPdf)) {

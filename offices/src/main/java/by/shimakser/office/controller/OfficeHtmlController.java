@@ -31,7 +31,7 @@ public class OfficeHtmlController {
     @GetMapping
     public String getOfficesPage(Model model) {
         List<Office> offices = officeHtmlService.getOffices();
-        String header = "Offices import | " + LocalDateTime.now()
+        String header = "Offices export | " + LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("dd.MM.yyyy_HH:mm:ss"));
 
         model.addAttribute("header", header);
@@ -39,9 +39,9 @@ public class OfficeHtmlController {
         return "office";
     }
 
-    @PostMapping("/import")
-    public ResponseEntity<HttpStatus> importFromDBToPdf(@RequestBody OfficeRequest officeRequest) {
-        officeHtmlService.importToFile(officeRequest);
+    @PostMapping("/export")
+    public ResponseEntity<HttpStatus>exportFromDBToPdf(@RequestBody OfficeRequest officeRequest) {
+        officeHtmlService.exportToFile(officeRequest);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

@@ -9,18 +9,14 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.List;
 
 @Service("officePdfService")
-public class OfficePdfService implements OfficeService {
+public class OfficePdfService extends BaseOfficeService {
 
     private final OfficeRepository officeRepository;
 
@@ -33,47 +29,36 @@ public class OfficePdfService implements OfficeService {
     }
 
     @Override
-    @Transactional
-    public void importToFile(OfficeRequest officeRequest) {
+    public void exportToFile(OfficeRequest officeRequest) {
         List<Office> offices = officeRepository.findAll();
 
-        String importFileName = "/offices_import_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMyyyy_HH_mm_ss")) + ".pdf";
-        String path = officeRequest.getPathToFile() + importFileName;
-
         Document document = new Document();
-        try (FileOutputStream out = new FileOutputStream(path)) {
+        try (FileOutputStream out = new FileOutputStream(getExportFilePath(officeRequest) + ".pdf")) {
             PdfWriter.getInstance(document, out);
             document.open();
 
             Font font = FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, BaseColor.BLACK);
 
             // Add title
-            Paragraph title = new Paragraph("Offices import | " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy_HH:mm:ss")), font);
+            Paragraph title = new Paragraph(FILE_TITLE, font);
             title.setAlignment(Element.ALIGN_CENTER);
             document.add(title);
             document.add(Chunk.NEWLINE);
 
-            // Add image
-            URL imageUrl = new URL("https://i.redd.it/fsal3ipywty21.png");
-            Image image = Image.getInstance(imageUrl);
-            image.scaleAbsoluteHeight(200);
-            image.scaleAbsoluteWidth(200);
-            image.setAlignment(Element.ALIGN_CENTER);
-            document.add(image);
-            document.add(Chunk.NEWLINE);
+            setImage(document);
 
             // Add Table Header
-            PdfPTable table = new PdfPTable(OFFICES_FIELDS.length);
+            PdfPTable table = new PdfPTable(officeColumnsNames.size());
             table.setWidthPercentage(100);
             table.setWidths(OFFICE_COLUMN_WIDTH);
 
-            Arrays.stream(OFFICES_FIELDS).forEach(headerTitle -> {
+            officeColumnsNames.forEach(headerTitle -> {
                 PdfPCell header = new PdfPCell();
                 Font headFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD);
                 header.setBackgroundColor(BaseColor.LIGHT_GRAY);
                 header.setHorizontalAlignment(Element.ALIGN_CENTER);
 
-                if (headerTitle.equals(OFFICES_FIELDS[4])) {
+                if (headerTitle.equals(officeColumnsNames.get(4))) {
                     header.addElement(setContactsHeader(headerTitle));
                 } else {
                     header.setPhrase(new Phrase(headerTitle, headFont));
@@ -130,7 +115,7 @@ public class OfficePdfService implements OfficeService {
             e.printStackTrace();
         }
 
-        Arrays.stream(CONTACTS_FIELDS).forEach(contactsField -> {
+        contactsColumnsNames.forEach(contactsField -> {
             PdfPCell cell = new PdfPCell(new Phrase(contactsField, headFont));
             cell.setHorizontalAlignment(Element.ALIGN_CENTER);
             contactsColumns.addCell(cell);
@@ -141,7 +126,7 @@ public class OfficePdfService implements OfficeService {
     }
 
     private PdfPTable setContactsDataToTable(Office office) {
-        PdfPTable contactsTable = new PdfPTable(CONTACTS_FIELDS.length);
+        PdfPTable contactsTable = new PdfPTable(contactsColumnsNames.size());
 
         try {
             contactsTable.setWidths(CONTACTS_COLUMN_WIDTH);
@@ -157,5 +142,19 @@ public class OfficePdfService implements OfficeService {
         });
 
         return contactsTable;
+    }
+
+    private void setImage(Document document) {
+        try {
+            URL imageUrl = new URL(URL_TO_IMAGE);
+            Image image = Image.getInstance(imageUrl);
+            image.scaleAbsoluteHeight(200);
+            image.scaleAbsoluteWidth(200);
+            image.setAlignment(Element.ALIGN_CENTER);
+            document.add(image);
+            document.add(Chunk.NEWLINE);
+        } catch (IOException | DocumentException e) {
+            e.printStackTrace();
+        }
     }
 }
