@@ -13,12 +13,16 @@ import org.springframework.stereotype.Service;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.List;
 
 @Service("officePdfService")
 public class OfficePdfService extends BaseOfficeService {
 
     private final OfficeRepository officeRepository;
+
+    private final String[] OFFICES_FIELDS = new String[]{"id", "title", "address", "price", "contacts", "description"};
+    private final String[] CONTACTS_FIELDS = new String[]{"id", "phone", "email", "site"};
 
     private final float[] OFFICE_COLUMN_WIDTH = new float[]{5f, 12f, 15f, 7f, 44f, 20f};
     private final float[] CONTACTS_COLUMN_WIDTH = new float[]{5f, 13f, 13f, 13f};
@@ -48,17 +52,17 @@ public class OfficePdfService extends BaseOfficeService {
             setImage(document);
 
             // Add Table Header
-            PdfPTable table = new PdfPTable(officeColumnsNames.size());
+            PdfPTable table = new PdfPTable(OFFICES_FIELDS.length);
             table.setWidthPercentage(100);
             table.setWidths(OFFICE_COLUMN_WIDTH);
 
-            officeColumnsNames.forEach(headerTitle -> {
+            Arrays.stream(OFFICES_FIELDS).forEach(headerTitle -> {
                 PdfPCell header = new PdfPCell();
                 Font headFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD);
                 header.setBackgroundColor(BaseColor.LIGHT_GRAY);
                 header.setHorizontalAlignment(Element.ALIGN_CENTER);
 
-                if (headerTitle.equals(officeColumnsNames.get(4))) {
+                if (headerTitle.equals(OFFICES_FIELDS[4])) {
                     header.addElement(setContactsHeader(headerTitle));
                 } else {
                     header.setPhrase(new Phrase(headerTitle, headFont));
@@ -115,7 +119,7 @@ public class OfficePdfService extends BaseOfficeService {
             e.printStackTrace();
         }
 
-        contactsColumnsNames.forEach(contactsField -> {
+        Arrays.stream(CONTACTS_FIELDS).forEach(contactsField -> {
             PdfPCell cell = new PdfPCell(new Phrase(contactsField, headFont));
             cell.setHorizontalAlignment(Element.ALIGN_CENTER);
             contactsColumns.addCell(cell);
@@ -126,7 +130,7 @@ public class OfficePdfService extends BaseOfficeService {
     }
 
     private PdfPTable setContactsDataToTable(Office office) {
-        PdfPTable contactsTable = new PdfPTable(contactsColumnsNames.size());
+        PdfPTable contactsTable = new PdfPTable(CONTACTS_FIELDS.length);
 
         try {
             contactsTable.setWidths(CONTACTS_COLUMN_WIDTH);
