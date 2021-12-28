@@ -3,6 +3,7 @@ package by.shimakser.office.service;
 import by.shimakser.dto.HeaderField;
 import by.shimakser.dto.OfficeRequest;
 import by.shimakser.office.annotation.ExportField;
+import by.shimakser.office.model.Contact;
 import by.shimakser.office.model.Office;
 import by.shimakser.office.repository.OfficeRepository;
 import org.apache.commons.io.IOUtils;
@@ -17,8 +18,10 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -46,6 +49,7 @@ public class OfficeXlsService extends BaseOfficeService {
 
         List<Office> offices = officeRepository.findAll();
         List<HeaderField> headerFields = checkFieldsNames(clazz);
+        CellStyle tableStyle = getStyle();
 
         setTitle();
         setImageToTable();
@@ -55,10 +59,10 @@ public class OfficeXlsService extends BaseOfficeService {
         AtomicInteger columnsCounter = new AtomicInteger(1);
 
         offices.forEach(office -> {
-            Row row = sheet.createRow(lineCounter.getAndIncrement());
-            headerFields.stream()
-                    .map(HeaderField::getTitle)
-                    .forEach(headerTitle -> {
+            final Row row = sheet.createRow(lineCounter.getAndIncrement());
+            headerFields
+                    .forEach(headerField -> {
+                        String headerTitle = headerField.getTitle();
                         Field[] fields = office.getClass().getDeclaredFields();
                         Arrays.stream(fields)
                                 .filter(field -> field.isAnnotationPresent(ExportField.class))
@@ -70,20 +74,62 @@ public class OfficeXlsService extends BaseOfficeService {
                                     return name.equals(headerTitle);
                                 })
                                 .forEach(field -> {
-                                    Cell cell = row.createCell(columnsCounter.getAndIncrement());
                                     field.setAccessible(true);
-                                    try {
-                                        Optional<Object> name = Optional.ofNullable(field.get(office));
-                                        Object d = name.orElseGet(() -> "-");
-                                        cell.setCellValue(d.toString());
-                                    } catch (IllegalAccessException e) {
-                                        e.printStackTrace();
+                                    if (headerField.getSubFields() == null) {
+                                        try {
+                                            Cell cell = row.createCell(columnsCounter.getAndIncrement());
+                                            Object name = Optional.ofNullable(field.get(office)).orElseGet(() -> "-");
+                                            cell.setCellValue(name.toString());
+                                            cell.setCellStyle(tableStyle);
+                                        } catch (IllegalAccessException e) {
+                                            e.printStackTrace();
+                                        }
+                                    } else {
+                                        List<?> subNames = Collections.emptyList();
+                                        try {
+                                            subNames = (List<?>) field.get(office);
+                                        } catch (IllegalAccessException e) {
+                                            e.printStackTrace();
+                                        }
+
+                                        ParameterizedType collectionType = (ParameterizedType) field.getGenericType();
+                                        Class<?> collectionGenericType = (Class<?>) collectionType.getActualTypeArguments()[0];
+                                        Field[] subFields = collectionGenericType.getDeclaredFields();
+
+                                        if (subNames.isEmpty()) {
+                                            for (int i = 0; i < subFields.length; i++) {
+                                                Cell cell = row.createCell(columnsCounter.getAndIncrement());
+                                                cell.setCellValue("-");
+                                                cell.setCellStyle(tableStyle);
+                                            }
+                                        } else {
+                                            Row newRow = row;
+                                            for (int i = 0; i < subNames.size(); i++) {
+                                                Contact contact = (Contact) subNames.get(i);
+                                                for (int j = 0; j < subFields.length; j++) {
+                                                    Field subField = subFields[j];
+                                                    subField.setAccessible(true);
+                                                    Cell cell = newRow.createCell(columnsCounter.getAndIncrement());
+
+                                                    try {
+                                                        String name = subField.get(contact).toString();
+                                                        cell.setCellValue(name);
+                                                    } catch (IllegalAccessException e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                    cell.setCellStyle(tableStyle);
+                                                }
+                                                newRow = sheet.createRow(lineCounter.getAndAdd(1));
+                                                columnsCounter.set(columnsCounter.get() - subFields.length);
+                                            }
+                                            columnsCounter.set(columnsCounter.get() + subFields.length);
+                                            lineCounter.set(lineCounter.decrementAndGet());
+                                        }
                                     }
                                 });
                     });
             columnsCounter.set(1);
         });
-
         try (FileOutputStream out = new FileOutputStream(getExportFilePath(officeRequest) + ".xls")) {
             workbook.write(out);
         } catch (IOException e) {
@@ -185,6 +231,7 @@ public class OfficeXlsService extends BaseOfficeService {
             subHead.createCell(styleCounter).setCellStyle(tableStyle);
             sheet.setColumnWidth(step.get(), 5000);
         }
+        sheet.setColumnWidth(9, 15000);
     }
 
     private CellStyle getStyle() {

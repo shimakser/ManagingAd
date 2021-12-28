@@ -38,4 +38,5 @@ import/export from .csv file and database.
    - dev-shiyanov-jooq — added filter Campaign-entity by jooq.
    - dev-shiyanov-cache — added caffeine-cache and wrote a custom cache, wich save their data to mongodb.
    - dev-shiyanov-elk — added ELK stack to the application.
+   - dev-shiyanov-poi — wrote exports date from db to .xls and .pdf with help Apache POI, itextpdf, OpenHTML.
 
