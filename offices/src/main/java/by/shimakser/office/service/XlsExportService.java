@@ -1,17 +1,15 @@
 package by.shimakser.office.service;
 
+import by.shimakser.office.model.FileType;
 import by.shimakser.dto.HeaderField;
-import by.shimakser.dto.OfficeRequest;
 import by.shimakser.office.annotation.ExportField;
 import by.shimakser.office.model.Contact;
 import by.shimakser.office.model.Office;
-import by.shimakser.office.repository.OfficeRepository;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -20,6 +18,7 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -28,36 +27,27 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static by.shimakser.office.annotation.FieldNameAnalyzer.checkFieldsNames;
 
-@Service("officeXlsService")
-public class OfficeXlsService extends BaseOfficeService {
-
-    private final OfficeRepository officeRepository;
+@Service
+public class XlsExportService extends BaseOfficeService {
 
     private Workbook workbook;
     private Sheet sheet;
-    private final Class clazz = Office.class;
-
-    @Autowired
-    public OfficeXlsService(OfficeRepository officeRepository) {
-        this.officeRepository = officeRepository;
-    }
 
     @Override
-    public void exportToFile(OfficeRequest officeRequest) {
+    public byte[] exportToFile() throws IOException {
         workbook = new XSSFWorkbook();
         sheet = workbook.createSheet("Offices");
 
-        List<Office> offices = officeRepository.findAll();
-        List<HeaderField> headerFields = checkFieldsNames(clazz);
+        List<Office> offices = getAll();
+        List<HeaderField> headerFields = checkFieldsNames(offices.get(0).getClass());
         CellStyle tableStyle = getStyle();
 
-        setTitle();
-        setImageToTable();
-        setTableHeader(headerFields);
+        insertTitle();
+        insertImage();
+        insertColumnsHeader(headerFields);
 
         AtomicInteger lineCounter = new AtomicInteger(12);
         AtomicInteger columnsCounter = new AtomicInteger(1);
-
         offices.forEach(office -> {
             final Row row = sheet.createRow(lineCounter.getAndIncrement());
             headerFields
@@ -66,24 +56,11 @@ public class OfficeXlsService extends BaseOfficeService {
                         Field[] fields = office.getClass().getDeclaredFields();
                         Arrays.stream(fields)
                                 .filter(field -> field.isAnnotationPresent(ExportField.class))
-                                .filter(field -> {
-                                    String annotationArg = field.getAnnotation(ExportField.class).name();
-                                    String name = annotationArg.equals("")
-                                            ? field.getName()
-                                            : annotationArg;
-                                    return name.equals(headerTitle);
-                                })
+                                .filter(field -> getFieldName(field).equals(headerTitle))
                                 .forEach(field -> {
                                     field.setAccessible(true);
                                     if (headerField.getSubFields() == null) {
-                                        try {
-                                            Cell cell = row.createCell(columnsCounter.getAndIncrement());
-                                            Object name = Optional.ofNullable(field.get(office)).orElseGet(() -> "-");
-                                            cell.setCellValue(name.toString());
-                                            cell.setCellStyle(tableStyle);
-                                        } catch (IllegalAccessException e) {
-                                            e.printStackTrace();
-                                        }
+                                        insertDate(row, columnsCounter, field, office);
                                     } else {
                                         List<?> subNames = Collections.emptyList();
                                         try {
@@ -96,48 +73,36 @@ public class OfficeXlsService extends BaseOfficeService {
                                         Class<?> collectionGenericType = (Class<?>) collectionType.getActualTypeArguments()[0];
                                         Field[] subFields = collectionGenericType.getDeclaredFields();
 
-                                        if (subNames.isEmpty()) {
-                                            for (int i = 0; i < subFields.length; i++) {
-                                                Cell cell = row.createCell(columnsCounter.getAndIncrement());
-                                                cell.setCellValue("-");
-                                                cell.setCellStyle(tableStyle);
-                                            }
-                                        } else {
-                                            Row newRow = row;
-                                            for (int i = 0; i < subNames.size(); i++) {
-                                                Contact contact = (Contact) subNames.get(i);
-                                                for (int j = 0; j < subFields.length; j++) {
-                                                    Field subField = subFields[j];
-                                                    subField.setAccessible(true);
-                                                    Cell cell = newRow.createCell(columnsCounter.getAndIncrement());
-
-                                                    try {
-                                                        String name = subField.get(contact).toString();
-                                                        cell.setCellValue(name);
-                                                    } catch (IllegalAccessException e) {
-                                                        e.printStackTrace();
-                                                    }
-                                                    cell.setCellStyle(tableStyle);
-                                                }
-                                                newRow = sheet.createRow(lineCounter.getAndAdd(1));
-                                                columnsCounter.set(columnsCounter.get() - subFields.length);
-                                            }
-                                            columnsCounter.set(columnsCounter.get() + subFields.length);
-                                            lineCounter.set(lineCounter.decrementAndGet());
-                                        }
+                                        insertDateIntoSubColumns(subNames, subFields, row, columnsCounter, lineCounter);
                                     }
                                 });
                     });
             columnsCounter.set(1);
         });
-        try (FileOutputStream out = new FileOutputStream(getExportFilePath(officeRequest) + ".xls")) {
+
+        return toBytes(workbook);
+    }
+
+    @Override
+    public FileType name() {
+        return FileType.XLS;
+    }
+
+    private byte[] toBytes(Workbook workbook) throws IOException {
+        File file = null;
+        //FILE_TITLE + name().getFileExtension();
+        try {
+            file = Files.createTempFile(null, null).toFile();
+            FileOutputStream out = new FileOutputStream(file);
             workbook.write(out);
+            workbook.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return Files.readAllBytes(file.toPath());
     }
 
-    private void setTitle() {
+    private void insertTitle() {
         Cell info = sheet.createRow(8).createCell(1);
         info.setCellValue(FILE_TITLE);
 
@@ -155,7 +120,7 @@ public class OfficeXlsService extends BaseOfficeService {
         sheet.addMergedRegion(cellAddressesId);
     }
 
-    private void setImageToTable() {
+    private void insertImage() {
         try {
             URL imageUrl = new URL(URL_TO_IMAGE);
             BufferedImage bufferedImage = ImageIO.read(imageUrl);
@@ -180,7 +145,7 @@ public class OfficeXlsService extends BaseOfficeService {
         }
     }
 
-    private void setTableHeader(List<HeaderField> headerFields) {
+    private void insertColumnsHeader(List<HeaderField> headerFields) {
         Row header = sheet.createRow(10);
         Row subHead = sheet.createRow(11);
         Cell headerCell;
@@ -247,5 +212,56 @@ public class OfficeXlsService extends BaseOfficeService {
         style.setFont(font);
         style.setAlignment(HorizontalAlignment.CENTER);
         return style;
+    }
+
+    private String getFieldName(Field field) {
+        String annotArg = field.getAnnotation(ExportField.class).name();
+        return annotArg.equals("")
+                ? field.getName()
+                : annotArg;
+    }
+
+    private void insertDate(Row row, AtomicInteger columnsCounter, Field field, Office office) {
+        try {
+            Cell cell = row.createCell(columnsCounter.getAndIncrement());
+            Object name = Optional.ofNullable(field.get(office)).orElseGet(() -> "-");
+            cell.setCellValue(name.toString());
+            cell.setCellStyle(getStyle());
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void insertDateIntoSubColumns(List<?> subNames, Field[] subFields, Row row,
+                                          AtomicInteger columnsCounter, AtomicInteger lineCounter) {
+        if (subNames.isEmpty()) {
+            for (int i = 0; i < subFields.length; i++) {
+                Cell cell = row.createCell(columnsCounter.getAndIncrement());
+                cell.setCellValue("-");
+                cell.setCellStyle(getStyle());
+            }
+        } else {
+            Row newRow = row;
+            for (int i = 0; i < subNames.size(); i++) {
+                Contact contact = (Contact) subNames.get(i);
+                for (int j = 0; j < subFields.length; j++) {
+                    Field subField = subFields[j];
+                    subField.setAccessible(true);
+                    Cell cell = newRow.createCell(columnsCounter.getAndIncrement());
+
+                    try {
+                        String name = subField.get(contact).toString();
+                        cell.setCellValue(name);
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+                    cell.setCellStyle(getStyle());
+                }
+                newRow = sheet.createRow(lineCounter.getAndAdd(1));
+                columnsCounter.set(columnsCounter.get() - subFields.length);
+            }
+            columnsCounter.set(columnsCounter.get() + subFields.length);
+            lineCounter.set(lineCounter.decrementAndGet());
+        }
     }
 }

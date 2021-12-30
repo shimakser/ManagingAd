@@ -1,10 +1,18 @@
 package by.shimakser.office.service;
 
-import by.shimakser.dto.OfficeRequest;
+import by.shimakser.office.model.FileType;
+import by.shimakser.office.model.Office;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.util.List;
 
 @Service
 public interface OfficeService {
 
-    void exportToFile(OfficeRequest officeRequest);
+    byte[] exportToFile() throws IOException;
+
+    List<Office> getAll();
+
+    FileType name();
 }

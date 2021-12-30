@@ -1,6 +1,6 @@
 package by.shimakser.office.service.csv;
 
-import by.shimakser.dto.OfficeRequest;
+import by.shimakser.office.model.OfficeRequest;
 import by.shimakser.office.model.Status;
 import javassist.NotFoundException;
 import org.springframework.core.io.FileSystemResource;
