@@ -1,33 +1,36 @@
 package by.shimakser.office.controller;
 
-import by.shimakser.dto.OfficeRequest;
+import by.shimakser.office.model.FileType;
+import by.shimakser.office.model.OfficeRequest;
 import by.shimakser.office.service.OfficeService;
+import by.shimakser.office.service.dispatcher.Dispatcher;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
+
 @RestController
 @RequestMapping("/offices/export")
-public class OfficeXlsController {
+public class ExportToFileController {
 
-    private final OfficeService officeService;
+    private final Dispatcher<FileType, OfficeService> dispatcher;
 
     @Autowired
-    public OfficeXlsController(@Qualifier("officeXlsService") OfficeService officeService) {
-        this.officeService = officeService;
+    public ExportToFileController(Dispatcher<FileType, OfficeService> dispatcher) {
+        this.dispatcher = dispatcher;
     }
 
-    @PostMapping
-    public ResponseEntity<FileSystemResource> exportToFile(@RequestBody OfficeRequest officeRequest) {
-
-        String fileExtension = officeRequest.getFileType().getFileExtension();
-
-        return new ResponseEntity<>(HttpStatus.OK);
+    @PostMapping(produces = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<byte[]> exportToFile(@RequestBody OfficeRequest officeRequest) throws IOException {
+        FileType fileType = officeRequest.getFileType();
+        return ResponseEntity
+                .ok()
+                .contentType(officeRequest.getFileType().getMediaType())
+                .body(dispatcher.getByName(fileType).exportToFile());
     }
 }

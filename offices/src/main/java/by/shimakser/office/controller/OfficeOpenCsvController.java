@@ -1,6 +1,6 @@
 package by.shimakser.office.controller;
 
-import by.shimakser.dto.OfficeRequest;
+import by.shimakser.office.model.OfficeRequest;
 import by.shimakser.office.service.csv.OfficeCsvService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

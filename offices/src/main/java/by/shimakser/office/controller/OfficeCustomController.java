@@ -1,6 +1,6 @@
 package by.shimakser.office.controller;
 
-import by.shimakser.dto.OfficeRequest;
+import by.shimakser.office.model.OfficeRequest;
 import by.shimakser.office.model.Status;
 import by.shimakser.office.service.csv.OfficeCsvService;
 import javassist.NotFoundException;
