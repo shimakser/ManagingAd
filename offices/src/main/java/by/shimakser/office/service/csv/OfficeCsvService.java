@@ -7,6 +7,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Service
@@ -22,5 +23,5 @@ public interface OfficeCsvService {
 
     Status getStatusOfExportById(Long id) throws NotFoundException;
 
-    FileSystemResource getExportedFileById(Long id) throws NotFoundException;
+    byte[] getExportedFileById(Long id) throws NotFoundException, IOException;
 }

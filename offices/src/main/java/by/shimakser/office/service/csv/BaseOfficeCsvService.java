@@ -4,10 +4,16 @@ import by.shimakser.office.exception.ExceptionOfficeText;
 import by.shimakser.office.model.OfficeOperationInfo;
 import by.shimakser.office.model.Status;
 import javassist.NotFoundException;
+import lombok.SneakyThrows;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -36,10 +42,12 @@ public abstract class BaseOfficeCsvService implements OfficeCsvService {
 
     @Override
     @Transactional(rollbackFor = {NullPointerException.class, NotFoundException.class})
-    public FileSystemResource getExportedFileById(Long id) throws NotFoundException {
+    public byte[] getExportedFileById(Long id) throws NotFoundException, IOException {
         OfficeOperationInfo operationInfo = Optional.ofNullable(statusOfExport.get(id))
                 .filter(info -> info.getStatus().equals(Status.UPLOADED))
                 .orElseThrow(() -> new NotFoundException(ExceptionOfficeText.NOT_FOUND.getExceptionDescription()));
-        return new FileSystemResource(operationInfo.getPath());
+
+
+        return Files.readAllBytes(Path.of(operationInfo.getPath()));
     }
 }

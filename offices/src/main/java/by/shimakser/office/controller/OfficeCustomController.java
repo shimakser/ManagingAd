@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URI;
 
 @RestController
@@ -49,7 +50,7 @@ public class OfficeCustomController {
     }
 
     @GetMapping("/export/{id}/file")
-    public ResponseEntity<FileSystemResource> getExportedFile(@PathVariable Long id) throws NotFoundException {
+    public ResponseEntity<byte[]> getExportedFile(@PathVariable Long id) throws NotFoundException, IOException {
         return new ResponseEntity<>(officeCsvService.getExportedFileById(id), HttpStatus.OK);
     }
 }
