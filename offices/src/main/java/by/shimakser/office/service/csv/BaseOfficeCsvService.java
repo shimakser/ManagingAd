@@ -4,13 +4,9 @@ import by.shimakser.office.exception.ExceptionOfficeText;
 import by.shimakser.office.model.OfficeOperationInfo;
 import by.shimakser.office.model.Status;
 import javassist.NotFoundException;
-import lombok.SneakyThrows;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;

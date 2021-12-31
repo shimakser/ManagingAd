@@ -1,19 +1,24 @@
 package by.shimakser.office.controller;
 
+import by.shimakser.dto.OfficeCsvOperationNumber;
 import by.shimakser.office.model.OfficeRequest;
 import by.shimakser.office.model.Status;
 import by.shimakser.office.service.csv.OfficeCsvService;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URI;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/offices")
@@ -27,13 +32,17 @@ public class OfficeCustomController {
     }
 
     @PostMapping("/csv/export")
-    public ResponseEntity<Long> exportFile(@RequestBody OfficeRequest officeRequest) throws FileNotFoundException {
-        return new ResponseEntity<>(officeCsvService.exportFromFile(officeRequest), HttpStatus.OK);
+    public EntityModel<OfficeCsvOperationNumber> exportFile(@RequestBody OfficeRequest officeRequest) throws IOException, NotFoundException {
+        Long numberOfOperation = officeCsvService.exportFromFile(officeRequest);
+        Link link = linkTo(methodOn(OfficeCustomController.class).getStatusOfExport(numberOfOperation)).withSelfRel();
+        return EntityModel.of(new OfficeCsvOperationNumber(numberOfOperation), link);
     }
 
     @PostMapping("/csv/import")
-    public ResponseEntity<Long> importFile(@RequestBody OfficeRequest officeRequest) {
-        return new ResponseEntity<>(officeCsvService.importToFile(officeRequest), HttpStatus.CREATED);
+    public EntityModel<OfficeCsvOperationNumber> importFile(@RequestBody OfficeRequest officeRequest) throws NotFoundException, IOException {
+        Long numberOfOperation = officeCsvService.importToFile(officeRequest);
+        Link link = linkTo(methodOn(OfficeCustomController.class).getStatusOfImport(numberOfOperation)).withSelfRel();
+        return EntityModel.of(new OfficeCsvOperationNumber(numberOfOperation), link);
     }
 
     @GetMapping("/import/{id}")
@@ -42,15 +51,22 @@ public class OfficeCustomController {
     }
 
     @GetMapping("/export/{id}")
-    public ResponseEntity<Status> getStatusOfExport(@PathVariable Long id) throws NotFoundException {
+    public EntityModel<String> getStatusOfExport(@PathVariable Long id) throws IOException, NotFoundException {
         Status status = officeCsvService.getStatusOfExportById(id);
-        if (status.equals(Status.UPLOADED)) {
-            return ResponseEntity.status(HttpStatus.PERMANENT_REDIRECT).location(URI.create("/offices/export/" + id + "/file")).build();
-        } else return new ResponseEntity<>(status, HttpStatus.OK);
+
+        Link link = linkTo(methodOn(OfficeCustomController.class).getExportedFile(id)).withSelfRel();
+
+        return EntityModel.of(status.toString(), link);
     }
 
     @GetMapping("/export/{id}/file")
     public ResponseEntity<byte[]> getExportedFile(@PathVariable Long id) throws NotFoundException, IOException {
-        return new ResponseEntity<>(officeCsvService.getExportedFileById(id), HttpStatus.OK);
+        String title = "OfficeExport_" + id + ".csv";
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.valueOf("application/vnd.ms-excel"))
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        String.format("attachment; filename=%s", title))
+                .body(officeCsvService.getExportedFileById(id));
     }
 }

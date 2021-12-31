@@ -42,7 +42,7 @@ public class OfficeCustomCsvService extends BaseOfficeCsvService {
         Runnable exportTask = () -> {
             try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
                 String line;
-                statusOfExport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.IN_PROCESS, path));
+                statusOfExport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.UPLOADED, path));
 
                 while ((line = reader.readLine()) != null) {
                     String[] arrayOfOffices = line.replace("\"", "").split(",", 5);
