@@ -19,7 +19,7 @@ public class OfficeHtmlService extends BaseOfficeService {
     private static final String PATH_TO_HTML = "offices/src/main/resources/templates/office.html";
 
     @Override
-    public byte[] exportToFile() throws IOException {
+    public byte[] exportToFile(FileType fileType) throws IOException {
         File inputHtml = new File(PATH_TO_HTML);
 
         File file = null;
@@ -43,7 +43,7 @@ public class OfficeHtmlService extends BaseOfficeService {
     }
 
     @Override
-    public FileType name() {
+    public FileType getType() {
         return FileType.HTML;
     }
 }

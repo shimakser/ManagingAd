@@ -26,7 +26,7 @@ public class OfficePdfService extends BaseOfficeService {
     private final float[] CONTACTS_COLUMN_WIDTH = new float[]{5f, 13f, 13f, 13f};
 
     @Override
-    public byte[] exportToFile() throws IOException {
+    public byte[] exportToFile(FileType fileType) throws IOException {
 
         Document document = new Document();
         File file = null;
@@ -40,7 +40,7 @@ public class OfficePdfService extends BaseOfficeService {
             Font font = FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, BaseColor.BLACK);
 
             // Add title
-            Paragraph title = new Paragraph(FILE_TITLE, font);
+            Paragraph title = new Paragraph(fileType.getFileTitle(), font);
             title.setAlignment(Element.ALIGN_CENTER);
             document.add(title);
             document.add(Chunk.NEWLINE);
@@ -67,7 +67,7 @@ public class OfficePdfService extends BaseOfficeService {
     }
 
     @Override
-    public FileType name() {
+    public FileType getType() {
         return FileType.PDF;
     }
 

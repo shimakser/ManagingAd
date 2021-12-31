@@ -21,7 +21,7 @@ public class OfficeExportDispatcher implements Dispatcher<FileType, OfficeServic
         this.map = services.stream()
                 .collect(
                         toMap(
-                                OfficeService::name,
+                                OfficeService::getType,
                                 v -> v
                         )
                 );

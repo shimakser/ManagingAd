@@ -34,15 +34,14 @@ public class XlsExportService extends BaseOfficeService {
     private Sheet sheet;
 
     @Override
-    public byte[] exportToFile() throws IOException {
+    public byte[] exportToFile(FileType fileType) throws IOException {
         workbook = new XSSFWorkbook();
         sheet = workbook.createSheet("Offices");
 
         List<Office> offices = getAll();
         List<HeaderField> headerFields = checkFieldsNames(offices.get(0).getClass());
-        CellStyle tableStyle = getStyle();
 
-        insertTitle();
+        insertTitle(fileType);
         insertImage();
         insertColumnsHeader(headerFields);
 
@@ -84,13 +83,13 @@ public class XlsExportService extends BaseOfficeService {
     }
 
     @Override
-    public FileType name() {
+    public FileType getType() {
         return FileType.XLS;
     }
 
     private byte[] toBytes(Workbook workbook) throws IOException {
         File file = null;
-        //FILE_TITLE + name().getFileExtension();
+
         try {
             file = Files.createTempFile(null, null).toFile();
             FileOutputStream out = new FileOutputStream(file);
@@ -102,9 +101,9 @@ public class XlsExportService extends BaseOfficeService {
         return Files.readAllBytes(file.toPath());
     }
 
-    private void insertTitle() {
+    private void insertTitle(FileType fileType) {
         Cell info = sheet.createRow(8).createCell(1);
-        info.setCellValue(FILE_TITLE);
+        info.setCellValue(fileType.getFileTitle());
 
         XSSFFont infoFont = ((XSSFWorkbook) workbook).createFont();
         infoFont.setFontName("Times New Roman");

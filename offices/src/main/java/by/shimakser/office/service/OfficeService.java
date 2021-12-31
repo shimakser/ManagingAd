@@ -10,9 +10,9 @@ import java.util.List;
 @Service
 public interface OfficeService {
 
-    byte[] exportToFile() throws IOException;
+    byte[] exportToFile(FileType fileType) throws IOException;
 
     List<Office> getAll();
 
-    FileType name();
+    FileType getType();
 }

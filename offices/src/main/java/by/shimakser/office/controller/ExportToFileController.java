@@ -5,6 +5,7 @@ import by.shimakser.office.model.OfficeRequest;
 import by.shimakser.office.service.OfficeService;
 import by.shimakser.office.service.dispatcher.Dispatcher;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,9 +29,13 @@ public class ExportToFileController {
     @PostMapping(produces = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<byte[]> exportToFile(@RequestBody OfficeRequest officeRequest) throws IOException {
         FileType fileType = officeRequest.getFileType();
+        String title = fileType.getFileTitle() + fileType.getFileExtension();
+        System.out.println(title);
         return ResponseEntity
                 .ok()
                 .contentType(officeRequest.getFileType().getMediaType())
-                .body(dispatcher.getByName(fileType).exportToFile());
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        String.format("attachment; filename=%s", title))
+                .body(dispatcher.getByName(fileType).exportToFile(fileType));
     }
 }
