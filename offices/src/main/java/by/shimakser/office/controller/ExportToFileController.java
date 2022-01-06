@@ -1,8 +1,8 @@
 package by.shimakser.office.controller;
 
+import by.shimakser.dto.EntityType;
+import by.shimakser.office.model.ExportRequest;
 import by.shimakser.office.model.FileType;
-import by.shimakser.office.model.OfficeRequest;
-import by.shimakser.office.service.OfficeService;
 import by.shimakser.office.service.dispatcher.Dispatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -19,23 +19,26 @@ import java.io.IOException;
 @RequestMapping("/offices/export")
 public class ExportToFileController {
 
-    private final Dispatcher<FileType, OfficeService> dispatcher;
+    private final Dispatcher<EntityType, FileType> dispatcher;
 
     @Autowired
-    public ExportToFileController(Dispatcher<FileType, OfficeService> dispatcher) {
+    public ExportToFileController(Dispatcher<EntityType, FileType> dispatcher) {
         this.dispatcher = dispatcher;
     }
 
     @PostMapping(produces = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<byte[]> exportToFile(@RequestBody OfficeRequest officeRequest) throws IOException {
-        FileType fileType = officeRequest.getFileType();
+    public ResponseEntity<byte[]> exportToFile(@RequestBody ExportRequest exportRequest) throws IOException {
+        FileType fileType = exportRequest.getFileType();
+        EntityType entityType = exportRequest.getEntityType();
         String title = fileType.getFileTitle() + fileType.getFileExtension();
-        System.out.println(title);
+        System.out.println("0-"+exportRequest);
         return ResponseEntity
                 .ok()
-                .contentType(officeRequest.getFileType().getMediaType())
+                .contentType(exportRequest.getFileType().getMediaType())
                 .header(HttpHeaders.CONTENT_DISPOSITION,
                         String.format("attachment; filename=%s", title))
-                .body(dispatcher.getByName(fileType).exportToFile(fileType));
+                .body(dispatcher
+                        .getByEntityAndExportType(entityType, fileType)
+                        .exportToFile(exportRequest));
     }
 }

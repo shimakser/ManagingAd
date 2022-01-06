@@ -1,10 +1,8 @@
-package by.shimakser.office.service.csv;
+package by.shimakser.office.service.impl.csv;
 
-import by.shimakser.office.model.OfficeRequest;
+import by.shimakser.dto.EntityType;
+import by.shimakser.office.model.*;
 import by.shimakser.office.exception.ExceptionOfficeText;
-import by.shimakser.office.model.Office;
-import by.shimakser.office.model.OfficeOperationInfo;
-import by.shimakser.office.model.Status;
 import by.shimakser.office.repository.ContactRepository;
 import by.shimakser.office.repository.OfficeRepository;
 import com.opencsv.bean.*;
@@ -15,12 +13,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 @Service("officeOpenCsvService")
-public class OfficeOpenCsvService extends BaseOfficeCsvService {
+public class OfficeOpenCsvService extends BaseCsvService<Office> {
 
     private final OfficeRepository officeRepository;
     private final ContactRepository contactRepository;
@@ -35,15 +33,15 @@ public class OfficeOpenCsvService extends BaseOfficeCsvService {
 
     @Override
     @Transactional(rollbackFor = {IOException.class})
-    public Long exportFromFile(OfficeRequest officeRequest) throws FileNotFoundException {
-        String path = officeRequest.getPathToFile();
+    public Long importFromFile(ExportRequest exportRequest) throws FileNotFoundException {
+        String path = exportRequest.getPathToFile();
         File file = new File(path);
         if (!file.isFile()) {
             throw new FileNotFoundException(ExceptionOfficeText.FILE_NOT_FOUND.getExceptionDescription());
         }
 
         ID_OF_OPERATION.incrementAndGet();
-        statusOfExport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.IN_PROCESS, path));
+        statusOfExport.put(ID_OF_OPERATION.get(), new ExportOperationInfo(Status.IN_PROCESS, path));
         try (Reader reader = new BufferedReader(new FileReader(path))) {
             CsvToBean<Office> csvToBean = new CsvToBeanBuilder<Office>(reader)
                     .withType(Office.class)
@@ -55,9 +53,9 @@ public class OfficeOpenCsvService extends BaseOfficeCsvService {
             list.forEach(office -> contactRepository.saveAll(office.getOfficeContacts()));
             officeRepository.saveAll(list);
 
-            statusOfExport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.UPLOADED, path));
+            statusOfExport.put(ID_OF_OPERATION.get(), new ExportOperationInfo(Status.UPLOADED, path));
         } catch (IOException e) {
-            statusOfExport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.NOT_LOADED, path));
+            statusOfExport.put(ID_OF_OPERATION.get(), new ExportOperationInfo(Status.NOT_LOADED, path));
             e.printStackTrace();
         }
 
@@ -66,13 +64,14 @@ public class OfficeOpenCsvService extends BaseOfficeCsvService {
 
     @Override
     @Transactional(rollbackFor = {IOException.class, CsvRequiredFieldEmptyException.class, CsvDataTypeMismatchException.class})
-    public Long importToFile(OfficeRequest officeRequest) {
-        String importFileName = "/offices_import_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMyyyy_HH_mm_ss")) + ".csv";
-        String path = officeRequest.getPathToFile() + importFileName;
-
+    public byte[] exportToFile(ExportRequest exportRequest) throws IOException {
         ID_OF_OPERATION.incrementAndGet();
-        statusOfImport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.IN_PROCESS, path));
-        try (FileWriter writer = new FileWriter(path)) {
+        File file = null;
+        try {
+            file = Files.createTempFile(null, null).toFile();
+            FileWriter writer = new FileWriter(file);
+            statusOfImport.put(ID_OF_OPERATION.get(), new ExportOperationInfo(Status.IN_PROCESS, file.toPath().toString()));
+
             ColumnPositionMappingStrategy<Office> mappingStrategy = new ColumnPositionMappingStrategy<>();
             mappingStrategy.setType(Office.class);
             mappingStrategy.setColumnMapping(OFFICES_FIELDS);
@@ -80,14 +79,24 @@ public class OfficeOpenCsvService extends BaseOfficeCsvService {
             StatefulBeanToCsvBuilder<Office> builder = new StatefulBeanToCsvBuilder<>(writer);
             StatefulBeanToCsv<Office> beanWriter = builder.withMappingStrategy(mappingStrategy).build();
 
-            beanWriter.write(officeRepository.findAll());
+            beanWriter.write(getAll());
 
-            statusOfImport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.UPLOADED, path));
+            statusOfImport.put(ID_OF_OPERATION.get(), new ExportOperationInfo(Status.UPLOADED, file.toPath().toString()));
         } catch (IOException | CsvRequiredFieldEmptyException | CsvDataTypeMismatchException e) {
-            statusOfImport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.NOT_LOADED, path));
+            statusOfImport.put(ID_OF_OPERATION.get(), new ExportOperationInfo(Status.NOT_LOADED, file.toPath().toString()));
             e.printStackTrace();
         }
 
-        return ID_OF_OPERATION.get();
+        return Files.readAllBytes(Path.of(file.getPath()));
+    }
+
+    @Override
+    public FileType getType() {
+        return FileType.CSV;
+    }
+
+    @Override
+    public EntityType getEntity() {
+        return EntityType.OFFICE;
     }
 }

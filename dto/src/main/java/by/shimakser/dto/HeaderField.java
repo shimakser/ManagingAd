@@ -8,8 +8,8 @@ import java.util.List;
 @Getter
 @Setter
 public class HeaderField {
-    String title;
-    List<HeaderField> subFields = null;
+    private String title;
+    private List<HeaderField> subFields = null;
 
     public HeaderField(String title, List<HeaderField> subFields) {
         this.title = title;

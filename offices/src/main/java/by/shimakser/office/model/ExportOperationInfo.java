@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class OfficeOperationInfo {
+public class ExportOperationInfo {
 
     private Status status;
     private String path;

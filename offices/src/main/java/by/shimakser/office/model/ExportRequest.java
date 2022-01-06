@@ -1,11 +1,12 @@
 package by.shimakser.office.model;
 
+import by.shimakser.dto.EntityType;
 import lombok.Data;
 
 @Data
-public class OfficeRequest {
+public class ExportRequest {
 
-    private Long id;
     private String pathToFile;
     private FileType fileType;
+    private EntityType entityType;
 }

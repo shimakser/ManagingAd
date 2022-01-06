@@ -12,7 +12,7 @@ import java.time.format.DateTimeFormatter;
 public enum FileType {
     XLS(MediaType.valueOf("application/vnd.ms-excel"), ".xls"),
     PDF(MediaType.APPLICATION_PDF, ".pdf"),
-    HTML(MediaType.APPLICATION_PDF, ".pdf");
+    CSV(MediaType.valueOf("application/vnd.csv"), ".csv");
 
     private final MediaType mediaType;
     private final String fileExtension;

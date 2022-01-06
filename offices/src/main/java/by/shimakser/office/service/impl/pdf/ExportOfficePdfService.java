@@ -1,7 +1,10 @@
-package by.shimakser.office.service;
+package by.shimakser.office.service.impl.pdf;
 
+import by.shimakser.dto.EntityType;
+import by.shimakser.office.model.ExportRequest;
 import by.shimakser.office.model.FileType;
 import by.shimakser.office.model.Office;
+import by.shimakser.office.service.BaseExportService;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
@@ -17,7 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service("officePdfService")
-public class OfficePdfService extends BaseOfficeService {
+public class ExportOfficePdfService extends BaseExportService<Office> {
 
     private final String[] OFFICES_FIELDS = new String[]{"id", "title", "address", "price", "contacts", "description"};
     private final String[] CONTACTS_FIELDS = new String[]{"id", "phone", "email", "site"};
@@ -26,21 +29,20 @@ public class OfficePdfService extends BaseOfficeService {
     private final float[] CONTACTS_COLUMN_WIDTH = new float[]{5f, 13f, 13f, 13f};
 
     @Override
-    public byte[] exportToFile(FileType fileType) throws IOException {
-
+    public byte[] exportToFile(ExportRequest exportRequest) throws IOException {
+        System.out.println("1");
         Document document = new Document();
-        File file = null;
+        File file = Files.createTempFile(null, null).toFile();
 
-        try {
-            file = Files.createTempFile(null, null).toFile();
-            FileOutputStream out = new FileOutputStream(file);
+        try(FileOutputStream out = new FileOutputStream(file)) {
+            System.out.println("2");
             PdfWriter.getInstance(document, out);
             document.open();
 
             Font font = FontFactory.getFont(FontFactory.TIMES_ROMAN, 14, BaseColor.BLACK);
 
             // Add title
-            Paragraph title = new Paragraph(fileType.getFileTitle(), font);
+            Paragraph title = new Paragraph(exportRequest.getFileType().getFileTitle(), font);
             title.setAlignment(Element.ALIGN_CENTER);
             document.add(title);
             document.add(Chunk.NEWLINE);
@@ -62,13 +64,18 @@ public class OfficePdfService extends BaseOfficeService {
         } catch (IOException | DocumentException e) {
             e.printStackTrace();
         }
-
+        System.out.println(file.toPath());
         return Files.readAllBytes(file.toPath());
     }
 
     @Override
     public FileType getType() {
         return FileType.PDF;
+    }
+
+    @Override
+    public EntityType getEntity() {
+        return EntityType.OFFICE;
     }
 
     private void insertColumnsHeader(PdfPTable table) {

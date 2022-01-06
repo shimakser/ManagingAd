@@ -1,10 +1,10 @@
-package by.shimakser.office.service;
+package by.shimakser.office.service.impl.xls;
 
-import by.shimakser.office.model.FileType;
+import by.shimakser.dto.EntityType;
+import by.shimakser.office.model.*;
 import by.shimakser.dto.HeaderField;
 import by.shimakser.office.annotation.ExportField;
-import by.shimakser.office.model.Contact;
-import by.shimakser.office.model.Office;
+import by.shimakser.office.service.BaseExportService;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -28,42 +28,42 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static by.shimakser.office.annotation.FieldNameAnalyzer.checkFieldsNames;
 
 @Service
-public class XlsExportService extends BaseOfficeService {
+public class ExportOfficeXlsService extends BaseExportService<Office> {
 
     private Workbook workbook;
     private Sheet sheet;
 
     @Override
-    public byte[] exportToFile(FileType fileType) throws IOException {
+    public byte[] exportToFile(ExportRequest exportRequest) throws IOException {
         workbook = new XSSFWorkbook();
         sheet = workbook.createSheet("Offices");
 
-        List<Office> offices = getAll();
-        List<HeaderField> headerFields = checkFieldsNames(offices.get(0).getClass());
+        List<Office> entities = getAll();
+        List<HeaderField> headerFields = checkFieldsNames(entities.get(0).getClass());
 
-        insertTitle(fileType);
+        insertTitle(exportRequest.getFileType());
         insertImage();
         insertColumnsHeader(headerFields);
 
         AtomicInteger lineCounter = new AtomicInteger(12);
         AtomicInteger columnsCounter = new AtomicInteger(1);
-        offices.forEach(office -> {
+        entities.forEach(entity -> {
             final Row row = sheet.createRow(lineCounter.getAndIncrement());
             headerFields
                     .forEach(headerField -> {
                         String headerTitle = headerField.getTitle();
-                        Field[] fields = office.getClass().getDeclaredFields();
+                        Field[] fields = entity.getClass().getDeclaredFields();
                         Arrays.stream(fields)
                                 .filter(field -> field.isAnnotationPresent(ExportField.class))
                                 .filter(field -> getFieldName(field).equals(headerTitle))
                                 .forEach(field -> {
                                     field.setAccessible(true);
                                     if (headerField.getSubFields() == null) {
-                                        insertDate(row, columnsCounter, field, office);
+                                        insertDate(row, columnsCounter, field, entity);
                                     } else {
                                         List<?> subNames = Collections.emptyList();
                                         try {
-                                            subNames = (List<?>) field.get(office);
+                                            subNames = (List<?>) field.get(entity);
                                         } catch (IllegalAccessException e) {
                                             e.printStackTrace();
                                         }
@@ -85,6 +85,11 @@ public class XlsExportService extends BaseOfficeService {
     @Override
     public FileType getType() {
         return FileType.XLS;
+    }
+
+    @Override
+    public EntityType getEntity() {
+        return EntityType.OFFICE;
     }
 
     private byte[] toBytes(Workbook workbook) throws IOException {

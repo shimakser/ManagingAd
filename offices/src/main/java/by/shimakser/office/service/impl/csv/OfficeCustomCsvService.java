@@ -1,11 +1,8 @@
-package by.shimakser.office.service.csv;
+package by.shimakser.office.service.impl.csv;
 
-import by.shimakser.office.model.OfficeRequest;
+import by.shimakser.dto.EntityType;
 import by.shimakser.office.exception.ExceptionOfficeText;
-import by.shimakser.office.model.Contact;
-import by.shimakser.office.model.Office;
-import by.shimakser.office.model.OfficeOperationInfo;
-import by.shimakser.office.model.Status;
+import by.shimakser.office.model.*;
 import by.shimakser.office.repository.OfficeRepository;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,14 +10,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service("officeCustomService")
-public class OfficeCustomCsvService extends BaseOfficeCsvService {
+public class OfficeCustomCsvService extends BaseCsvService<Office> {
 
     private final OfficeRepository officeRepository;
 
@@ -31,8 +28,8 @@ public class OfficeCustomCsvService extends BaseOfficeCsvService {
 
     @Override
     @Transactional(rollbackFor = {IOException.class, FileNotFoundException.class})
-    public Long exportFromFile(OfficeRequest officeRequest) throws FileNotFoundException {
-        String path = officeRequest.getPathToFile();
+    public Long importFromFile(ExportRequest exportRequest) throws FileNotFoundException {
+        String path = exportRequest.getPathToFile();
         File file = new File(path);
         if (!file.isFile()) {
             throw new FileNotFoundException(ExceptionOfficeText.FILE_NOT_FOUND.getExceptionDescription());
@@ -42,7 +39,7 @@ public class OfficeCustomCsvService extends BaseOfficeCsvService {
         Runnable exportTask = () -> {
             try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
                 String line;
-                statusOfExport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.UPLOADED, path));
+                statusOfExport.put(ID_OF_OPERATION.get(), new ExportOperationInfo(Status.UPLOADED, path));
 
                 while ((line = reader.readLine()) != null) {
                     String[] arrayOfOffices = line.replace("\"", "").split(",", 5);
@@ -57,10 +54,10 @@ public class OfficeCustomCsvService extends BaseOfficeCsvService {
                             contactConverterForExport(strListOfContacts), jsonConvertForExport(descriptions).toString());
                     officeRepository.save(office);
 
-                    statusOfExport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.UPLOADED, path));
+                    statusOfExport.put(ID_OF_OPERATION.get(), new ExportOperationInfo(Status.UPLOADED, path));
                 }
             } catch (IOException ex) {
-                statusOfExport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.NOT_LOADED, path));
+                statusOfExport.put(ID_OF_OPERATION.get(), new ExportOperationInfo(Status.NOT_LOADED, path));
                 ex.printStackTrace();
             }
         };
@@ -71,30 +68,27 @@ public class OfficeCustomCsvService extends BaseOfficeCsvService {
 
     @Override
     @Transactional(rollbackFor = IOException.class)
-    public Long importToFile(OfficeRequest officeRequest) {
-        String importFileName = "/offices_import_" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMyyyy_HH_mm_ss")) + ".csv";
-        String path = officeRequest.getPathToFile() + importFileName;
+    public byte[] exportToFile(ExportRequest exportRequest) throws IOException {
 
         ID_OF_OPERATION.incrementAndGet();
-        Runnable importTask = () -> {
-            statusOfImport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.IN_PROCESS, path));
-            try (FileWriter writer = new FileWriter(path, false)) {
-                List<Office> offices = officeRepository.findAll();
-                for (Office office : offices) {
-                    writer.write(office.toString());
-                    writer.write("\n");
-                }
+        File file = null;
+        try {
+            file = Files.createTempFile(null, null).toFile();
+            FileWriter writer = new FileWriter(file);
+            statusOfImport.put(ID_OF_OPERATION.get(), new ExportOperationInfo(Status.IN_PROCESS, file.toPath().toString()));
 
-                statusOfImport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.UPLOADED, path));
-            } catch (IOException e) {
-                statusOfImport.put(ID_OF_OPERATION.get(), new OfficeOperationInfo(Status.NOT_LOADED, path));
-                e.printStackTrace();
+            List<Office> offices = officeRepository.findAll();
+            for (Office office : offices) {
+                writer.write(office.toString());
+                writer.write("\n");
             }
-        };
-        Thread importThread = new Thread(importTask);
-        importThread.start();
+            statusOfImport.put(ID_OF_OPERATION.get(), new ExportOperationInfo(Status.UPLOADED, file.toPath().toString()));
+        } catch (IOException e) {
+            statusOfImport.put(ID_OF_OPERATION.get(), new ExportOperationInfo(Status.NOT_LOADED, file.toPath().toString()));
+            e.printStackTrace();
+        }
 
-        return ID_OF_OPERATION.get();
+        return Files.readAllBytes(Path.of(file.getPath()));
     }
 
     private List<Contact> contactConverterForExport(String strContacts) {
@@ -114,5 +108,15 @@ public class OfficeCustomCsvService extends BaseOfficeCsvService {
         return (json.equals("") || json.equals("{}"))
                 ? new JSONObject()
                 : new JSONObject(json);
+    }
+
+    @Override
+    public FileType getType() {
+        return FileType.CSV;
+    }
+
+    @Override
+    public EntityType getEntity() {
+        return EntityType.OFFICE;
     }
 }

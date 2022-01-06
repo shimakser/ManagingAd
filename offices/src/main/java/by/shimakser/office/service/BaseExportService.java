@@ -1,22 +1,21 @@
 package by.shimakser.office.service;
 
-import by.shimakser.office.model.Office;
-import by.shimakser.office.repository.OfficeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public abstract class BaseOfficeService implements OfficeService {
+public abstract class BaseExportService<T> implements ExportService<T> {
 
     @Autowired
-    private OfficeRepository officeRepository;
+    private JpaRepository<T, Long> repository;
 
     protected static final String URL_TO_IMAGE = "https://i.redd.it/fsal3ipywty21.png";
 
     @Override
-    public List<Office> getAll() {
-        return officeRepository.findAll();
+    public List<T> getAll() {
+        return repository.findAll();
     }
 }
