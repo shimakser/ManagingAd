@@ -5,10 +5,12 @@ import by.shimakser.office.model.ExportServiceStructure;
 import by.shimakser.office.model.FileType;
 import by.shimakser.office.service.ExportService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
-public class ExportDispatcher implements Dispatcher<EntityType, FileType> {
+@Component
+public class ExportDispatcher implements Dispatcher<EntityType, FileType, ExportService> {
 
     private final List<ExportServiceStructure> list = new ArrayList<>();
 

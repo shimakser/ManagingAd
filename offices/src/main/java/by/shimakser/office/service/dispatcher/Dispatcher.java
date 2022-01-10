@@ -3,8 +3,8 @@ package by.shimakser.office.service.dispatcher;
 import by.shimakser.office.service.ExportService;
 import org.springframework.stereotype.Component;
 
+@Component
+public interface Dispatcher<K1, K2, V> {
 
-public interface Dispatcher<K, V> {
-
-  ExportService<?> getByEntityAndExportType(K k, V v);
+  V getByEntityAndExportType(K1 k1, K2 k2);
 }

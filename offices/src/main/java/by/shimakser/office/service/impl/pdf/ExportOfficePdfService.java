@@ -19,7 +19,7 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 
-@Service("officePdfService")
+@Service
 public class ExportOfficePdfService extends BaseExportService<Office> {
 
     private final String[] OFFICES_FIELDS = new String[]{"id", "title", "address", "price", "contacts", "description"};
@@ -30,12 +30,10 @@ public class ExportOfficePdfService extends BaseExportService<Office> {
 
     @Override
     public byte[] exportToFile(ExportRequest exportRequest) throws IOException {
-        System.out.println("1");
         Document document = new Document();
         File file = Files.createTempFile(null, null).toFile();
 
         try(FileOutputStream out = new FileOutputStream(file)) {
-            System.out.println("2");
             PdfWriter.getInstance(document, out);
             document.open();
 
@@ -64,7 +62,7 @@ public class ExportOfficePdfService extends BaseExportService<Office> {
         } catch (IOException | DocumentException e) {
             e.printStackTrace();
         }
-        System.out.println(file.toPath());
+
         return Files.readAllBytes(file.toPath());
     }
 
