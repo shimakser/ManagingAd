@@ -1,9 +1,12 @@
 package by.shimakser.office.service.impl.xls;
 
 import by.shimakser.dto.EntityType;
-import by.shimakser.office.model.*;
 import by.shimakser.dto.HeaderField;
 import by.shimakser.office.annotation.ExportField;
+import by.shimakser.office.model.Contact;
+import by.shimakser.office.model.ExportRequest;
+import by.shimakser.office.model.FileType;
+import by.shimakser.office.model.Office;
 import by.shimakser.office.service.BaseExportService;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.*;
@@ -12,12 +15,9 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.net.URL;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collections;
@@ -126,10 +126,7 @@ public class ExportOfficeXlsService extends BaseExportService<Office> {
 
     private void insertImage() {
         try {
-            URL imageUrl = new URL(URL_TO_IMAGE);
-            BufferedImage bufferedImage = ImageIO.read(imageUrl);
-            File file = new File("/home/shimakser/logo.png");
-            ImageIO.write(bufferedImage, "png", file);
+            File file = new File(URL_TO_IMAGE);
 
             InputStream inputStream = new FileInputStream(file);
             byte[] bytes = IOUtils.toByteArray(inputStream);

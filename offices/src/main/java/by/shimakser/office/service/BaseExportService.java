@@ -12,7 +12,7 @@ public abstract class BaseExportService<T> implements ExportService<T> {
     @Autowired
     private JpaRepository<T, Long> repository;
 
-    protected static final String URL_TO_IMAGE = "https://i.redd.it/fsal3ipywty21.png";
+    protected static final String URL_TO_IMAGE = "offices/src/main/resources/static/logo.png";
 
     @Override
     public List<T> getAll() {

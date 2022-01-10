@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
@@ -168,8 +167,7 @@ public class ExportOfficePdfService extends BaseExportService<Office> {
 
     private void insertImage(Document document) {
         try {
-            URL imageUrl = new URL(URL_TO_IMAGE);
-            Image image = Image.getInstance(imageUrl);
+            Image image = Image.getInstance(URL_TO_IMAGE);
             image.scaleAbsoluteHeight(200);
             image.scaleAbsoluteWidth(200);
             image.setAlignment(Element.ALIGN_CENTER);
