@@ -11,12 +11,12 @@ import java.time.format.DateTimeFormatter;
 @AllArgsConstructor
 public enum FileType {
     XLS(MediaType.valueOf("application/vnd.ms-excel"), ".xls"),
-    PDF(MediaType.APPLICATION_PDF, ".pdf"),
+    PDF(MediaType.APPLICATION_PDF,".pdf"),
     CSV(MediaType.valueOf("application/vnd.csv"), ".csv");
 
     private final MediaType mediaType;
     private final String fileExtension;
 
-    private final String fileTitle = "OfficeExport_"
+    private final String fileTitle = "Export_"
             + LocalDateTime.now().format(DateTimeFormatter.ofPattern("ddMMyyyy_HHmmss"));
 }

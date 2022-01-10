@@ -27,10 +27,6 @@ public class ListConverter extends AbstractBeanField<List<Contact>> {
     }
 
     private List<Contact> contactConverter(String[] contacts) {
-        return Arrays.stream(contacts)
-                .map(contact -> contact.substring(1, contact.length() - 1))
-                .map(contact -> contact.split(","))
-                .map(fields -> new Contact(Long.parseLong(fields[0]), fields[1].trim(), fields[2].trim(), fields[3].trim()))
-                .collect(Collectors.toList());
+        return null;
     }
 }

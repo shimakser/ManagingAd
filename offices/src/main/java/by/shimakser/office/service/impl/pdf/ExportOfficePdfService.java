@@ -1,6 +1,6 @@
 package by.shimakser.office.service.impl.pdf;
 
-import by.shimakser.dto.EntityType;
+import by.shimakser.office.model.EntityType;
 import by.shimakser.office.model.ExportRequest;
 import by.shimakser.office.model.FileType;
 import by.shimakser.office.model.Office;
@@ -93,7 +93,7 @@ public class ExportOfficePdfService extends BaseExportService<Office> {
     }
 
     private void insertDateInTable(PdfPTable table) {
-        List<Office> offices = getAll();
+        List<Office> offices = getDataToExport();
 
         for (Office office : offices) {
             PdfPCell idCell = new PdfPCell(new Phrase(office.getId().toString()));

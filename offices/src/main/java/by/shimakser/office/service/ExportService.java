@@ -1,6 +1,6 @@
 package by.shimakser.office.service;
 
-import by.shimakser.dto.EntityType;
+import by.shimakser.office.model.EntityType;
 import by.shimakser.office.model.ExportRequest;
 import by.shimakser.office.model.FileType;
 import org.springframework.stereotype.Service;
@@ -13,7 +13,7 @@ public interface ExportService<T> {
 
     byte[] exportToFile(ExportRequest exportRequest) throws IOException;
 
-    List<T> getAll();
+    List<T> getDataToExport();
 
     FileType getType();
 

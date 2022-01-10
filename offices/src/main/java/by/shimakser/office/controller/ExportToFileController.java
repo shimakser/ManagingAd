@@ -1,6 +1,6 @@
 package by.shimakser.office.controller;
 
-import by.shimakser.dto.EntityType;
+import by.shimakser.office.model.EntityType;
 import by.shimakser.office.model.ExportRequest;
 import by.shimakser.office.model.FileType;
 import by.shimakser.office.service.ExportService;
@@ -31,7 +31,7 @@ public class ExportToFileController {
     public ResponseEntity<byte[]> exportToFile(@RequestBody ExportRequest exportRequest) throws IOException {
         FileType fileType = exportRequest.getFileType();
         EntityType entityType = exportRequest.getEntityType();
-        String title = fileType.getFileTitle() + fileType.getFileExtension();
+        String title = entityType.getClazz().getSimpleName() + fileType.getFileTitle() + fileType.getFileExtension();
 
         return ResponseEntity
                 .ok()

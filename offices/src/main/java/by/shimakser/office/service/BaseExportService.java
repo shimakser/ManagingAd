@@ -15,7 +15,7 @@ public abstract class BaseExportService<T> implements ExportService<T> {
     protected static final String URL_TO_IMAGE = "offices/src/main/resources/static/logo.png";
 
     @Override
-    public List<T> getAll() {
+    public List<T> getDataToExport() {
         return repository.findAll();
     }
 }

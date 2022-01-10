@@ -1,6 +1,5 @@
 package by.shimakser.office.model;
 
-import by.shimakser.dto.EntityType;
 import by.shimakser.office.service.ExportService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

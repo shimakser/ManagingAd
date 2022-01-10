@@ -1,6 +1,6 @@
 package by.shimakser.office.service.impl.csv;
 
-import by.shimakser.dto.EntityType;
+import by.shimakser.office.model.EntityType;
 import by.shimakser.office.model.*;
 import by.shimakser.office.exception.ExceptionOfficeText;
 import by.shimakser.office.repository.ContactRepository;
@@ -79,7 +79,7 @@ public class OfficeOpenCsvService extends BaseCsvService<Office> {
             StatefulBeanToCsvBuilder<Office> builder = new StatefulBeanToCsvBuilder<>(writer);
             StatefulBeanToCsv<Office> beanWriter = builder.withMappingStrategy(mappingStrategy).build();
 
-            beanWriter.write(getAll());
+            beanWriter.write(getDataToExport());
 
             statusOfImport.put(ID_OF_OPERATION.get(), new ExportOperationInfo(Status.UPLOADED, file.toPath().toString()));
         } catch (IOException | CsvRequiredFieldEmptyException | CsvDataTypeMismatchException e) {

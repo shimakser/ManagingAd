@@ -1,6 +1,6 @@
 package by.shimakser.office.service.impl.csv;
 
-import by.shimakser.dto.EntityType;
+import by.shimakser.office.model.EntityType;
 import by.shimakser.office.exception.ExceptionOfficeText;
 import by.shimakser.office.model.*;
 import by.shimakser.office.repository.OfficeRepository;

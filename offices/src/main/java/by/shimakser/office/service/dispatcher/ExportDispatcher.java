@@ -1,6 +1,6 @@
 package by.shimakser.office.service.dispatcher;
 
-import by.shimakser.dto.EntityType;
+import by.shimakser.office.model.EntityType;
 import by.shimakser.office.model.ExportServiceStructure;
 import by.shimakser.office.model.FileType;
 import by.shimakser.office.service.ExportService;
