@@ -20,10 +20,10 @@ import java.io.IOException;
 @RequestMapping("/offices/export")
 public class ExportToFileController {
 
-    private final Dispatcher<EntityType, FileType, ExportService> dispatcher;
+    private final Dispatcher<EntityType, FileType, ExportService<?>> dispatcher;
 
     @Autowired
-    public ExportToFileController(Dispatcher<EntityType, FileType, ExportService> dispatcher) {
+    public ExportToFileController(Dispatcher<EntityType, FileType, ExportService<?>> dispatcher) {
         this.dispatcher = dispatcher;
     }
 

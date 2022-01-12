@@ -25,7 +25,6 @@ import java.util.List;
 public class Office {
 
     @Id
-    @ExportField
     @CsvBindByName(column = "id")
     private Long id;
 

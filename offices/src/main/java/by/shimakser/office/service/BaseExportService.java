@@ -1,6 +1,5 @@
 package by.shimakser.office.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
@@ -9,8 +8,11 @@ import java.util.List;
 @Service
 public abstract class BaseExportService<T> implements ExportService<T> {
 
-    @Autowired
-    private JpaRepository<T, Long> repository;
+    private final JpaRepository<T, Long> repository;
+
+    public BaseExportService(JpaRepository<T, Long> repository) {
+        this.repository = repository;
+    }
 
     protected static final String URL_TO_IMAGE = "offices/src/main/resources/static/logo.png";
 

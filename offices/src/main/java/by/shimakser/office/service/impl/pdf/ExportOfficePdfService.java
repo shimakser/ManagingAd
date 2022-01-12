@@ -9,6 +9,7 @@ import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -26,6 +27,10 @@ public class ExportOfficePdfService extends BaseExportService<Office> {
 
     private final float[] OFFICE_COLUMN_WIDTH = new float[]{5f, 12f, 15f, 7f, 44f, 20f};
     private final float[] CONTACTS_COLUMN_WIDTH = new float[]{5f, 13f, 13f, 13f};
+
+    public ExportOfficePdfService(JpaRepository<Office, Long> repository) {
+        super(repository);
+    }
 
     @Override
     public byte[] exportToFile(ExportRequest exportRequest) throws IOException {

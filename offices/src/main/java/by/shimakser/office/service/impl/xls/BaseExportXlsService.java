@@ -5,42 +5,52 @@ import by.shimakser.office.annotation.ExportField;
 import by.shimakser.office.model.ExportRequest;
 import by.shimakser.office.model.FileType;
 import by.shimakser.office.service.BaseExportService;
+import lombok.Getter;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static by.shimakser.office.annotation.FieldNameAnalyzer.checkFieldsNames;
 
 @Service
+@Getter
 public abstract class BaseExportXlsService<T> extends BaseExportService<T> {
 
     private Workbook workbook;
     private Sheet sheet;
 
-    private List<T> entities;
-    private List<HeaderField> headerFields;
+    public BaseExportXlsService(JpaRepository<T, Long> repository) {
+        super(repository);
+    }
 
     @Override
     public byte[] exportToFile(ExportRequest exportRequest) throws IOException {
 
+        if (getEntity() != exportRequest.getEntityType()) {
+            throw new NoSuchElementException();
+        }
+
         workbook = new XSSFWorkbook();
         sheet = workbook.createSheet(exportRequest.getEntityType().toString());
 
-        entities = getDataToExport();
-        headerFields = checkFieldsNames(exportRequest.getEntityType().getClazz());
+        List<T> entities = getDataToExport();
+        List<HeaderField> headerFields;
+        if (!entities.isEmpty()) {
+            headerFields = checkFieldsNames(entities.get(0).getClass());
+        } else {
+            headerFields = Collections.emptyList();
+        }
 
         insertImage();
         insertTitle(exportRequest.getFileType());
@@ -88,7 +98,7 @@ public abstract class BaseExportXlsService<T> extends BaseExportService<T> {
         return FileType.XLS;
     }
 
-    protected byte[] toBytes(Workbook workbook) throws IOException {
+    private byte[] toBytes(Workbook workbook) throws IOException {
         File file = null;
 
         try {
@@ -193,10 +203,10 @@ public abstract class BaseExportXlsService<T> extends BaseExportService<T> {
             subHead.createCell(styleCounter).setCellStyle(tableStyle);
             sheet.setColumnWidth(step.get(), 5000);
         }
-        sheet.setColumnWidth(9, 15000);
+        sheet.setColumnWidth(8, 15000);
     }
 
-    protected void insertDate(Row row, AtomicInteger columnsCounter, Field field, T t) {
+    private void insertDate(Row row, AtomicInteger columnsCounter, Field field, T t) {
         try {
             Cell cell = row.createCell(columnsCounter.getAndIncrement());
             Object name = Optional.ofNullable(field.get(t)).orElseGet(() -> "-");
@@ -207,7 +217,7 @@ public abstract class BaseExportXlsService<T> extends BaseExportService<T> {
         }
     }
 
-    protected void insertDateIntoSubColumns(List<?> subNames, Field[] subFields, Row row,
+    private void insertDateIntoSubColumns(List<?> subNames, Field[] subFields, Row row,
                                             AtomicInteger columnsCounter, AtomicInteger lineCounter) {
         if (subNames.isEmpty()) {
             for (int i = 0; i < subFields.length; i++) {
@@ -240,14 +250,14 @@ public abstract class BaseExportXlsService<T> extends BaseExportService<T> {
         }
     }
 
-    protected String getFieldName(Field field) {
+    private String getFieldName(Field field) {
         String annotArg = field.getAnnotation(ExportField.class).name();
         return annotArg.equals("")
                 ? field.getName()
                 : annotArg;
     }
 
-    protected CellStyle getStyle() {
+    private CellStyle getStyle() {
         XSSFFont font = ((XSSFWorkbook) workbook).createFont();
         font.setFontName("Times New Roman");
         font.setFontHeightInPoints((short) 14);

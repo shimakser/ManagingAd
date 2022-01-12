@@ -1,6 +1,5 @@
 package by.shimakser.office.service.impl.csv;
 
-import by.shimakser.office.model.EntityType;
 import by.shimakser.office.exception.ExceptionOfficeText;
 import by.shimakser.office.model.*;
 import by.shimakser.office.repository.OfficeRepository;
@@ -77,7 +76,7 @@ public class OfficeCustomCsvService extends BaseCsvService<Office> {
             FileWriter writer = new FileWriter(file);
             statusOfImport.put(ID_OF_OPERATION.get(), new ExportOperationInfo(Status.IN_PROCESS, file.toPath().toString()));
 
-            List<Office> offices = officeRepository.findAll();
+            List<Office> offices = getDataToExport();
             for (Office office : offices) {
                 writer.write(office.toString());
                 writer.write("\n");
@@ -89,6 +88,11 @@ public class OfficeCustomCsvService extends BaseCsvService<Office> {
         }
 
         return Files.readAllBytes(Path.of(file.getPath()));
+    }
+
+    @Override
+    public List<Office> getDataToExport() {
+        return officeRepository.findAll();
     }
 
     private List<Contact> contactConverterForExport(String strContacts) {

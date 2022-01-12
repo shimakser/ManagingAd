@@ -3,7 +3,6 @@ package by.shimakser.office.service.impl.csv;
 import by.shimakser.office.exception.ExceptionOfficeText;
 import by.shimakser.office.model.ExportOperationInfo;
 import by.shimakser.office.model.Status;
-import by.shimakser.office.service.BaseExportService;
 import javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 @Service
-public abstract class BaseCsvService<T> extends BaseExportService<T> implements CsvService<T> {
+public abstract class BaseCsvService<T> implements CsvService<T> {
 
     protected static ConcurrentMap<Long, ExportOperationInfo> statusOfImport = new ConcurrentHashMap<>();
     protected static ConcurrentMap<Long, ExportOperationInfo> statusOfExport = new ConcurrentHashMap<>();

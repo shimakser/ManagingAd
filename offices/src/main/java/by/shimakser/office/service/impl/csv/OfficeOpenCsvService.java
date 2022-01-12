@@ -63,6 +63,11 @@ public class OfficeOpenCsvService extends BaseCsvService<Office> {
     }
 
     @Override
+    public List<Office> getDataToExport() {
+        return officeRepository.findAll();
+    }
+
+    @Override
     @Transactional(rollbackFor = {IOException.class, CsvRequiredFieldEmptyException.class, CsvDataTypeMismatchException.class})
     public byte[] exportToFile(ExportRequest exportRequest) throws IOException {
         ID_OF_OPERATION.incrementAndGet();
