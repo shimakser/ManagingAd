@@ -1,6 +1,6 @@
 FROM openjdk:11 as builder
 COPY . /ManagingAd
-WORKDIR /ManagingAd/application/src/main/resources/keystore
+WORKDIR /ManagingAd/services/application/src/main/resources/keystore
 RUN keytool -genkeypair -dname "CN=test, OU=test, O=test, L=test, S=test, C=test" -alias managingad -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore managingad.p12 -keypass password -storepass password -validity 3650
 WORKDIR /ManagingAd
 RUN chmod +x mvnw && ./mvnw package -DskipTests
@@ -9,5 +9,5 @@ FROM openjdk:11
 ENV JAR_FILE_NAME="managingad.jar"
 EXPOSE 8080
 RUN mkdir /app
-COPY --from=builder ManagingAd/application/target/$JAR_FILE_NAME /app/$JAR_FILE_NAME
-ENTRYPOINT ["java", "-jar","/app/managingad.jar"]
+COPY --from=builder ManagingAd/services/application/target/$JAR_FILE_NAME /app/$JAR_FILE_NAME
+ENTRYPOINT ["java", "-jar","/services/app/managingad.jar"]

@@ -125,7 +125,7 @@ services:
 
   app:
     container_name: managingad
-    image: application-app
+    image: services/application-app
     build:
       context: .
       dockerfile: Dockerfile-app
@@ -151,7 +151,7 @@ services:
 
   currencies:
     container_name: currencies
-    image: currencies-app
+    image: services/currencies-app
     build:
       context: .
       dockerfile: Dockerfile-currencies
@@ -164,7 +164,7 @@ services:
 
   offices:
     container_name: offices
-    image: offices-app
+    image: services/offices-app
     build:
       context: .
       dockerfile: Dockerfile-offices
