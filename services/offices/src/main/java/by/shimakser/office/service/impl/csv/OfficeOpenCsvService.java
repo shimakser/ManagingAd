@@ -29,7 +29,7 @@ public class OfficeOpenCsvService extends BaseCsvService<Office> {
         this.contactRepository = contactRepository;
     }
 
-    private final String[] OFFICES_FIELDS = new String[]{"id", "officeTitle", "officeAddress", "officePrice", "officeContacts", "officeDescription"};
+    private static final String[] OFFICES_FIELDS = new String[]{"id", "officeTitle", "officeAddress", "officePrice", "officeContacts", "officeDescription"};
 
     @Override
     @Transactional(rollbackFor = {IOException.class})

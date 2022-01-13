@@ -22,11 +22,11 @@ import java.util.List;
 @Service
 public class ExportOfficePdfService extends BaseExportService<Office> {
 
-    private final String[] OFFICES_FIELDS = new String[]{"id", "title", "address", "price", "contacts", "description"};
-    private final String[] CONTACTS_FIELDS = new String[]{"id", "phone", "email", "site"};
+    private static final String[] OFFICES_FIELDS = new String[]{"id", "title", "address", "price", "contacts", "description"};
+    private static final String[] CONTACTS_FIELDS = new String[]{"id", "phone", "email", "site"};
 
-    private final float[] OFFICE_COLUMN_WIDTH = new float[]{5f, 12f, 15f, 7f, 44f, 20f};
-    private final float[] CONTACTS_COLUMN_WIDTH = new float[]{5f, 13f, 13f, 13f};
+    private static final float[] OFFICE_COLUMN_WIDTH = new float[]{5f, 12f, 15f, 7f, 44f, 20f};
+    private static final float[] CONTACTS_COLUMN_WIDTH = new float[]{5f, 13f, 13f, 13f};
 
     public ExportOfficePdfService(JpaRepository<Office, Long> repository) {
         super(repository);
