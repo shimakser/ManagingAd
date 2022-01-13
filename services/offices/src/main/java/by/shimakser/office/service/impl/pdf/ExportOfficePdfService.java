@@ -172,7 +172,7 @@ public class ExportOfficePdfService extends BaseExportService<Office> {
 
     private void insertImage(Document document) {
         try {
-            Image image = Image.getInstance(URL_TO_IMAGE);
+            Image image = Image.getInstance(getImage().getURL());
             image.scaleAbsoluteHeight(200);
             image.scaleAbsoluteWidth(200);
             image.setAlignment(Element.ALIGN_CENTER);

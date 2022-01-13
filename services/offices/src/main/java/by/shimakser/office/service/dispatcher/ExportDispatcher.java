@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 @Component
-public class ExportDispatcher implements Dispatcher<EntityType, FileType, ExportService> {
+public class ExportDispatcher implements Dispatcher<EntityType, FileType, ExportService<?>> {
 
     private final List<ExportServiceStructure> list = new ArrayList<>();
 
@@ -19,7 +19,7 @@ public class ExportDispatcher implements Dispatcher<EntityType, FileType, Export
 
         Map<EntityType, ExportService<?>> map;
         for (ExportService<?> service: services) {
-            map = new HashMap<>();
+            map = new EnumMap<>(EntityType.class);
             map.put(service.getEntity(), service);
 
             list.add(new ExportServiceStructure(service.getType(), map));

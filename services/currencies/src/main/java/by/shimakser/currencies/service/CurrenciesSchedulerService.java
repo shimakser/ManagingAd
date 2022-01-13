@@ -26,8 +26,9 @@ public class CurrenciesSchedulerService {
         LocalDateTime date = LocalDateTime.now();
 
         currenciesFeignClient.getCurrencies().getValute().values()
-                .stream()
-                .peek(currency -> currency.setUpdDate(date))
-                .forEach(currenciesRepository::save);
+                .forEach(currency -> {
+                    currency.setUpdDate(date);
+                    currenciesRepository.save(currency);
+                });
     }
 }

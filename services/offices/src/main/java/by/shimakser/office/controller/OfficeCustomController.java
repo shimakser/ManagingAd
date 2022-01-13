@@ -2,6 +2,7 @@ package by.shimakser.office.controller;
 
 import by.shimakser.dto.OfficeCsvOperationNumber;
 import by.shimakser.office.model.ExportRequest;
+import by.shimakser.office.model.Office;
 import by.shimakser.office.model.Status;
 import by.shimakser.office.service.impl.csv.CsvService;
 import javassist.NotFoundException;
@@ -24,10 +25,10 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping("/offices")
 public class OfficeCustomController {
 
-    private final CsvService csvService;
+    private final CsvService<Office> csvService;
 
     @Autowired
-    public OfficeCustomController(@Qualifier("officeCustomService") CsvService csvService) {
+    public OfficeCustomController(@Qualifier("officeCustomService") CsvService<Office> csvService) {
         this.csvService = csvService;
     }
 

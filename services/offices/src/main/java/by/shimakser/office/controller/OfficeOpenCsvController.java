@@ -1,6 +1,7 @@
 package by.shimakser.office.controller;
 
 import by.shimakser.office.model.ExportRequest;
+import by.shimakser.office.model.Office;
 import by.shimakser.office.service.impl.csv.CsvService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,10 +19,10 @@ import java.io.IOException;
 @RequestMapping("/offices/opencsv")
 public class OfficeOpenCsvController {
 
-    private final CsvService csvService;
+    private final CsvService<Office> csvService;
 
     @Autowired
-    public OfficeOpenCsvController(@Qualifier("officeOpenCsvService") CsvService csvService) {
+    public OfficeOpenCsvController(@Qualifier("officeOpenCsvService") CsvService<Office> csvService) {
         this.csvService = csvService;
     }
 

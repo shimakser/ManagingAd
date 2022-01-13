@@ -1,6 +1,8 @@
 package by.shimakser.office.annotation;
 
 import by.shimakser.dto.HeaderField;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
@@ -10,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class FieldNameAnalyzer {
 
     public static List<HeaderField> checkFieldsNames(Class<?> clazz) {
@@ -47,7 +50,7 @@ public class FieldNameAnalyzer {
     private static boolean checkByDefaultTypes(Class<?> fieldType) {
         AtomicBoolean check = new AtomicBoolean(false);
 
-        List<Class> types = List.of(String.class, Long.class, Double.class, Integer.class,
+        List<Class<?>> types = List.of(String.class, Long.class, Double.class, Integer.class,
                 Enum.class, Float.class, Short.class, Byte.class);
         types.forEach(type -> {
             if (fieldType.isPrimitive() || fieldType.isAssignableFrom(type)) {

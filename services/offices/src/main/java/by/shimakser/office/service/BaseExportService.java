@@ -1,5 +1,7 @@
 package by.shimakser.office.service;
 
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
@@ -10,11 +12,13 @@ public abstract class BaseExportService<T> implements ExportService<T> {
 
     private final JpaRepository<T, Long> repository;
 
-    public BaseExportService(JpaRepository<T, Long> repository) {
+    protected BaseExportService(JpaRepository<T, Long> repository) {
         this.repository = repository;
     }
 
-    protected static final String URL_TO_IMAGE = "services/offices/src/main/resources/static/logo.png";
+    public Resource getImage() {
+        return new ClassPathResource("static/logo.png");
+    }
 
     @Override
     public List<T> getDataToExport() {

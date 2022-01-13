@@ -70,10 +70,8 @@ public class OfficeCustomCsvService extends BaseCsvService<Office> {
     public byte[] exportToFile(ExportRequest exportRequest) throws IOException {
 
         ID_OF_OPERATION.incrementAndGet();
-        File file = null;
-        try {
-            file = Files.createTempFile(null, null).toFile();
-            FileWriter writer = new FileWriter(file);
+        File file = Files.createTempFile(null, null).toFile();
+        try (FileWriter writer = new FileWriter(file)) {
             statusOfImport.put(ID_OF_OPERATION.get(), new ExportOperationInfo(Status.IN_PROCESS, file.toPath().toString()));
 
             List<Office> offices = getDataToExport();

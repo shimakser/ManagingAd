@@ -56,7 +56,7 @@ class BaseExportXlsServiceTest {
         };
         Mockito.when(repository.findAll()).thenReturn(Collections.emptyList());
 
-        assertEquals(emptyListService.getDataToExport(), Collections.emptyList());
+        assertEquals(Collections.emptyList(), emptyListService.getDataToExport());
     }
 
     @Test
