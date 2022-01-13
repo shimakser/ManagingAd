@@ -125,7 +125,7 @@ services:
 
   app:
     container_name: managingad
-    image: application-app
+    image: services/application-app
     build:
       context: .
       dockerfile: Dockerfile-app
@@ -151,7 +151,7 @@ services:
 
   currencies:
     container_name: currencies
-    image: currencies-app
+    image: services/currencies-app
     build:
       context: .
       dockerfile: Dockerfile-currencies
@@ -159,6 +159,23 @@ services:
       - "8081:8081"
     environment:
       CURRENCIES_URL: www.cbr-xml-daily.ru/daily_json.js
+    depends_on:
+      - app
+
+  offices:
+    container_name: offices
+    image: services/offices-app
+    build:
+      context: .
+      dockerfile: Dockerfile-offices
+    ports:
+      - "8082:8082"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_HOST: postgresdb
+      POSTGRES_PORT: 5432
+      DB: ManagingAd
     depends_on:
       - app
 

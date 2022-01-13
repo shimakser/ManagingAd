@@ -16,11 +16,12 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>dto</module>
-        <module>feign</module>
-        <module>application</module>
-        <module>kafka</module>
-        <module>currencies</module>
+        <module>libs/dto</module>
+        <module>libs/feign</module>
+        <module>services/application</module>
+        <module>libs/kafka</module>
+        <module>services/currencies</module>
+        <module>services/offices</module>
     </modules>
 
     <properties>

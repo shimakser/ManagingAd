@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: ${POSTGRES_URL}
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  flyway:
+    url: ${POSTGRES_URL}
+    user: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
+    locations: classpath:db/migration
+
+jwt:
+  token:
+    secret: shimakser
+    expired: 3600000

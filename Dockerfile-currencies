@@ -7,5 +7,5 @@ FROM openjdk:11
 ENV JAR_FILE_NAME="currencies.jar"
 EXPOSE 8081
 RUN mkdir /currencies
-COPY --from=builder ManagingAd/currencies/target/$JAR_FILE_NAME /currencies/$JAR_FILE_NAME
-ENTRYPOINT ["java", "-jar","/currencies/currencies.jar"]
+COPY --from=builder ManagingAd/services/currencies/target/$JAR_FILE_NAME /currencies/$JAR_FILE_NAME
+ENTRYPOINT ["java", "-jar","/services/currencies/currencies.jar"]
