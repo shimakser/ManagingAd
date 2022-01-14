@@ -16,12 +16,15 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>libs/dto</module>
-        <module>libs/feign</module>
         <module>services/application</module>
-        <module>libs/kafka</module>
         <module>services/currencies</module>
         <module>services/offices</module>
+        <module>services/listener</module>
+
+        <module>libs/dto</module>
+        <module>libs/feign</module>
+        <module>libs/kafka</module>
+        <module>libs/rabbit</module>
     </modules>
 
     <properties>
