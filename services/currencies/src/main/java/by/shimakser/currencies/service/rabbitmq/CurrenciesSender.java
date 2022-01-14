@@ -1,6 +1,5 @@
 package by.shimakser.currencies.service.rabbitmq;
 
-import by.shimakser.currencies.model.Currency;
 import by.shimakser.rabbitmq.config.RabbitMQConfig;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
