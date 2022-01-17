@@ -32,11 +32,12 @@ import/export from .csv file and database.
 
     And also branch include result of work from next branches:
 
-   - dev-shiyanov-jwt — added auth with JWT.
-   - dev-shiyanov-feign — added Spring Cloud OpenFeign and calling external api with it.
-   - dev-shiyanov-kafka — launched application in the docker, added TestContainers and working with Apache Kafka.
-   - dev-shiyanov-jooq — added filter Campaign-entity by jooq.
-   - dev-shiyanov-cache — added caffeine-cache and wrote a custom cache, wich save their data to mongodb.
-   - dev-shiyanov-elk — added ELK stack to the application.
-   - dev-shiyanov-poi — wrote exports date from db to .xls and .pdf with help Apache POI, itextpdf, OpenHTML.
+   - dev-shiyanov-training-jwt — added auth with JWT.
+   - dev-shiyanov-training-feign — added Spring Cloud OpenFeign and calling external api with it.
+   - dev-shiyanov-training-kafka — launched application in the docker, added TestContainers and working with Apache Kafka.
+   - dev-shiyanov-training-jooq — added filter Campaign-entity by jooq.
+   - dev-shiyanov-training-cache — added caffeine-cache and wrote a custom cache, wich save their data to mongodb.
+   - dev-shiyanov-training-elk — added ELK stack to the application.
+   - dev-shiyanov-training-poi — wrote exports date from db to .xls and .pdf with help Apache POI and iTextPdf.
+   - dev-shiyanov-rabbitmq - added sending currencies to rabbitmq.
 

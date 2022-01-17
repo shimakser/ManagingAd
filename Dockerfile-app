@@ -10,4 +10,4 @@ ENV JAR_FILE_NAME="managingad.jar"
 EXPOSE 8080
 RUN mkdir /app
 COPY --from=builder ManagingAd/services/application/target/$JAR_FILE_NAME /app/$JAR_FILE_NAME
-ENTRYPOINT ["java", "-jar","/services/app/managingad.jar"]
+ENTRYPOINT ["java", "-jar","/app/managingad.jar"]

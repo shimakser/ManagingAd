@@ -5,7 +5,7 @@ RUN chmod +x mvnw && ./mvnw package -DskipTests
 
 FROM openjdk:11
 ENV JAR_FILE_NAME="offices.jar"
-EXPOSE 8081
+EXPOSE 8082
 RUN mkdir /offices
 COPY --from=builder ManagingAd/services/offices/target/$JAR_FILE_NAME /offices/$JAR_FILE_NAME
-ENTRYPOINT ["java", "-jar","/services/offices/offices.jar"]
+ENTRYPOINT ["java", "-jar","/offices/offices.jar"]

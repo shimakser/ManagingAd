@@ -1,0 +1,11 @@
+FROM openjdk:11 as builder
+COPY . /ManagingAd
+WORKDIR /ManagingAd
+RUN chmod +x mvnw && ./mvnw package -DskipTests
+
+FROM openjdk:11
+ENV JAR_FILE_NAME="listener.jar"
+EXPOSE 8083
+RUN mkdir /listener
+COPY --from=builder ManagingAd/services/listener/target/$JAR_FILE_NAME /listener/$JAR_FILE_NAME
+ENTRYPOINT ["java", "-jar","/listener/listener.jar"]
