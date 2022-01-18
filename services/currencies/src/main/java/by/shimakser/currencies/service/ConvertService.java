@@ -23,6 +23,7 @@ public class ConvertService {
         return currencies.getValute().values()
                 .stream()
                 .filter(currency -> currency.getId().equals(id))
-                .findFirst().orElseThrow(() -> new NoSuchElementException("Incorrect id: " + id));
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("Incorrect id: " + id));
     }
 }

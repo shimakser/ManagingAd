@@ -8,11 +8,10 @@
         <version>1.0-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
-
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>by.shimakser.currencies</groupId>
-    <artifactId>currencies</artifactId>
+    <groupId>by.shimakser.listener</groupId>
+    <artifactId>listener</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
@@ -31,6 +30,11 @@
             <artifactId>rabbitmq</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>by.shimakser.dto</groupId>
+            <artifactId>dto</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
 
         <!--Starters-->
         <dependency>
@@ -38,45 +42,10 @@
             <artifactId>spring-boot-starter-web</artifactId>
             <version>${spring.boot.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-rest</artifactId>
-            <version>${spring.boot.version}</version>
-        </dependency>
-
-        <!--Feign-->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
-            <version>3.0.4</version>
-        </dependency>
-
-        <!--Lombok-->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.20</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!--DB-->
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongo-java-driver</artifactId>
-            <version>3.12.10</version>
-        </dependency>
-
-        <!--JPA-->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-mongodb</artifactId>
-            <version>${spring.boot.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
-        <finalName>currencies</finalName>
-
+        <finalName>listener</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -90,5 +59,7 @@
                 <version>3.5.1</version>
             </plugin>
         </plugins>
+
     </build>
+
 </project>

@@ -20,7 +20,7 @@ services:
       ELASTIC_PASSWORD: changeme
       discovery.type: single-node
     networks:
-      - elk
+      - network
 
   logstash:
     container_name: logstash
@@ -46,7 +46,7 @@ services:
       - "5000:5000/udp"
       - "9600:9600"
     networks:
-      - elk
+      - network
     depends_on:
       - elasticsearch
 
@@ -61,7 +61,7 @@ services:
     ports:
       - "5601:5601"
     networks:
-      - elk
+      - network
     depends_on:
       - elasticsearch
 
@@ -74,6 +74,8 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - network
 
   broker:
     image: confluentinc/cp-kafka:6.2.1
@@ -96,6 +98,17 @@ services:
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_JMX_PORT: 9101
       KAFKA_JMX_HOSTNAME: localhost
+    networks:
+      - network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - network
 
   postgres:
     container_name: postgresdb
@@ -110,8 +123,10 @@ services:
       - zookeeper
       - broker
     restart: always
+    networks:
+      - network
 
-  mongo:
+  mongodb:
     container_name: mongodb
     image: mongo:4.2.17
     ports:
@@ -122,10 +137,12 @@ services:
     depends_on:
       - postgres
     restart: always
+    networks:
+      - network
 
   app:
     container_name: managingad
-    image: services/application-app
+    image: application-app
     build:
       context: .
       dockerfile: Dockerfile-app
@@ -136,7 +153,7 @@ services:
       POSTGRES_PASSWORD: root
       POSTGRES_HOST: postgresdb
       POSTGRES_PORT: 5432
-      MONGO_HOST: mongo
+      MONGO_HOST: mongodb
       MONGO_PORT: 27017
       DB: ManagingAd
       KAFKA_PORT: 29092
@@ -147,11 +164,13 @@ services:
       - log:/managingad/log
     depends_on:
       - postgres
-      - mongo
+      - mongodb
+    networks:
+      - network
 
   currencies:
     container_name: currencies
-    image: services/currencies-app
+    image: currencies-app
     build:
       context: .
       dockerfile: Dockerfile-currencies
@@ -159,8 +178,18 @@ services:
       - "8081:8081"
     environment:
       CURRENCIES_URL: www.cbr-xml-daily.ru/daily_json.js
+      MONGO_HOST: mongodb
+      MONGO_PORT: 27017
+      DB: ManagingAd
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: guest
+      RABBITMQ_PASSWORD: guest
     depends_on:
-      - app
+      - rabbitmq
+      - mongodb
+    networks:
+      - network
 
   offices:
     container_name: offices
@@ -178,9 +207,30 @@ services:
       DB: ManagingAd
     depends_on:
       - app
+    networks:
+      - network
+
+  listener:
+    container_name: listener
+    image: listener-app
+    build:
+      context: .
+      dockerfile: Dockerfile-listener
+    ports:
+      - "8083:8083"
+    environment:
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USERNAME: guest
+      RABBITMQ_PASSWORD: guest
+    depends_on:
+      - rabbitmq
+      - currencies
+    networks:
+      - network
 
 networks:
-  elk:
+  network:
     driver: bridge
 
 volumes:

@@ -10,3 +10,9 @@ spring:
       host: ${MONGO_HOST}
       port: ${MONGO_PORT}
       database: ${DB}
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}

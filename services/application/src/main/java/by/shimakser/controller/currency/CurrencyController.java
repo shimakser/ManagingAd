@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping
+@RequestMapping("/currency")
 public class CurrencyController {
 
     private final CurrencyService currencyService;
@@ -21,12 +21,12 @@ public class CurrencyController {
         this.currencyService = currencyService;
     }
 
-    @GetMapping("/currency")
+    @GetMapping
     public List<Currency> getChosenCurrenciesFromCustomExternalService() {
         return currencyService.getChosenCurrencies();
     }
 
-    @GetMapping("/currency/{id}")
+    @GetMapping("/{id}")
     public Currency getCurrencyByIdFromCustomExternalService(@PathVariable String id) {
         return currencyService.getCurrency(id);
     }
