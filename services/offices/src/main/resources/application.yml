@@ -7,3 +7,12 @@ spring:
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
+
+  flyway:
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${DB}
+    user: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    locations: classpath:db/migration
+
+  jpa:
+    open-in-view: true

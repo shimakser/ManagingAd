@@ -26,6 +26,7 @@
         <module>libs/feign</module>
         <module>libs/kafka</module>
         <module>libs/rabbit</module>
+        <module>libs/migration</module>
     </modules>
 
     <properties>

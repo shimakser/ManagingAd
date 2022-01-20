@@ -24,6 +24,7 @@
         <itextpdf.version>5.5.13.2</itextpdf.version>
         <openhtmltopdf.version>1.0.6</openhtmltopdf.version>
         <apachepoi.version>5.0.0</apachepoi.version>
+        <org.flywaydb>8.0.3</org.flywaydb>
     </properties>
 
     <dependencies>
@@ -46,8 +47,13 @@
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>${org.flywaydb}</version>
+        </dependency>
 
-        <!--JPA-->
+        <!--Data-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>

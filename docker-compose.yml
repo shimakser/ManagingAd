@@ -118,7 +118,6 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root
-      POSTGRES_DB: ManagingAd
     depends_on:
       - zookeeper
       - broker
@@ -193,7 +192,7 @@ services:
 
   offices:
     container_name: offices
-    image: services/offices-app
+    image: offices-app
     build:
       context: .
       dockerfile: Dockerfile-offices
@@ -204,9 +203,9 @@ services:
       POSTGRES_PASSWORD: root
       POSTGRES_HOST: postgresdb
       POSTGRES_PORT: 5432
-      DB: ManagingAd
+      DB: Offices
     depends_on:
-      - app
+      - postgres
     networks:
       - network
 
@@ -226,6 +225,25 @@ services:
     depends_on:
       - rabbitmq
       - currencies
+    networks:
+      - network
+
+  dictionary:
+    container_name: dictionary
+    image: dictionary-app
+    build:
+      context: .
+      dockerfile: Dockerfile-dictionary
+    ports:
+      - "8084:8084"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_HOST: postgresdb
+      POSTGRES_PORT: 5432
+      DB: Dictionary
+    depends_on:
+      - postgres
     networks:
       - network
 
