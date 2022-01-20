@@ -1,13 +1,13 @@
 package by.shimakser.redis.repository;
 
-import by.shimakser.redis.model.CurrencyTranslation;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import by.shimakser.redis.model.EntityTranslation;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface TranslationRepository extends MongoRepository<CurrencyTranslation, Long> {
+public interface TranslationRepository extends JpaRepository<EntityTranslation, Long> {
 
-    Optional<CurrencyTranslation> findCurrencyTranslationByCharCode(String charCode);
+    Optional<EntityTranslation> findEntityTranslationByEntityNameAndLanguage(String entity, String language);
 }
