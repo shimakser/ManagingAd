@@ -1,0 +1,27 @@
+server:
+  port: 8084
+
+spring:
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+    flyway:
+      url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${DB}
+      user: ${POSTGRES_USER}
+      password: ${POSTGRES_PASSWORD}
+      locations: classpath:db/migration
+
+  cache:
+    type: redis
+    cache-names: translationCache
+    redis:
+      cache-null-values: false
+      time-to-live: 60000
+      use-key-prefix: true
+
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
