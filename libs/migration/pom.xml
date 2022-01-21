@@ -38,28 +38,4 @@
             <version>${org.flywaydb}</version>
         </dependency>
     </dependencies>
-
-    <build>
-        <finalName>migration</finalName>
-
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-            </resource>
-        </resources>
-
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring.boot.version}</version>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.5.1</version>
-            </plugin>
-        </plugins>
-    </build>
 </project>

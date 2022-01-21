@@ -17,7 +17,7 @@ public class RedisCacheConfig {
     @Bean
     public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer() {
         return builder -> builder
-                .withCacheConfiguration("translationCache",
+                .withCacheConfiguration("${spring.cache.cache-names}",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(1)));
     }
 

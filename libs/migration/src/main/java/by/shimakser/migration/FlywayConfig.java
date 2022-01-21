@@ -12,6 +12,7 @@ import javax.sql.DataSource;
 public class FlywayConfig {
 
     private static final String MIGRATIONS_LOCATION = "db/external/migration";
+    private static final String DEFAULT_MIGRATIONS_LOCATION = "db/migration";
     private static final String FLYWAY_TABLE = "flyway_schema_history_external";
 
     private final DataSource dataSource;
@@ -26,7 +27,7 @@ public class FlywayConfig {
         return Flyway
                 .configure()
                 .dataSource(dataSource)
-                .locations(MIGRATIONS_LOCATION)
+                .locations(MIGRATIONS_LOCATION, DEFAULT_MIGRATIONS_LOCATION)
                 .table(FLYWAY_TABLE)
                 .baselineOnMigrate(true)
                 .baselineVersion("0.0.0")

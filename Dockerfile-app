@@ -1,7 +1,7 @@
 FROM openjdk:11 as builder
 COPY . /ManagingAd
-WORKDIR /ManagingAd/services/application/src/main/resources/keystore
-RUN keytool -genkeypair -dname "CN=test, OU=test, O=test, L=test, S=test, C=test" -alias managingad -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore managingad.p12 -keypass password -storepass password -validity 3650
+#WORKDIR /ManagingAd/services/application/src/main/resources/keystore
+#RUN keytool -genkeypair -dname "CN=test, OU=test, O=test, L=test, S=test, C=test" -alias managingad -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore managingad.p12 -keypass password -storepass password -validity 3650
 WORKDIR /ManagingAd
 RUN chmod +x mvnw && ./mvnw package -DskipTests
 
