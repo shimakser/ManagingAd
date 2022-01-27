@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: ${PORT}
   servlet:
     context-path: /managingad
   ssl:
@@ -56,7 +56,9 @@ spring:
 feign:
   application-url: ${CURRENCIES_HOST}:${CURRENCIES_PORT}/currencies
 
-jwt:
-  token:
-    secret: shimakser
-    expired: 3600000
+keycloak:
+  realm: ${KEYCLOAK_REALM}
+  resource: ${KEYCLOAK_RESOURCE}
+  auth-server-url: ${KEYCLOAK_SERVER}
+  credentials:
+    secret: ${KEYCLOAK_SECRET}

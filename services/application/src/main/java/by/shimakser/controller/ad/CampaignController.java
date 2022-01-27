@@ -66,13 +66,13 @@ public class CampaignController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAuthority('user:write')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping(value = "/deleted/{id}")
     public CampaignDto getDeletedCampaignById(@PathVariable Long id) {
         return campaignMapper.mapToDto(campaignService.getDeletedCampaign(id));
     }
 
-    @PreAuthorize("hasAuthority('user:write')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping(value = "/deleted")
     public List<CampaignDto> getAllDeletedCampaigns() {
         return campaignMapper.mapToListDto(campaignService.getDeletedCampaigns());

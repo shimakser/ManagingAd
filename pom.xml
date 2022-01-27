@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.5.1</version>
+        <version>2.4.2</version>
     </parent>
 
     <groupId>by.shimakser</groupId>
@@ -25,8 +25,9 @@
         <module>libs/dto</module>
         <module>libs/feign</module>
         <module>libs/kafka</module>
-        <module>libs/rabbit</module>
+        <module>libs/rabbitmq</module>
         <module>libs/migration</module>
+        <module>libs/keycloak</module>
     </modules>
 
     <properties>
