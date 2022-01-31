@@ -58,10 +58,14 @@ spring:
       client:
         provider:
           keycloak:
-            token-uri: ${KEYCLOAK_ISSUER}/token
-            authorization-uri: ${KEYCLOAK_ISSUER}/auth
-            user-info-uri: ${KEYCLOAK_ISSUER}/userinfo
-            jwk-set-uri: ${KEYCLOAK_ISSUER}/certs
+            username: ${KEYCLOAK_USERNAME}
+            password: ${KEYCLOAK_PASSWORD}
+            server: ${KEYCLOAK_SERVER}
+
+            token-uri: ${KEYCLOAK_SERVER}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token
+            authorization-uri: ${KEYCLOAK_SERVER}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/auth
+            user-info-uri: ${KEYCLOAK_SERVER}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/userinfo
+            jwk-set-uri: ${KEYCLOAK_SERVER}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/certs
             user-name-attribute: preferred_username
         registration:
           managingad-app:
@@ -69,8 +73,7 @@ spring:
             client-id: ${KEYCLOAK_CLIENT}
             client-secret: ${KEYCLOAK_SECRET}
             authorization-grant-type: authorization_code
-            redirect-uri: "{baseUrl}/login/oauth2/code/keycloak"
-            scope: openid
+            redirect-uri: "{baseUrl}/log
 
 feign:
   application-url: ${CURRENCIES_HOST}:${CURRENCIES_PORT}/currencies
