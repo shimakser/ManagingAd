@@ -1,6 +1,6 @@
 package by.shimakser.config;
 
-import by.shimakser.keycloak.config.SecurityConfig;
+import by.shimakser.keycloak.config.SecurityResourceConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -9,7 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 
-@Import(SecurityConfig.class)
+@Import(SecurityResourceConfig.class)
 @Configuration
 @EnableTransactionManagement
 public class WebSecurityConfig {

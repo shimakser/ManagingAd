@@ -53,27 +53,5 @@ spring:
     collection-name: Currency
     cache-name: currency
 
-  security:
-    oauth2:
-      client:
-        provider:
-          keycloak:
-            username: ${KEYCLOAK_USERNAME}
-            password: ${KEYCLOAK_PASSWORD}
-            server: ${KEYCLOAK_SERVER}
-
-            token-uri: ${KEYCLOAK_SERVER}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token
-            authorization-uri: ${KEYCLOAK_SERVER}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/auth
-            user-info-uri: ${KEYCLOAK_SERVER}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/userinfo
-            jwk-set-uri: ${KEYCLOAK_SERVER}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/certs
-            user-name-attribute: preferred_username
-        registration:
-          managingad-app:
-            provider: keycloak
-            client-id: ${KEYCLOAK_CLIENT}
-            client-secret: ${KEYCLOAK_SECRET}
-            authorization-grant-type: authorization_code
-            redirect-uri: "{baseUrl}/log
-
 feign:
   application-url: ${CURRENCIES_HOST}:${CURRENCIES_PORT}/currencies

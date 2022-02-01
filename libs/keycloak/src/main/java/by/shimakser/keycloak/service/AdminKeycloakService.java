@@ -4,28 +4,31 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.representations.idm.ClientRepresentation;
 import org.keycloak.representations.idm.RoleRepresentation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
 import javax.ws.rs.NotFoundException;
 import java.util.List;
 
 @Service
+@PropertySource(value = {"classpath:application-keycloak.yml"})
 public class AdminKeycloakService {
 
-    private static final String KEYCLOAK_USERNAME = System.getenv("KEYCLOAK_USERNAME");
-    private static final String KEYCLOAK_PASSWORD = System.getenv("KEYCLOAK_PASSWORD");
-    private static final String KEYCLOAK_SERVER = System.getenv("KEYCLOAK_SERVER");
-    private static final String KEYCLOAK_REALM = System.getenv("KEYCLOAK_REALM");
-    private static final String KEYCLOAK_CLIENT = System.getenv("KEYCLOAK_CLIENT");
+    @Autowired
+    private Keycloak keycloak;
 
-    private final Keycloak keycloak = Keycloak.getInstance(KEYCLOAK_SERVER,
-            "master", KEYCLOAK_USERNAME, KEYCLOAK_PASSWORD, "admin-cli");
+    @Value("${spring.security.oauth2.client.provider.keycloak.realm}")
+    private String keycloakRealm;
+    @Value("${spring.security.oauth2.client.registration.managingad-app.client-id}")
+    private String keycloakClient;
 
     public List<RoleRepresentation> getClientRoles() {
-        RealmResource realm = keycloak.realm(KEYCLOAK_REALM);
+        RealmResource realm = keycloak.realm(keycloakRealm);
         return realm.clients().findAll()
                 .stream()
-                .filter(clientRepresentation -> clientRepresentation.getClientId().equals(KEYCLOAK_CLIENT))
+                .filter(clientRepresentation -> clientRepresentation.getClientId().equals(keycloakClient))
                 .findAny()
                 .map(ClientRepresentation::getId)
                 .map(id -> realm.clients().get(id))

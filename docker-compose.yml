@@ -193,9 +193,12 @@ services:
       KAFKA_HOST: broker
       CURRENCIES_HOST: currencies
       CURRENCIES_PORT: 8081
+      KEYCLOAK_REALM: SpringBootKeycloak
       KEYCLOAK_CLIENT: managingad-app
-      KEYCLOAK_SERVER: http://localhost:9000/auth/realms/SpringBootKeycloak/protocol/openid-connect
+      KEYCLOAK_SERVER: http://localhost:9000/auth
       KEYCLOAK_SECRET: 16NaIfpxQ7BWZ5yGhn5BK1AWs3YtdVAt
+      KEYCLOAK_USERNAME: root
+      KEYCLOAK_PASSWORD: root
     volumes:
       - log:/managingad/log
     depends_on:
