@@ -3,12 +3,16 @@ server:
   servlet:
     context-path: /managingad
   ssl:
-  # keytool -genkeypair -dname "CN=test, OU=test, O=test, L=test, S=test, C=test" -alias managingad -keyalg RSA -keysize 2048 -storetype PKCS12 -keystore managingad.p12 -keypass password -storepass password -validity 3650
     enabled: true
+    protocol: TLS
+    enabled-protocols: TLSv1.2
     key-store-type: PKCS12
-    key-store: classpath:keystore/managingad.p12
+    key-store: classpath:keystore/Server-keystore.p12
     key-store-password: password
-    key-alias: managingad
+    client-auth: need
+    trust-store-type: PKCS12
+    trust-store: classpath:keystore/Server-truststore.p12
+    trust-store-password: password
 
 spring:
   datasource:
