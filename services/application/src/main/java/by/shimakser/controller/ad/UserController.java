@@ -51,7 +51,7 @@ public class UserController {
         return userMapper.mapToDto(userService.get(id));
     }
 
-    @PreAuthorize("hasAuthority('user:write')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
     public List<UserDto> getAllUsers(
             @RequestParam Optional<Integer> page,
@@ -71,7 +71,7 @@ public class UserController {
         return userMapper.mapToDto(userService.update(id, user, principal));
     }
 
-    @PreAuthorize("hasAuthority('user:write')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<HttpStatus> deleteUserById(@PathVariable("id") Long id) {
         userService.delete(id);
@@ -79,13 +79,13 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PreAuthorize("hasAuthority('user:write')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping(value = "/deleted/{id}")
     public UserDto getDeletedUserById(@PathVariable Long id) {
         return userMapper.mapToDto(userService.getDeletedUser(id));
     }
 
-    @PreAuthorize("hasAuthority('user:write')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping(value = "/deleted")
     public List<UserDto> getAllDeletedUsers() {
         return userMapper.mapToListDto(userService.getDeletedUsers());

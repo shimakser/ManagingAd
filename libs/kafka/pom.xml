@@ -22,6 +22,13 @@
     </properties>
 
     <dependencies>
+        <!--Module-->
+        <dependency>
+            <groupId>by.shimakser.dto</groupId>
+            <artifactId>dto</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
         <!--Kafka-->
         <dependency>
             <groupId>org.springframework.kafka</groupId>
@@ -31,13 +38,6 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-        </dependency>
-
-        <!--Module-->
-        <dependency>
-            <groupId>by.shimakser.feign</groupId>
-            <artifactId>feign</artifactId>
-            <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>

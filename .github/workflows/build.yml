@@ -2,9 +2,9 @@ name: Pre-release
 
 on:
   push:
-    branches: [ dev-shiyanov-training ]
+    branches: [ dev-training ]
   pull_request:
-    branches: [ dev-shiyanov-training ]
+    branches: [ dev-training ]
 
   workflow_dispatch:
 

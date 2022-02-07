@@ -25,8 +25,9 @@
         <module>libs/dto</module>
         <module>libs/feign</module>
         <module>libs/kafka</module>
-        <module>libs/rabbit</module>
+        <module>libs/rabbitmq</module>
         <module>libs/migration</module>
+        <module>libs/keycloak</module>
     </modules>
 
     <properties>

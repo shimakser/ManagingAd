@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>ManagingAd</artifactId>
+        <groupId>by.shimakser</groupId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>by.shimakser.keycloak</groupId>
+    <artifactId>keycloak</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+
+        <spring.boot.version>2.5.1</spring.boot.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>${spring.boot.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+            <version>${spring.boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+            <version>${spring.boot.version}</version>
+        </dependency>
+
+        <!--Keycloak Admin Client-->
+        <dependency>
+            <groupId>org.keycloak</groupId>
+            <artifactId>keycloak-admin-client</artifactId>
+            <version>16.1.1</version>
+        </dependency>
+
+        <!--Resource-server-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+            <version>${spring.boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-oauth2-jose</artifactId>
+        </dependency>
+    </dependencies>
+</project>

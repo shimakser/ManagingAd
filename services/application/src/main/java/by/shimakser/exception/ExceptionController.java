@@ -50,10 +50,4 @@ public class ExceptionController {
         ExceptionMessage response = new ExceptionMessage(e.getMessage());
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
-
-    @ExceptionHandler(JwtAuthenticationException.class)
-    public ResponseEntity<ExceptionMessage> handleJwtAuthenticationException(JwtAuthenticationException e) {
-        ExceptionMessage response = new ExceptionMessage(e.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
-    }
 }

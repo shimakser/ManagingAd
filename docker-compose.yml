@@ -113,7 +113,7 @@ services:
     networks:
       - network
 
-# databases
+#databases
   postgres:
     container_name: postgresdb
     image: postgres:14
@@ -124,7 +124,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root
-      POSTGRES_MULTIPLE_DATABASES: managingad,offices,dictionary
+      POSTGRES_MULTIPLE_DATABASES: managingad,offices,dictionary,keycloak_db
     restart: always
     networks:
       - network
@@ -141,6 +141,25 @@ services:
     networks:
       - network
 
+#keycloak
+  keycloak:
+    image: jboss/keycloak
+    container_name: keycloak
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak_db
+      DB_USER: postgres
+      DB_PASSWORD: root
+      KEYCLOAK_USER: root
+      KEYCLOAK_PASSWORD: root
+    ports:
+      - "9000:8080"
+    depends_on:
+      - postgres
+    networks:
+      - network
+
 #cache
   redis:
     image: redis
@@ -152,7 +171,7 @@ services:
     networks:
       - network
 
-# applications
+#applications
   app:
     container_name: managingad
     image: application-app
@@ -162,6 +181,7 @@ services:
     ports:
       - "8080:8080"
     environment:
+      PORT: 8080
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root
       POSTGRES_HOST: postgresdb
@@ -173,10 +193,17 @@ services:
       KAFKA_HOST: broker
       CURRENCIES_HOST: currencies
       CURRENCIES_PORT: 8081
+      KEYCLOAK_REALM: SpringBootKeycloak
+      KEYCLOAK_CLIENT: managingad-app
+      KEYCLOAK_SERVER: http://localhost:9000/auth
+      KEYCLOAK_SECRET: 16NaIfpxQ7BWZ5yGhn5BK1AWs3YtdVAt
+      KEYCLOAK_USERNAME: root
+      KEYCLOAK_PASSWORD: root
     volumes:
       - log:/managingad/log
     depends_on:
       - postgres
+      - keycloak
       - mongodb
       - broker
     networks:
@@ -191,6 +218,7 @@ services:
     ports:
       - "8081:8081"
     environment:
+      PORT: 8081
       CURRENCIES_URL: www.cbr-xml-daily.ru/daily_json.js
       MONGO_HOST: mongodb
       MONGO_PORT: 27017
@@ -214,6 +242,7 @@ services:
     ports:
       - "8082:8082"
     environment:
+      PORT: 8082
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root
       POSTGRES_HOST: postgresdb
@@ -233,6 +262,7 @@ services:
     ports:
       - "8083:8083"
     environment:
+      PORT: 8083
       RABBITMQ_HOST: rabbitmq
       RABBITMQ_PORT: 5672
       RABBITMQ_USERNAME: guest
@@ -252,6 +282,7 @@ services:
     ports:
       - "8084:8084"
     environment:
+      PORT: 8084
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root
       POSTGRES_HOST: postgresdb

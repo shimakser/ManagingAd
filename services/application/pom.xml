@@ -21,7 +21,7 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
 
-        <spring.boot.version>2.5.5</spring.boot.version>
+        <spring.boot.version>2.5.1</spring.boot.version>
         <org.flywaydb>8.0.3</org.flywaydb>
         <org.testcontainers>1.16.2</org.testcontainers>
     </properties>
@@ -31,6 +31,16 @@
         <dependency>
             <groupId>by.shimakser.kafka</groupId>
             <artifactId>kafka</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>by.shimakser.feign</groupId>
+            <artifactId>feign</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>by.shimakser.keycloak</groupId>
+            <artifactId>keycloak</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
@@ -74,18 +84,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-rest</artifactId>
             <version>${spring.boot.version}</version>
-        </dependency>
-
-        <!--Security-->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-            <version>${spring.boot.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt</artifactId>
-            <version>0.9.1</version>
         </dependency>
 
         <!--Cache-->
@@ -146,12 +144,6 @@
         <finalName>managingad</finalName>
 
         <plugins>
-            <!--Flyway-->
-            <plugin>
-                <groupId>org.flywaydb</groupId>
-                <artifactId>flyway-maven-plugin</artifactId>
-                <version>${org.flywaydb}</version>
-            </plugin>
 
             <plugin>
                 <groupId>org.springframework.boot</groupId>
