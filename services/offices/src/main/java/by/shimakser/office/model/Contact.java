@@ -7,8 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-@Getter
-@Setter
+@Data
 @ToString(includeFieldNames = false)
 @AllArgsConstructor
 @NoArgsConstructor

@@ -40,7 +40,7 @@ class BaseExportXlsServiceTest {
     }
 
     @Test
-    void exportToFile_WithNotCorrectRequest() {
+    void exportToFile_WithIncorrectRequest() {
         ExportRequest contactRequest = new ExportRequest(FileType.XLS, EntityType.CONTACT);
 
         assertThrows(NoSuchElementException.class, () -> service.exportToFile(contactRequest));
