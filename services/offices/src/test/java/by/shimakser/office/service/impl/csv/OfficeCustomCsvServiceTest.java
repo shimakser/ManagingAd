@@ -4,10 +4,10 @@ import by.shimakser.office.model.Contact;
 import by.shimakser.office.model.ExportRequest;
 import by.shimakser.office.model.Office;
 import by.shimakser.office.repository.OfficeRepository;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
@@ -15,8 +15,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.BDDMockito.given;
 
 @SpringBootTest
 class OfficeCustomCsvServiceTest {
@@ -27,16 +27,13 @@ class OfficeCustomCsvServiceTest {
     @InjectMocks
     private OfficeCustomCsvService officeCustomCsvService;
 
-    private Office office;
-
     @Test
     void containsCorrectDataAfterExport() throws IOException {
-        office = new Office(1L, "title", "address", 1D,
+        Office office = new Office(1L, "title", "address", 1D,
                 Collections.emptyList(), "{}");
         String exportedOffice = "Office(1, title, address, 1.0, [], {})\n";
-        Mockito.when(officeRepository.findAll()).thenReturn(List.of(office));
 
-        assertDoesNotThrow(() -> officeCustomCsvService.exportToFile(new ExportRequest()));
+        given(officeRepository.findAll()).willReturn(List.of(office));
 
         byte[] exportsBytes = officeCustomCsvService.exportToFile(new ExportRequest());
         String exportsBytesToString = new String(exportsBytes, StandardCharsets.UTF_8);
@@ -53,13 +50,13 @@ class OfficeCustomCsvServiceTest {
         Contact firstOutputContact = new Contact(1L, "+375123456789", "test1", "test1");
         Contact secondOutputContact = new Contact(2L, "+375987654321", "test2", "test2");
 
-        assertDoesNotThrow(() -> officeCustomCsvService.contactConverterForImport(emptyInput));
-        assertDoesNotThrow(() -> officeCustomCsvService.contactConverterForImport(inputContact));
-        assertDoesNotThrow(() -> officeCustomCsvService.contactConverterForImport(inputContacts));
+        List<Contact> emptyContactsList = officeCustomCsvService.contactConverterForImport(emptyInput);
+        List<Contact> oneContactList = officeCustomCsvService.contactConverterForImport(inputContact);
+        List<Contact> contactsList = officeCustomCsvService.contactConverterForImport(inputContacts);
 
-        assertEquals(officeCustomCsvService.contactConverterForImport(emptyInput), Collections.emptyList());
-        assertEquals(officeCustomCsvService.contactConverterForImport(inputContact), List.of(firstOutputContact));
-        assertEquals(officeCustomCsvService.contactConverterForImport(inputContacts), List.of(firstOutputContact, secondOutputContact));
+        assertEquals(emptyContactsList, Collections.emptyList());
+        assertEquals(oneContactList, List.of(firstOutputContact));
+        assertEquals(contactsList, List.of(firstOutputContact, secondOutputContact));
     }
 
     @Test
@@ -67,10 +64,10 @@ class OfficeCustomCsvServiceTest {
         String emptyDescription = "null";
         String description = "{\"1\":\"description\"}";
 
-        assertDoesNotThrow(() -> officeCustomCsvService.jsonConvertForImport(emptyDescription));
-        assertDoesNotThrow(() -> officeCustomCsvService.jsonConvertForImport(description));
+        JSONObject emptyJsonObject = officeCustomCsvService.jsonConvertForImport(emptyDescription);
+        JSONObject jsonObject = officeCustomCsvService.jsonConvertForImport(description);
 
-        assertEquals(officeCustomCsvService.jsonConvertForImport(emptyDescription).toString(), "{}");
-        assertEquals(officeCustomCsvService.jsonConvertForImport(description).toString(), description);
+        assertEquals(emptyJsonObject.toString(), "{}");
+        assertEquals(jsonObject.toString(), description);
     }
 }

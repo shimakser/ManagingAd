@@ -1,7 +1,6 @@
 package by.shimakser.office.service.dispatcher;
 
 import by.shimakser.office.model.EntityType;
-import by.shimakser.office.model.ExportRequest;
 import by.shimakser.office.model.FileType;
 import by.shimakser.office.service.ExportService;
 import by.shimakser.office.service.impl.pdf.ExportOfficePdfService;
@@ -13,7 +12,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.NoSuchElementException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 class DispatcherTest {
@@ -31,16 +31,11 @@ class DispatcherTest {
         assertEquals(xlsOfficeService.getClass(), ExportOfficeXlsService.class);
         assertEquals(xlsContactService.getClass(), ExportContactXlsService.class);
         assertEquals(pdfOfficeService.getClass(), ExportOfficePdfService.class);
-
-        assertDoesNotThrow(() -> dispatcher.getByEntityAndExportType(EntityType.OFFICE, FileType.XLS)
-                .exportToFile(new ExportRequest(FileType.XLS, EntityType.OFFICE)));
-        assertDoesNotThrow(() -> dispatcher.getByEntityAndExportType(EntityType.OFFICE, FileType.PDF)
-                .exportToFile(new ExportRequest(FileType.PDF, EntityType.OFFICE)));
-        assertDoesNotThrow(() -> dispatcher.getByEntityAndExportType(EntityType.CONTACT, FileType.XLS));
     }
 
     @Test
     void getByEntityAndExportType_WithNotCorrectArguments() {
-        assertThrows(NoSuchElementException.class, () -> dispatcher.getByEntityAndExportType(EntityType.CONTACT, FileType.PDF));
+        assertThrows(NoSuchElementException.class,
+                () -> dispatcher.getByEntityAndExportType(EntityType.CONTACT, FileType.PDF));
     }
 }

@@ -7,7 +7,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,26 +16,24 @@ import java.io.IOException;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.BDDMockito.given;
 
 @SpringBootTest
 class BaseExportXlsServiceTest {
 
     @Autowired
-    BaseExportXlsService<Office> service;
+    private BaseExportXlsService<Office> service;
 
     @Mock
-    JpaRepository<Office, Long> repository;
+    private JpaRepository<Office, Long> repository;
 
-    ExportRequest officeRequest = new ExportRequest(FileType.XLS, EntityType.OFFICE);
+    private static final ExportRequest EXPORT_REQUEST = new ExportRequest(FileType.XLS, EntityType.OFFICE);
 
     @Test
     void exportToFile_WithCorrectRequest() throws IOException {
+        byte[] exportBytes = service.exportToFile(EXPORT_REQUEST);
 
-        assertDoesNotThrow(() -> service.exportToFile(officeRequest));
-
-        assertNotNull(service.exportToFile(officeRequest));
-
-        assertEquals(service.exportToFile(officeRequest).getClass(), byte[].class);
+        assertEquals(exportBytes.getClass(), byte[].class);
     }
 
     @Test
@@ -54,7 +51,8 @@ class BaseExportXlsServiceTest {
                 return EntityType.OFFICE;
             }
         };
-        Mockito.when(repository.findAll()).thenReturn(Collections.emptyList());
+
+        given(repository.findAll()).willReturn(Collections.emptyList());
 
         assertEquals(Collections.emptyList(), emptyListService.getDataToExport());
     }
@@ -72,8 +70,9 @@ class BaseExportXlsServiceTest {
         Office testOffice = new Office(1L, "testTitle", "testAddress", 55.5,
                 List.of(testContact), "testDescriptions");
 
-        Mockito.when(repository.findAll()).thenReturn(List.of(testOffice));
-        byte[] exportsBytes = emptyListService.exportToFile(officeRequest);
+        given(repository.findAll()).willReturn(List.of(testOffice));
+
+        byte[] exportsBytes = emptyListService.exportToFile(EXPORT_REQUEST);
 
         ByteArrayInputStream bais = new ByteArrayInputStream(exportsBytes);
         Workbook workbook = new XSSFWorkbook(bais);
@@ -87,9 +86,8 @@ class BaseExportXlsServiceTest {
 
         String exportInfo = sheet.getRow(8).getCell(1).getStringCellValue();
 
-
         assertNotEquals(cellValues.get(0), testOffice.getId().toString());
-        assertEquals(exportInfo, officeRequest.getFileType().getFileTitle());
+        assertEquals(exportInfo, EXPORT_REQUEST.getFileType().getFileTitle());
 
         assertEquals(cellValues.get(0), testOffice.getOfficeTitle());
         assertEquals(cellValues.get(7), testOffice.getOfficeDescription());

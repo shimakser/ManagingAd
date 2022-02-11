@@ -7,25 +7,34 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import javax.persistence.EntityNotFoundException;
 import java.rmi.AlreadyBoundException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.BDDMockito.*;
 
 @Testcontainers
 @SpringBootTest
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UserServiceContainerTest {
 
-    @Autowired
+    @Mock
     private UserRepository userRepository;
-    @Autowired
+    @Mock
+    private PasswordEncoder bCryptPasswordEncoder;
+
+    @InjectMocks
     private UserService userService;
 
     @Container
@@ -35,60 +44,102 @@ public class UserServiceContainerTest {
                     .withUsername("${spring.datasource.username}")
                     .withPassword("${spring.datasource.password}");
 
-    private User user = new User(4L, "user", "mail", "pw", Role.USER, Boolean.FALSE);;
+    private static final User USER = new User(4L, "user", "mail", "pw", Role.USER, Boolean.FALSE);
+    private static final Long USER_ID = USER.getId();
 
     @Order(1)
     @Test
     void isRunning() {
         assertTrue(postgreSQLContainer.isRunning());
 
-        assertNotNull(userRepository);
         assertNotNull(userService);
+        assertNotNull(userRepository);
     }
 
-    @Order(2)
     @Test
-    void add() {
-        userRepository.delete(user);
+    void add() throws AlreadyBoundException {
+        given(userRepository.existsUserByUserEmail(USER.getUserEmail()))
+                .willReturn(false);
+        given(userRepository.save(USER))
+                .willReturn(USER);
 
-        assertDoesNotThrow(() -> userService.add(user));
-        assertEquals(userService.get(4L), user);
+        User addedUser = userService.add(USER);
+
+        then(userRepository)
+                .should()
+                .save(USER);
+        then(userRepository)
+                .should()
+                .existsUserByUserEmail(USER.getUserEmail());
+        assertEquals(USER, addedUser);
     }
 
-    @Order(3)
     @Test
     void add_WithExistMail() {
-        assertThrows(AlreadyBoundException.class, () -> userService.add(user));
+        given(userRepository.existsUserByUserEmail(USER.getUserEmail()))
+                .willReturn(true);
+
+        try {
+            userService.add(USER);
+        } catch (AlreadyBoundException e) {
+            e.printStackTrace();
+        }
+
+        assertThrows(AlreadyBoundException.class, () -> userService.add(USER));
+        then(userRepository)
+                .should(never())
+                .save(USER);
     }
 
-    @Order(4)
     @Test
     void get() {
-        assertDoesNotThrow(() -> userService.get(4L));
-        assertEquals(userService.get(4L).getUserEmail(), user.getUserEmail());
+        given(userRepository.findById(USER_ID))
+                .willReturn(Optional.of(USER));
+
+        User user = userService.get(USER_ID);
+
+        then(userRepository)
+                .should()
+                .findById(USER_ID);
+        assertEquals(USER, user);
     }
 
-    @Order(5)
     @Test
     void get_WithIncorrectId() {
-        assertThrows(EntityNotFoundException.class, () -> userService.get(5L));
+        Long incorrectId = 5L;
+
+        given(userRepository.findById(incorrectId))
+                .willReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class, () -> userService.get(incorrectId));
+        then(userRepository)
+                .should(never())
+                .save(USER);
     }
 
-    @Order(6)
     @Test
     void delete() {
-        assertDoesNotThrow(() -> userService.delete(4L));
+        given(userRepository.findById(USER_ID))
+                .willReturn(Optional.of(USER));
 
-        userService.delete(4L);
-        assertEquals(userRepository.findById(4L).get().isUserDeleted(), Boolean.TRUE);
+        userService.delete(USER_ID);
+
+        then(userRepository)
+                .should()
+                .save(USER);
+        assertEquals(Boolean.TRUE, USER.isUserDeleted());
     }
 
-    @Order(7)
     @Test
     void getDeletedUser() {
-        assertDoesNotThrow(() -> userService.getDeletedUser(4L));
+        given(userRepository.findByIdAndUserDeletedTrue(USER_ID))
+                .willReturn(Optional.of(USER));
 
-        assertEquals(userService.getDeletedUser(4L).isUserDeleted(), Boolean.TRUE);
-        userRepository.delete(user);
+        User deletedUser = userService.getDeletedUser(USER_ID);
+
+        then(userRepository)
+                .should()
+                .findByIdAndUserDeletedTrue(USER_ID);
+        assertEquals(USER, deletedUser);
     }
 }

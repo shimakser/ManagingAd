@@ -1,42 +1,46 @@
 package by.shimakser.currencies.service;
 
+import by.shimakser.currencies.feign.CurrenciesFeignClient;
 import by.shimakser.currencies.model.Currency;
+import by.shimakser.currencies.repository.CurrenciesRepository;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.ArrayList;
-import java.util.NoSuchElementException;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.never;
 
 @SpringBootTest
 class CurrenciesServiceTest {
 
-    @Autowired
-    CurrenciesService currenciesService;
+    @Mock
+    private CurrenciesRepository currenciesRepository;
+
+    @Mock
+    private CurrenciesFeignClient currenciesFeignClient;
+
+    @InjectMocks
+    private CurrenciesService currenciesService;
 
     @Test
     void getCurrencies() {
-        assertDoesNotThrow(() -> currenciesService.getCurrencies());
-        assertNotNull(currenciesService.getCurrencies());
-        assertEquals(currenciesService.getCurrencies().getClass(), ArrayList.class);
-    }
+        Currency currency = new Currency();
+        given(currenciesRepository.findAll())
+                .willReturn(List.of(currency));
 
-    @Test
-    void getCurrency() {
-        String currencyId = "R01235";
+        List<Currency> currencies = currenciesService.getCurrencies();
 
-        assertDoesNotThrow(() -> currenciesService.getCurrency(currencyId));
-        assertNotNull(currenciesService.getCurrency(currencyId));
-        assertEquals(currenciesService.getCurrency(currencyId).getClass(), Currency.class);
-    }
-
-    @Test
-    void getCurrency_WithIncorrectId() {
-        String currencyId = "R12345";
-
-        assertThrows(NoSuchElementException.class, () -> currenciesService.getCurrency(currencyId));
+        then(currenciesRepository)
+                .should()
+                .findAll();
+        then(currenciesFeignClient)
+                .should(never())
+                .getCurrencies();
+        assertEquals(currencies, List.of(currency));
     }
 }

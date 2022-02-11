@@ -2,7 +2,6 @@ package by.shimakser.currencies.service;
 
 import by.shimakser.currencies.model.Currencies;
 import by.shimakser.currencies.model.Currency;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,57 +15,47 @@ import static org.junit.jupiter.api.Assertions.*;
 class ConvertServiceTest {
 
     @Autowired
-    ConvertService convertService;
+    private ConvertService convertService;
 
-    private static Currencies currencies;
-    private static Currencies emptyCurrencies;
-    private static Currency currency;
-    private static String currencyId;
-
-    @BeforeAll
-    public static void init() {
-        currency = new Currency("R01235", "840", "USD", "1",
-                "Доллар США", "75.3", "75.6", LocalDateTime.now());
-
-        Map<String, Currency> valute = new HashMap<>();
-        valute.put("USD", currency);
-        currencies = new Currencies("2022-02-09", "2022-02-08",
-                "www.cbr-xml-daily.ru", "2022-02-08",
-                valute);
-
-        emptyCurrencies = new Currencies();
-
-        currencyId = "R01235";
-    }
+    private static final Currencies CURRENCIES = new Currencies("2022-02-09", "2022-02-08",
+            "www.cbr-xml-daily.ru", "2022-02-08", new HashMap<>());
+    private static final Currencies EMPTY_CURRENCIES = new Currencies();
+    private static final Currency CURRENCY = new Currency("R01235", "840", "USD", "1",
+            "Доллар США", "75.3", "75.6", LocalDateTime.now());
+    private static final String CURRENCY_ID = "R01235";
 
     @Test
     void getListEntity() {
-        assertDoesNotThrow(() -> convertService.getListEntity(currencies));
-        assertNotNull(convertService.getListEntity(currencies));
-        assertEquals(currency, convertService.getListEntity(currencies).get(0));
+        Map<String, Currency> valute = new HashMap<>();
+        valute.put("USD", CURRENCY);
+        CURRENCIES.setValute(valute);
+
+        List<Currency> currenciesList = convertService.getListEntity(CURRENCIES);
+
+        assertEquals(CURRENCY, currenciesList.get(0));
     }
 
     @Test
     void getListEntity_WithEmptyCurrenciesEntity() {
-        assertDoesNotThrow(() -> convertService.getListEntity(emptyCurrencies));
-        assertNotNull(convertService.getListEntity(emptyCurrencies));
-        assertEquals(Collections.emptyList(), convertService.getListEntity(emptyCurrencies));
+        List<Currency> currenciesList = convertService.getListEntity(EMPTY_CURRENCIES);
+
+        assertEquals(Collections.emptyList(), currenciesList);
     }
 
     @Test
     void getEntity() {
-        assertDoesNotThrow(() -> convertService.getEntity(currencies, currencyId));
-        assertNotNull(convertService.getEntity(currencies, currencyId));
-        assertEquals(currency, convertService.getEntity(currencies, currencyId));
+        Currency currency = convertService.getEntity(CURRENCIES, CURRENCY_ID);
+
+        assertEquals(currency, convertService.getEntity(CURRENCIES, CURRENCY_ID));
     }
 
     @Test
     void getEntity_WithEmptyCurrenciesEntity() {
-        assertThrows(NoSuchElementException.class, () -> convertService.getEntity(emptyCurrencies, currencyId));
+        assertThrows(NoSuchElementException.class, () -> convertService.getEntity(EMPTY_CURRENCIES, CURRENCY_ID));
     }
 
     @Test
     void getEntity_WithIncorrectId() {
-        assertThrows(NoSuchElementException.class, () -> convertService.getEntity(currencies, "R12345"));
+        assertThrows(NoSuchElementException.class, () -> convertService.getEntity(CURRENCIES, "R12345"));
     }
 }
