@@ -27,7 +27,7 @@
         <module>libs/kafka</module>
         <module>libs/rabbitmq</module>
         <module>libs/migration</module>
-        <module>libs/keycloak</module>
+        <module>libs/security</module>
     </modules>
 
     <properties>

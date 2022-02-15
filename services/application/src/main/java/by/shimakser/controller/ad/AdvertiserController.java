@@ -8,11 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import javax.naming.AuthenticationException;
 import java.rmi.AlreadyBoundException;
-import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,10 +31,10 @@ public class AdvertiserController {
     }
 
     @PostMapping
-    public ResponseEntity<AdvertiserDto> addAdvertiser(@RequestBody AdvertiserDto advertiserDto, Principal user)
+    public ResponseEntity<AdvertiserDto> addAdvertiser(@RequestBody AdvertiserDto advertiserDto, JwtAuthenticationToken token)
             throws AlreadyBoundException {
         Advertiser newAdvertiser = advertiserMapper.mapToEntity(advertiserDto);
-        advertiserService.add(newAdvertiser, user);
+        advertiserService.add(newAdvertiser, token);
         return new ResponseEntity<>(advertiserDto, HttpStatus.CREATED);
     }
 
@@ -45,26 +45,24 @@ public class AdvertiserController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
-    public List<AdvertiserDto> getAllAdvertisers(
-            @RequestParam Optional<Integer> page,
-            @RequestParam Optional<Integer> size,
-            @RequestParam Optional<String> sortBy
+    public List<AdvertiserDto> getAllAdvertisers(@RequestParam Optional<Integer> page,
+                                                 @RequestParam Optional<Integer> size,
+                                                 @RequestParam Optional<String> sortBy
     ) {
         return advertiserMapper.mapToListDto(advertiserService.getAll(page, size, sortBy));
     }
 
     @PutMapping(value = "/{id}")
-    public AdvertiserDto updateAdvertiserById(@PathVariable("id") Long id,
-                                              @RequestBody AdvertiserDto newAdvertiserDto,
-                                              Principal creator) throws AuthenticationException {
+    public AdvertiserDto updateAdvertiserById(@PathVariable("id") Long id, @RequestBody AdvertiserDto newAdvertiserDto,
+                                              JwtAuthenticationToken token) throws AuthenticationException {
         Advertiser advertiser = advertiserMapper.mapToEntity(newAdvertiserDto);
-        return advertiserMapper.mapToDto(advertiserService.update(id, advertiser, creator));
+        return advertiserMapper.mapToDto(advertiserService.update(id, advertiser, token));
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<HttpStatus> deleteAdvertiserById(@PathVariable("id") Long id, Principal creator)
+    public ResponseEntity<HttpStatus> deleteAdvertiserById(@PathVariable("id") Long id, JwtAuthenticationToken token)
             throws AuthenticationException {
-        advertiserService.delete(id, creator);
+        advertiserService.delete(id, token);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

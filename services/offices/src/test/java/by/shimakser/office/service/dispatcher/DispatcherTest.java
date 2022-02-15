@@ -23,11 +23,12 @@ class DispatcherTest {
 
     @Test
     void getByEntityAndExportType_WithCorrectArguments() {
-
+        // when
         ExportService<?> xlsOfficeService = dispatcher.getByEntityAndExportType(EntityType.OFFICE, FileType.XLS);
         ExportService<?> xlsContactService = dispatcher.getByEntityAndExportType(EntityType.CONTACT, FileType.XLS);
         ExportService<?> pdfOfficeService = dispatcher.getByEntityAndExportType(EntityType.OFFICE, FileType.PDF);
 
+        // then
         assertEquals(xlsOfficeService.getClass(), ExportOfficeXlsService.class);
         assertEquals(xlsContactService.getClass(), ExportContactXlsService.class);
         assertEquals(pdfOfficeService.getClass(), ExportOfficePdfService.class);
@@ -35,6 +36,7 @@ class DispatcherTest {
 
     @Test
     void getByEntityAndExportType_WithNotCorrectArguments() {
+        // then
         assertThrows(NoSuchElementException.class,
                 () -> dispatcher.getByEntityAndExportType(EntityType.CONTACT, FileType.PDF));
     }

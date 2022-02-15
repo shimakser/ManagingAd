@@ -1,5 +1,6 @@
-package by.shimakser.ssl;
+package by.shimakser.keycloak.service;
 
+import by.shimakser.dto.SslRequest;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -17,7 +18,7 @@ public class SslService {
         env.put("SUBJECT", subject);
         pb.directory(new File("scripts/init-ssl/"));
         try {
-            Process p = pb.start();
+            pb.start();
         } catch (IOException e) {
             e.printStackTrace();
         }

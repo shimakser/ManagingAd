@@ -31,20 +31,25 @@ class BaseExportXlsServiceTest {
 
     @Test
     void exportToFile_WithCorrectRequest() throws IOException {
+        // when
         byte[] exportBytes = service.exportToFile(EXPORT_REQUEST);
 
+        // then
         assertEquals(exportBytes.getClass(), byte[].class);
     }
 
     @Test
     void exportToFile_WithIncorrectRequest() {
+        // given
         ExportRequest contactRequest = new ExportRequest(FileType.XLS, EntityType.CONTACT);
 
+        // then
         assertThrows(NoSuchElementException.class, () -> service.exportToFile(contactRequest));
     }
 
     @Test
     void exportToFile_WithoutData() {
+        // given
         BaseExportXlsService<Office> emptyListService = new BaseExportXlsService<Office>(repository) {
             @Override
             public EntityType getEntity() {
@@ -52,26 +57,28 @@ class BaseExportXlsServiceTest {
             }
         };
 
+        // when
         given(repository.findAll()).willReturn(Collections.emptyList());
 
+        // then
         assertEquals(Collections.emptyList(), emptyListService.getDataToExport());
     }
 
     @Test
     void containsCorrectData() throws IOException {
+        // given
         BaseExportXlsService<Office> emptyListService = new BaseExportXlsService<>(repository) {
             @Override
             public EntityType getEntity() {
                 return EntityType.OFFICE;
             }
         };
-
         Contact testContact = new Contact(1L, "testPhoneNumber", "testEmail", "testSite");
         Office testOffice = new Office(1L, "testTitle", "testAddress", 55.5,
                 List.of(testContact), "testDescriptions");
-
         given(repository.findAll()).willReturn(List.of(testOffice));
 
+        // when
         byte[] exportsBytes = emptyListService.exportToFile(EXPORT_REQUEST);
 
         ByteArrayInputStream bais = new ByteArrayInputStream(exportsBytes);
@@ -83,9 +90,9 @@ class BaseExportXlsServiceTest {
         while (cellIterator.hasNext()) {
             cellValues.add(cellIterator.next().getStringCellValue());
         }
-
         String exportInfo = sheet.getRow(8).getCell(1).getStringCellValue();
 
+        // then
         assertNotEquals(cellValues.get(0), testOffice.getId().toString());
         assertEquals(exportInfo, EXPORT_REQUEST.getFileType().getFileTitle());
 

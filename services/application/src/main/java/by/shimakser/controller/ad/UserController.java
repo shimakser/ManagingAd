@@ -10,11 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
-import javax.naming.AuthenticationException;
 import java.rmi.AlreadyBoundException;
-import java.security.Principal;
+import javax.naming.AuthenticationException;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,22 +53,20 @@ public class UserController {
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     @GetMapping
-    public List<UserDto> getAllUsers(
-            @RequestParam Optional<Integer> page,
-            @RequestParam Optional<Integer> size,
-            @RequestParam Optional<String> sortBy
+    public List<UserDto> getAllUsers(@RequestParam Optional<Integer> page,
+                                     @RequestParam Optional<Integer> size,
+                                     @RequestParam Optional<String> sortBy
     ) {
         log.info("Search all users");
         return userMapper.mapToListDto(userService.getAll(page, size, sortBy));
     }
 
     @PutMapping(value = "/{id}")
-    public UserDto updateUserById(@PathVariable("id") Long id,
-                                  @RequestBody UserDto newUserDto,
-                                  Principal principal) throws AuthenticationException {
+    public UserDto updateUserById(@PathVariable("id") Long id, @RequestBody UserDto newUserDto,
+                                  JwtAuthenticationToken token) throws AuthenticationException {
         User user = userMapper.mapToEntity(newUserDto);
         log.info("Updated user with id: " + id);
-        return userMapper.mapToDto(userService.update(id, user, principal));
+        return userMapper.mapToDto(userService.update(id, user, token));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")

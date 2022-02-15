@@ -1,4 +1,4 @@
-package by.shimakser.ssl;
+package by.shimakser.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

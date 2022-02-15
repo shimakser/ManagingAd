@@ -1,8 +1,6 @@
 package by.shimakser.dto;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
@@ -22,14 +20,7 @@ public class CampaignFilterRequest extends PageRequest {
     private String createdDateFrom;
     private String createdDateTo;
 
-    public CampaignFilterRequest(int page, int size, Sort sort,
-                                 Set<String> age, String country, String campaignDeleteNotes,
-                                 String createdDateFrom, String createdDateTo) {
+    public CampaignFilterRequest(int page, int size, Sort sort) {
         super(page, size, sort);
-        this.age = age;
-        this.country = country;
-        this.campaignDeleteNotes = campaignDeleteNotes;
-        this.createdDateFrom = createdDateFrom;
-        this.createdDateTo = createdDateTo;
     }
 }

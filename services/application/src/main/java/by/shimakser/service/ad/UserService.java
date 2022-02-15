@@ -7,15 +7,14 @@ import by.shimakser.repository.ad.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.naming.AuthenticationException;
 import javax.persistence.EntityNotFoundException;
+import javax.naming.AuthenticationException;
 import java.rmi.AlreadyBoundException;
-import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,28 +62,22 @@ public class UserService {
     }
 
     @Transactional
-    public List<User> getAll(Optional<Integer> page,
-                             Optional<Integer> size,
-                             Optional<String> sortBy
-    ) {
+    public List<User> getAll(Optional<Integer> page,Optional<Integer> size, Optional<String> sortBy) {
         return userRepository.findAllByUserDeletedFalse(
                 PageRequest.of(page.orElse(0),
                         size.orElse(10),
                         Sort.Direction.ASC, sortBy.orElse("id")));
     }
 
-    @Transactional(rollbackFor = {EntityNotFoundException.class, AuthenticationException.class, AuthorizationServiceException.class})
-    public User update(Long id, User newUser, Principal user)
-            throws EntityNotFoundException,AuthenticationException, AuthorizationServiceException {
+    @Transactional(rollbackFor = {EntityNotFoundException.class, AuthenticationException.class})
+    public User update(Long id, User newUser, JwtAuthenticationToken token) throws EntityNotFoundException, AuthenticationException {
         User userById = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionDescription()));
 
-        User principalUser = userRepository.findByUsername(user.getName())
-                .orElseThrow(() -> new AuthorizationServiceException(ExceptionText.AUTHORIZATION_SERVICE.getExceptionDescription()));
-        if (!principalUser.getUserRole().equals(Role.ADMIN)
-                || principalUser.getId().equals(id)) {
+        if (!checkPrincipalAccess(userById.getUsername(), token)) {
             throw new AuthenticationException(ExceptionText.INSUFFICIENT_RIGHTS.getExceptionDescription());
         }
+
         newUser.setId(id);
         newUser.setPassword(bCryptPasswordEncoder.encode(userById.getPassword()));
         userRepository.save(newUser);
@@ -108,5 +101,16 @@ public class UserService {
     @Transactional
     public List<User> getDeletedUsers() {
         return userRepository.findAllByUserDeletedTrue();
+    }
+
+    private boolean checkPrincipalAccess(String username, JwtAuthenticationToken token) {
+        String principalName = token.getTokenAttributes().get("preferred_username").toString();
+        boolean isAdmin = token.getTokenAttributes().get("realm_access").toString().contains(Role.ADMIN.name());
+
+        if (isAdmin || username.equals(principalName)) {
+            return true;
+        }
+
+        return false;
     }
 }

@@ -10,11 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import javax.naming.AuthenticationException;
 import java.rmi.AlreadyBoundException;
-import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -52,17 +52,16 @@ public class CampaignController {
     }
 
     @PutMapping(value = "/{id}")
-    public CampaignDto updateCampaignById(@PathVariable("id") Long id,
-                                          @RequestBody CampaignDto newCampaignDto,
-                                          Principal creator) throws AuthenticationException {
+    public CampaignDto updateCampaignById(@PathVariable("id") Long id, @RequestBody CampaignDto newCampaignDto,
+                                          JwtAuthenticationToken token) throws AuthenticationException {
         Campaign campaign = campaignMapper.mapToEntity(newCampaignDto);
-        return campaignMapper.mapToDto(campaignService.update(id, campaign, creator));
+        return campaignMapper.mapToDto(campaignService.update(id, campaign, token));
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<HttpStatus> deleteCampaignById(@PathVariable("id") Long id, Principal creator)
+    public ResponseEntity<HttpStatus> deleteCampaignById(@PathVariable("id") Long id, JwtAuthenticationToken token)
             throws AuthenticationException {
-        campaignService.delete(id, creator);
+        campaignService.delete(id, token);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

@@ -37,7 +37,7 @@ public class SecurityAuthConfig extends WebSecurityConfigurerAdapter {
     public OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
         final OidcUserService delegate = new OidcUserService();
 
-        return (userRequest) -> {
+        return userRequest -> {
             OidcUser oidcUser = delegate.loadUser(userRequest);
 
             final Set<GrantedAuthority> mappedAuthorities = oidcUser.getAuthorities().stream()

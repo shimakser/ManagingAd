@@ -29,12 +29,15 @@ class CurrenciesServiceTest {
 
     @Test
     void getCurrencies() {
+        // given
         Currency currency = new Currency();
         given(currenciesRepository.findAll())
                 .willReturn(List.of(currency));
 
+        // when
         List<Currency> currencies = currenciesService.getCurrencies();
 
+        // then
         then(currenciesRepository)
                 .should()
                 .findAll();
