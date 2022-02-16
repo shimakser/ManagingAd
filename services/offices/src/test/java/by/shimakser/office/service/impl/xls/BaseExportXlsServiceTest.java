@@ -1,10 +1,12 @@
 package by.shimakser.office.service.impl.xls;
 
 import by.shimakser.office.model.*;
+import com.googlecode.catchexception.apis.BDDCatchException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.assertj.core.api.BDDAssertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.*;
 
+import static com.googlecode.catchexception.apis.BDDCatchException.caughtException;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 
@@ -28,27 +31,46 @@ class BaseExportXlsServiceTest {
     private JpaRepository<Office, Long> repository;
 
     private static final ExportRequest EXPORT_REQUEST = new ExportRequest(FileType.XLS, EntityType.OFFICE);
+    private static final Contact CONTACT = new Contact(1L, "testPhoneNumber", "testEmail", "testSite");
+    private static final Office OFFICE = new Office(1L, "testTitle", "testAddress", 55.5, List.of(CONTACT), "testDescriptions");
 
+    /**
+     * {@link BaseExportXlsService#exportToFile(ExportRequest)}
+     */
     @Test
-    void exportToFile_WithCorrectRequest() throws IOException {
+    void When_ExportToFile_Then_CheckIsCorrectlyExport() {
         // when
-        byte[] exportBytes = service.exportToFile(EXPORT_REQUEST);
+        byte[] exportBytes = new byte[0];
+        try {
+            exportBytes = service.exportToFile(EXPORT_REQUEST);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         // then
         assertEquals(exportBytes.getClass(), byte[].class);
     }
 
+    /**
+     * {@link BaseExportXlsService#exportToFile(ExportRequest)}
+     */
     @Test
-    void exportToFile_WithIncorrectRequest() {
+    void Given_SetRequestWithIncorrectEntity_When_ExportToFile_Then_CatchException() {
         // given
         ExportRequest contactRequest = new ExportRequest(FileType.XLS, EntityType.CONTACT);
 
+        // when
+        BDDCatchException.when(() -> service.exportToFile(contactRequest));
+
         // then
-        assertThrows(NoSuchElementException.class, () -> service.exportToFile(contactRequest));
+        BDDAssertions.then(caughtException()).isInstanceOf(NoSuchElementException.class);
     }
 
+    /**
+     * {@link BaseExportXlsService#exportToFile(ExportRequest)}
+     */
     @Test
-    void exportToFile_WithoutData() {
+    void Given_SearchOffices_When_ExportToFile_Then_CheckIsMethodReturnEmptyList() {
         // given
         BaseExportXlsService<Office> emptyListService = new BaseExportXlsService<Office>(repository) {
             @Override
@@ -56,16 +78,20 @@ class BaseExportXlsServiceTest {
                 return EntityType.OFFICE;
             }
         };
+        given(repository.findAll()).willReturn(Collections.emptyList());
 
         // when
-        given(repository.findAll()).willReturn(Collections.emptyList());
+        assertDoesNotThrow(() -> service.exportToFile(EXPORT_REQUEST));
 
         // then
         assertEquals(Collections.emptyList(), emptyListService.getDataToExport());
     }
 
+    /**
+     * {@link BaseExportXlsService#exportToFile(ExportRequest)}
+     */
     @Test
-    void containsCorrectData() throws IOException {
+    void Given_SearchOffices_Then_ExportToFile_CheckIsExportsBytesContainsCorrectData() {
         // given
         BaseExportXlsService<Office> emptyListService = new BaseExportXlsService<>(repository) {
             @Override
@@ -73,16 +99,18 @@ class BaseExportXlsServiceTest {
                 return EntityType.OFFICE;
             }
         };
-        Contact testContact = new Contact(1L, "testPhoneNumber", "testEmail", "testSite");
-        Office testOffice = new Office(1L, "testTitle", "testAddress", 55.5,
-                List.of(testContact), "testDescriptions");
-        given(repository.findAll()).willReturn(List.of(testOffice));
+        given(repository.findAll()).willReturn(List.of(OFFICE));
 
         // when
-        byte[] exportsBytes = emptyListService.exportToFile(EXPORT_REQUEST);
-
-        ByteArrayInputStream bais = new ByteArrayInputStream(exportsBytes);
-        Workbook workbook = new XSSFWorkbook(bais);
+        byte[] exportsBytes = new byte[0];
+        Workbook workbook = null;
+        try {
+            exportsBytes = emptyListService.exportToFile(EXPORT_REQUEST);
+            ByteArrayInputStream bais = new ByteArrayInputStream(exportsBytes);
+            workbook = new XSSFWorkbook(bais);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         Sheet sheet = workbook.getSheet("OFFICE");
 
         Iterator<Cell> cellIterator = sheet.getRow(12).cellIterator();
@@ -93,13 +121,13 @@ class BaseExportXlsServiceTest {
         String exportInfo = sheet.getRow(8).getCell(1).getStringCellValue();
 
         // then
-        assertNotEquals(cellValues.get(0), testOffice.getId().toString());
+        assertNotEquals(cellValues.get(0), OFFICE.getId().toString());
         assertEquals(exportInfo, EXPORT_REQUEST.getFileType().getFileTitle());
 
-        assertEquals(cellValues.get(0), testOffice.getOfficeTitle());
-        assertEquals(cellValues.get(7), testOffice.getOfficeDescription());
+        assertEquals(cellValues.get(0), OFFICE.getOfficeTitle());
+        assertEquals(cellValues.get(7), OFFICE.getOfficeDescription());
 
-        assertEquals(cellValues.get(4), testContact.getContactPhoneNumber());
-        assertEquals(cellValues.get(6), testContact.getContactSite());
+        assertEquals(cellValues.get(4), CONTACT.getContactPhoneNumber());
+        assertEquals(cellValues.get(6), CONTACT.getContactSite());
     }
 }

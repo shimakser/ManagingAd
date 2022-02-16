@@ -8,11 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import javax.naming.AuthenticationException;
-import java.rmi.AlreadyBoundException;
+import javax.persistence.EntityExistsException;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,10 +30,10 @@ public class AdvertiserController {
     }
 
     @PostMapping
-    public ResponseEntity<AdvertiserDto> addAdvertiser(@RequestBody AdvertiserDto advertiserDto, JwtAuthenticationToken token)
-            throws AlreadyBoundException {
+    public ResponseEntity<AdvertiserDto> addAdvertiser(@RequestBody AdvertiserDto advertiserDto)
+            throws EntityExistsException {
         Advertiser newAdvertiser = advertiserMapper.mapToEntity(advertiserDto);
-        advertiserService.add(newAdvertiser, token);
+        advertiserService.add(newAdvertiser);
         return new ResponseEntity<>(advertiserDto, HttpStatus.CREATED);
     }
 
@@ -53,16 +52,15 @@ public class AdvertiserController {
     }
 
     @PutMapping(value = "/{id}")
-    public AdvertiserDto updateAdvertiserById(@PathVariable("id") Long id, @RequestBody AdvertiserDto newAdvertiserDto,
-                                              JwtAuthenticationToken token) throws AuthenticationException {
+    public AdvertiserDto updateAdvertiserById(@PathVariable("id") Long id, @RequestBody AdvertiserDto newAdvertiserDto) throws AuthenticationException {
         Advertiser advertiser = advertiserMapper.mapToEntity(newAdvertiserDto);
-        return advertiserMapper.mapToDto(advertiserService.update(id, advertiser, token));
+        return advertiserMapper.mapToDto(advertiserService.update(id, advertiser));
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<HttpStatus> deleteAdvertiserById(@PathVariable("id") Long id, JwtAuthenticationToken token)
+    public ResponseEntity<HttpStatus> deleteAdvertiserById(@PathVariable("id") Long id)
             throws AuthenticationException {
-        advertiserService.delete(id, token);
+        advertiserService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

@@ -1,6 +1,7 @@
 package by.shimakser.service.ad;
 
 import by.shimakser.exception.ExceptionText;
+import by.shimakser.keycloak.service.SecurityService;
 import by.shimakser.model.ad.Role;
 import by.shimakser.model.ad.User;
 import by.shimakser.repository.ad.UserRepository;
@@ -8,13 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityNotFoundException;
 import javax.naming.AuthenticationException;
-import java.rmi.AlreadyBoundException;
+import javax.persistence.EntityExistsException;
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,19 +25,25 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder bCryptPasswordEncoder;
+    private final SecurityService securityService;
+
+    private static final int DEFAULT_PAGE = 0;
+    private static final int DEFAULT_PAGE_SIZE = 1;
+    private static final String DEFAULT_FIELD_SORT = "id";
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder bCryptPasswordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder bCryptPasswordEncoder, SecurityService securityService) {
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.securityService = securityService;
     }
 
-    @Transactional(rollbackFor = AlreadyBoundException.class)
-    public User add(User user) throws AlreadyBoundException {
+    @Transactional(rollbackFor = EntityExistsException.class)
+    public User add(User user) throws EntityExistsException {
         boolean isUserByEmailExist = userRepository.existsUserByUserEmail(user.getUserEmail());
 
         if (isUserByEmailExist) {
-            throw new AlreadyBoundException(ExceptionText.ALREADY_BOUND.getExceptionDescription());
+            throw new EntityExistsException(ExceptionText.ALREADY_BOUND.getExceptionDescription());
         }
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         user.setUserRole(Role.USER);
@@ -64,17 +70,17 @@ public class UserService {
     @Transactional
     public List<User> getAll(Optional<Integer> page,Optional<Integer> size, Optional<String> sortBy) {
         return userRepository.findAllByUserDeletedFalse(
-                PageRequest.of(page.orElse(0),
-                        size.orElse(10),
-                        Sort.Direction.ASC, sortBy.orElse("id")));
+                PageRequest.of(page.orElse(DEFAULT_PAGE),
+                        size.orElse(DEFAULT_PAGE_SIZE),
+                        Sort.Direction.ASC, sortBy.orElse(DEFAULT_FIELD_SORT)));
     }
 
     @Transactional(rollbackFor = {EntityNotFoundException.class, AuthenticationException.class})
-    public User update(Long id, User newUser, JwtAuthenticationToken token) throws EntityNotFoundException, AuthenticationException {
+    public User update(Long id, User newUser) throws EntityNotFoundException, AuthenticationException {
         User userById = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionDescription()));
 
-        if (!checkPrincipalAccess(userById.getUsername(), token)) {
+        if (!securityService.checkPrincipalAccess(userById.getUsername())) {
             throw new AuthenticationException(ExceptionText.INSUFFICIENT_RIGHTS.getExceptionDescription());
         }
 
@@ -101,16 +107,5 @@ public class UserService {
     @Transactional
     public List<User> getDeletedUsers() {
         return userRepository.findAllByUserDeletedTrue();
-    }
-
-    private boolean checkPrincipalAccess(String username, JwtAuthenticationToken token) {
-        String principalName = token.getTokenAttributes().get("preferred_username").toString();
-        boolean isAdmin = token.getTokenAttributes().get("realm_access").toString().contains(Role.ADMIN.name());
-
-        if (isAdmin || username.equals(principalName)) {
-            return true;
-        }
-
-        return false;
     }
 }

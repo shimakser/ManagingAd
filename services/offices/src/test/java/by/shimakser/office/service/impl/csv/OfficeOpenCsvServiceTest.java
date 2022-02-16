@@ -3,7 +3,9 @@ package by.shimakser.office.service.impl.csv;
 import by.shimakser.office.model.ExportRequest;
 import by.shimakser.office.model.Office;
 import by.shimakser.office.repository.OfficeRepository;
+import com.googlecode.catchexception.apis.BDDCatchException;
 import com.opencsv.CSVReader;
+import org.assertj.core.api.BDDAssertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -16,11 +18,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
+import static com.googlecode.catchexception.apis.BDDCatchException.caughtException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.never;
 
 @SpringBootTest
 class OfficeOpenCsvServiceTest {
@@ -31,8 +31,11 @@ class OfficeOpenCsvServiceTest {
     @InjectMocks
     private OfficeOpenCsvService officeOpenCsvService;
 
+    /**
+     * {@link OfficeOpenCsvService#exportToFile(ExportRequest)}
+     */
     @Test
-    void containsCorrectDataAfterExport() {
+    void Given_SearchOffices_When_ExportToFile_Then_CheckIsExportsBytesContainsCorrectData() {
         // given
         Office office = new Office(1L, "title", "address", 1D,
                 Collections.emptyList(), "{}");
@@ -66,16 +69,19 @@ class OfficeOpenCsvServiceTest {
         assertEquals(exportsBytesToString, exportedOffice);
     }
 
+    /**
+     * {@link OfficeOpenCsvService#importFromFile(ExportRequest)}
+     */
     @Test
-    void importFromFile_WithoutFile() {
+    void Given_SetRequest_When_ImportFromFile_Then_CatchExceptionByNotExistFile() {
         // given
         ExportRequest exportRequest = new ExportRequest();
         exportRequest.setPathToFile("/home/");
 
+        // when
+        BDDCatchException.when(() -> officeOpenCsvService.importFromFile(exportRequest));
+
         // then
-        assertThrows(FileNotFoundException.class, () -> officeOpenCsvService.importFromFile(exportRequest));
-        then(officeRepository)
-                .should(never())
-                .save(new Office());
+        BDDAssertions.then(caughtException()).isInstanceOf(FileNotFoundException.class);
     }
 }

@@ -1,10 +1,13 @@
 package by.shimakser.service.ad;
 
+import by.shimakser.keycloak.service.SecurityService;
 import by.shimakser.model.ad.Advertiser;
 import by.shimakser.model.ad.Role;
 import by.shimakser.model.ad.User;
 import by.shimakser.repository.ad.AdvertiserRepository;
 import by.shimakser.repository.ad.UserRepository;
+import com.googlecode.catchexception.apis.BDDCatchException;
+import org.assertj.core.api.BDDAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -12,18 +15,15 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 import javax.naming.AuthenticationException;
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
-import java.rmi.AlreadyBoundException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
+import static com.googlecode.catchexception.apis.BDDCatchException.caughtException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.*;
 
 @SpringBootTest
@@ -34,7 +34,7 @@ class AdvertiserServiceTest {
     @Mock
     private AdvertiserRepository advertiserRepository;
     @Mock
-    private JwtAuthenticationToken token;
+    private SecurityService securityService;
 
     @InjectMocks
     private AdvertiserService advertiserService;
@@ -50,21 +50,21 @@ class AdvertiserServiceTest {
         ADVERTISER_ID = ADVERTISER.getId();
     }
 
+    /**
+     * {@link AdvertiserService#add(Advertiser)}
+     */
     @Test
-    void add() {
+    void Given_CheckIsTitleBound_When_CreateAdvertiser_Then_CheckIsCorrectlyCreatedAdvertiser() {
         // given
-        Map<String, Object> tokenAttributes = new HashMap<>();
-        tokenAttributes.put("preferred_username", USER.getUsername());
-        tokenAttributes.put("realm_access", "USER");
         given(advertiserRepository.existsAdvertiserByAdvertiserTitle(ADVERTISER.getAdvertiserTitle())).willReturn(false);
-        given(token.getTokenAttributes()).willReturn(tokenAttributes);
+        given(securityService.getPrincipalName()).willReturn(USER.getUsername());
         given(userRepository.findByUsername(USER.getUsername())).willReturn(Optional.of(USER));
 
         // when
         Advertiser advertiser = null;
         try {
-            advertiser = advertiserService.add(ADVERTISER, token);
-        } catch (AlreadyBoundException e) {
+            advertiser = advertiserService.add(ADVERTISER);
+        } catch (EntityExistsException e) {
             e.printStackTrace();
         }
 
@@ -81,21 +81,30 @@ class AdvertiserServiceTest {
         assertEquals(advertiser.getAdvertiserDescription(), ADVERTISER.getAdvertiserDescription());
     }
 
+    /**
+     * {@link AdvertiserService#add(Advertiser)}
+     */
     @Test
-    void add_WithExistTitle() {
+    void Given_CheckIsTitleBound_When_CreateAdvertiser_Then_CatchExceptionByAlreadyBoundTitle() {
         // given
         given(advertiserRepository.existsAdvertiserByAdvertiserTitle(ADVERTISER.getAdvertiserTitle()))
-                .willReturn(true);
+                .willThrow(new EntityExistsException());
+
+        // when
+        BDDCatchException.when(() -> advertiserService.add(ADVERTISER));
 
         // then
-        assertThrows(AlreadyBoundException.class, () -> advertiserService.add(ADVERTISER, token));
+        BDDAssertions.then(caughtException()).isInstanceOf(EntityExistsException.class);
         then(advertiserRepository)
                 .should(never())
                 .save(ADVERTISER);
     }
 
+    /**
+     * {@link AdvertiserService#get(Long)}
+     */
     @Test
-    void get() {
+    void Given_SearchAdvertiserById_When_GetAdvertiser_Then_CheckIsCorrectlySearchedAdvertiser() {
         // given
         given(advertiserRepository.findById(ADVERTISER_ID)).willReturn(Optional.of(ADVERTISER));
 
@@ -109,20 +118,26 @@ class AdvertiserServiceTest {
         assertEquals(ADVERTISER, advertiser);
     }
 
+    /**
+     * {@link AdvertiserService#get(Long)}
+     */
     @Test
-    void get_WithIncorrectId() {
+    void Given_SearchAdvertiserById_When_GetAdvertiser_Then_CatchExceptionByNotExistAdvertiser() {
         // given
-        given(advertiserRepository.findById(ADVERTISER_ID)).willReturn(Optional.empty());
+        given(advertiserRepository.findById(ADVERTISER_ID)).willThrow(new EntityNotFoundException());
+
+        // when
+        BDDCatchException.when(() -> advertiserService.get(ADVERTISER_ID));
 
         // then
-        assertThrows(EntityNotFoundException.class, () -> advertiserService.get(ADVERTISER_ID));
-        then(advertiserRepository)
-                .should()
-                .findById(ADVERTISER_ID);
+        BDDAssertions.then(caughtException()).isInstanceOf(EntityNotFoundException.class);
     }
 
+    /**
+     * {@link AdvertiserService#getAll(Optional, Optional, Optional)}
+     */
     @Test
-    void getAll() {
+    void Given_SearchAllAdvertisers_When_GetAdvertisers_Then_CheckIsCorrectlySearchedAdvertisers() {
         // given
         given(advertiserRepository.findAllByAdvertiserDeletedFalse(PageRequest.of(0, 1, Sort.Direction.ASC, "id")))
                 .willReturn(List.of(ADVERTISER));
@@ -137,21 +152,21 @@ class AdvertiserServiceTest {
         assertEquals(advertisers, List.of(ADVERTISER));
     }
 
+    /**
+     * {@link AdvertiserService#update(Long, Advertiser)}
+     */
     @Test
-    void update() {
+    void Given_SearchAdvertiserById_When_UpdateAdvertiser_Then_CheckIsCorrectlyUpdatedAdvertiser() {
         // given
         Advertiser testAdvertiser = new Advertiser();
         testAdvertiser.setAdvertiserTitle("test");
-        Map<String, Object> tokenAttributes = new HashMap<>();
-        tokenAttributes.put("preferred_username", USER.getUsername());
-        tokenAttributes.put("realm_access", "USER");
         given(advertiserRepository.findById(ADVERTISER_ID)).willReturn(Optional.of(ADVERTISER));
-        given(token.getTokenAttributes()).willReturn(tokenAttributes);
+        given(securityService.checkPrincipalAccess(USER.getUsername())).willReturn(true);
 
         // when
         Advertiser updatedAdvertiser = null;
         try {
-            updatedAdvertiser = advertiserService.update(ADVERTISER_ID, testAdvertiser, token);
+            updatedAdvertiser = advertiserService.update(ADVERTISER_ID, testAdvertiser);
         } catch (AuthenticationException e) {
             e.printStackTrace();
         }
@@ -166,31 +181,37 @@ class AdvertiserServiceTest {
         assertEquals(updatedAdvertiser.getAdvertiserTitle(), testAdvertiser.getAdvertiserTitle());
     }
 
+    /**
+     * {@link AdvertiserService#update(Long, Advertiser)}
+     */
     @Test
-    void update_WithIncorrectId() {
+    void Given_SearchAdvertiserByIdAnd_When_UpdateAdvertiser_Then_CatchExceptionByNotExistAdvertiser() {
         // given
         Advertiser testAdvertiser = new Advertiser();
-        given(advertiserRepository.findById(ADVERTISER_ID)).willReturn(Optional.empty());
+        given(advertiserRepository.findById(ADVERTISER_ID)).willThrow(new EntityNotFoundException());
+
+        // when
+        BDDCatchException.when(() -> advertiserService.update(ADVERTISER_ID, ADVERTISER));
 
         // then
-        assertThrows(EntityNotFoundException.class, () -> advertiserService.update(ADVERTISER_ID, testAdvertiser, token));
+        BDDAssertions.then(caughtException()).isInstanceOf(EntityNotFoundException.class);
         then(advertiserRepository)
                 .should(never())
-                .save(testAdvertiser);
+                .save(ADVERTISER);
     }
 
+    /**
+     * {@link AdvertiserService#delete(Long)}
+     */
     @Test
-    void delete() {
+    void Given_SearchAdvertiserById_When_DeleteAdvertiser_Then_CheckIsCorrectlyDeletedAdvertiser() {
         // given
-        Map<String, Object> tokenAttributes = new HashMap<>();
-        tokenAttributes.put("preferred_username", USER.getUsername());
-        tokenAttributes.put("realm_access", "USER");
         given(advertiserRepository.findById(ADVERTISER_ID)).willReturn(Optional.of(ADVERTISER));
-        given(token.getTokenAttributes()).willReturn(tokenAttributes);
+        given(securityService.checkPrincipalAccess(USER.getUsername())).willReturn(true);
 
         // when
         try {
-            advertiserService.delete(ADVERTISER_ID, token);
+            advertiserService.delete(ADVERTISER_ID);
         } catch (AuthenticationException e) {
             e.printStackTrace();
         }
@@ -202,22 +223,30 @@ class AdvertiserServiceTest {
         assertEquals(Boolean.TRUE, ADVERTISER.isAdvertiserDeleted());
     }
 
+    /**
+     * {@link AdvertiserService#delete(Long)}
+     */
     @Test
-    void delete_WithIncorrectId() {
+    void Given_SearchAdvertiserById_When_DeleteAdvertiser_Then_CatchExceptionByNotExistAdvertiser() {
         // given
-        given(advertiserRepository.findById(ADVERTISER_ID)).willReturn(Optional.empty());
+        given(advertiserRepository.findById(ADVERTISER_ID)).willThrow(new EntityNotFoundException());
+
+        // when
+        BDDCatchException.when(() -> advertiserService.delete(ADVERTISER_ID));
 
         // then
-        assertThrows(EntityNotFoundException.class, () -> advertiserService.delete(ADVERTISER_ID, token));
+        BDDAssertions.then(caughtException()).isInstanceOf(EntityNotFoundException.class);
         then(advertiserRepository)
                 .should(never())
                 .save(ADVERTISER);
         assertEquals(Boolean.FALSE, ADVERTISER.isAdvertiserDeleted());
     }
 
-
+    /**
+     * {@link AdvertiserService#getDeletedAdvertiser(Long)}
+     */
     @Test
-    void getDeletedAdvertiser() {
+    void Given_SearchDeletedAdvertiserById_When_GetDeletedAdvertiser_Then_CheckIsCorrectlySearchedAdvertiser() {
         // given
         given(advertiserRepository.findByIdAndAdvertiserDeletedTrue(ADVERTISER_ID))
                 .willReturn(Optional.of(ADVERTISER));
@@ -232,21 +261,27 @@ class AdvertiserServiceTest {
         assertEquals(ADVERTISER, deletedAdvertiser);
     }
 
+    /**
+     * {@link AdvertiserService#getDeletedAdvertiser(Long)}
+     */
     @Test
-    void getDeletedCampaign_WithIncorrectId() {
+    void Given_SearchDeletedAdvertiserById_When_GetDeletedAdvertiser_Then_CatchExceptionByNotExistAdvertiser() {
         // given
         given(advertiserRepository.findByIdAndAdvertiserDeletedTrue(ADVERTISER_ID))
-                .willReturn(Optional.empty());
+                .willThrow(new EntityNotFoundException());
+
+        // when
+        BDDCatchException.when(() -> advertiserService.getDeletedAdvertiser(ADVERTISER_ID));
 
         // then
-        assertThrows(EntityNotFoundException.class, () -> advertiserService.getDeletedAdvertiser(ADVERTISER_ID));
-        then(advertiserRepository)
-                .should()
-                .findByIdAndAdvertiserDeletedTrue(ADVERTISER_ID);
+        BDDAssertions.then(caughtException()).isInstanceOf(EntityNotFoundException.class);
     }
 
+    /**
+     * {@link AdvertiserService#getDeletedAdvertisers()}
+     */
     @Test
-    void getDeletedAdvertisers() {
+    void Given_SearchAllDeletedAdvertisers_When_GetDeletedAdvertisers_Then_CheckIsCorrectlySearchedAdvertisers() {
         // given
         given(advertiserRepository.findAllByAdvertiserDeletedTrue())
                 .willReturn(List.of(ADVERTISER));

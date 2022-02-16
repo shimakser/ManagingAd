@@ -1,27 +1,27 @@
 package by.shimakser.service.ad;
 
+import by.shimakser.keycloak.service.SecurityService;
 import by.shimakser.model.ad.Advertiser;
 import by.shimakser.model.ad.Campaign;
 import by.shimakser.model.ad.Role;
 import by.shimakser.model.ad.User;
 import by.shimakser.repository.ad.CampaignRepository;
+import com.googlecode.catchexception.apis.BDDCatchException;
+import org.assertj.core.api.BDDAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 
 import javax.naming.AuthenticationException;
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
-import java.rmi.AlreadyBoundException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
+import static com.googlecode.catchexception.apis.BDDCatchException.caughtException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.*;
 
 @SpringBootTest
@@ -30,7 +30,7 @@ class CampaignServiceTest {
     @Mock
     private CampaignRepository campaignRepository;
     @Mock
-    private JwtAuthenticationToken token;
+    private SecurityService securityService;
 
     @InjectMocks
     private CampaignService campaignService;
@@ -54,8 +54,11 @@ class CampaignServiceTest {
         CAMPAIGN.setAdvertiser(ADVERTISER);
     }
 
+    /**
+     * {@link CampaignService#add(Campaign)}
+     */
     @Test
-    void add() {
+    void Given_CheckIsTitleBound_When_CreateCampaign_Then_CheckIsCorrectlyCreatedCampaign() {
         // given
         given(campaignRepository.existsCampaignByCampaignTitle(CAMPAIGN.getCampaignTitle())).willReturn(false);
 
@@ -63,7 +66,7 @@ class CampaignServiceTest {
         Campaign campaign = null;
         try {
             campaign = campaignService.add(CAMPAIGN);
-        } catch (AlreadyBoundException e) {
+        } catch (EntityExistsException e) {
             e.printStackTrace();
         }
 
@@ -74,20 +77,30 @@ class CampaignServiceTest {
         assertEquals(campaign, CAMPAIGN);
     }
 
+    /**
+     * {@link CampaignService#add(Campaign)}
+     */
     @Test
-    void add_WithExistTitle() {
+    void Given_CheckIsTitleBound_When_CreateCampaign_Then_CatchExceptionByAlreadyBoundTitle() {
         // given
         given(campaignRepository.existsCampaignByCampaignTitle(CAMPAIGN.getCampaignTitle())).willReturn(true);
 
+        // when
+        BDDCatchException.when(() -> campaignService.add(CAMPAIGN));
+
         // then
-        assertThrows(AlreadyBoundException.class, () -> campaignService.add(CAMPAIGN));
+        BDDAssertions.then(caughtException())
+                .isInstanceOf(EntityExistsException.class);
         then(campaignRepository)
                 .should(never())
                 .save(CAMPAIGN);
     }
 
+    /**
+     * {@link CampaignService#get(Long)}
+     */
     @Test
-    void get() {
+    void Given_SearchCampaignById_When_GetCampaign_Then_CheckIsCorrectlySearchedCampaign() {
         // given
         given(campaignRepository.findById(CAMPAIGN_ID))
                 .willReturn(Optional.of(CAMPAIGN));
@@ -102,33 +115,37 @@ class CampaignServiceTest {
         assertEquals(CAMPAIGN, campaign);
     }
 
+    /**
+     * {@link CampaignService#get(Long)}
+     */
     @Test
-    void get_WithIncorrectId() {
+    void Given_SearchCampaignById_When_GetCampaign_Then_CatchExceptionByNotExistCampaign() {
         // given
-        given(campaignRepository.findById(CAMPAIGN_ID)).willReturn(Optional.empty());
+        given(campaignRepository.findById(CAMPAIGN_ID)).willThrow(new EntityNotFoundException());
+
+        // when
+        BDDCatchException.when(() -> campaignService.get(CAMPAIGN_ID));
 
         // then
-        assertThrows(EntityNotFoundException.class, () -> campaignService.get(CAMPAIGN_ID));
-        then(campaignRepository)
-                .should(never())
-                .save(CAMPAIGN);
+        BDDAssertions.then(caughtException())
+                .isInstanceOf(EntityNotFoundException.class);
     }
 
+    /**
+     * {@link CampaignService#update(Long, Campaign)}
+     */
     @Test
-    void update() {
+    void Given_SearchCampaignById_When_UpdateCampaign_Then_CheckIsCorrectlyUpdatedCampaign() {
         // given
         Campaign testCampaign = new Campaign();
         testCampaign.setCampaignTitle("test");
-        Map<String, Object> tokenAttributes = new HashMap<>();
-        tokenAttributes.put("preferred_username", USER.getUsername());
-        tokenAttributes.put("realm_access", "USER");
         given(campaignRepository.findById(CAMPAIGN_ID)).willReturn(Optional.of(CAMPAIGN));
-        given(token.getTokenAttributes()).willReturn(tokenAttributes);
+        given(securityService.checkPrincipalAccess(USER.getUsername())).willReturn(true);
 
         // when
         Campaign updatedCampaign = null;
         try {
-            updatedCampaign = campaignService.update(CAMPAIGN_ID, testCampaign, token);
+            updatedCampaign = campaignService.update(CAMPAIGN_ID, testCampaign);
         } catch (AuthenticationException e) {
             e.printStackTrace();
         }
@@ -143,31 +160,37 @@ class CampaignServiceTest {
         assertEquals(updatedCampaign.getCampaignTitle(), testCampaign.getCampaignTitle());
     }
 
+    /**
+     * {@link CampaignService#update(Long, Campaign)}
+     */
     @Test
-    void update_WithIncorrectId() {
+    void Given_SearchCampaignById_When_UpdateCampaign_Then_CatchExceptionByNotExistCampaign() {
         // given
         Campaign testCampaign = new Campaign();
-        given(campaignRepository.findById(CAMPAIGN_ID)).willReturn(Optional.empty());
+        given(campaignRepository.findById(CAMPAIGN_ID)).willThrow(new EntityNotFoundException());
+
+        // when
+        BDDCatchException.when(() -> campaignService.update(CAMPAIGN_ID, testCampaign));
 
         // then
-        assertThrows(EntityNotFoundException.class, () -> campaignService.update(CAMPAIGN_ID, testCampaign, token));
+        BDDAssertions.then(caughtException()).isInstanceOf(EntityNotFoundException.class);
         then(campaignRepository)
                 .should(never())
                 .save(testCampaign);
     }
 
+    /**
+     * {@link CampaignService#delete(Long)}
+     */
     @Test
-    void delete() {
+    void Given_SearchCampaignById_When_DeleteCampaign_Then_CheckIsCorrectlyDeletedCampaign() {
         // given
-        Map<String, Object> tokenAttributes = new HashMap<>();
-        tokenAttributes.put("preferred_username", USER.getUsername());
-        tokenAttributes.put("realm_access", "USER");
-        given(token.getTokenAttributes()).willReturn(tokenAttributes);
+        given(securityService.checkPrincipalAccess(USER.getUsername())).willReturn(true);
         given(campaignRepository.findById(CAMPAIGN_ID)).willReturn(Optional.of(CAMPAIGN));
 
         // when
         try {
-            campaignService.delete(CAMPAIGN_ID, token);
+            campaignService.delete(CAMPAIGN_ID);
         } catch (AuthenticationException e) {
             e.printStackTrace();
         }
@@ -179,21 +202,30 @@ class CampaignServiceTest {
         assertEquals(Boolean.TRUE, CAMPAIGN.isCampaignDeleted());
     }
 
+    /**
+     * {@link CampaignService#delete(Long)}
+     */
     @Test
-    void delete_WithIncorrectId() {
+    void Given_SearchCampaignById_When_DeleteCampaign_Then_CatchExceptionByNotExistCampaign() {
         // given
-        given(campaignRepository.findById(CAMPAIGN_ID)).willReturn(Optional.empty());
+        given(campaignRepository.findById(CAMPAIGN_ID)).willThrow(new EntityNotFoundException());
+
+        // when
+        BDDCatchException.when(() -> campaignService.delete(CAMPAIGN_ID));
 
         // then
-        assertThrows(EntityNotFoundException.class, () -> campaignService.delete(CAMPAIGN_ID, token));
+        BDDAssertions.then(caughtException()).isInstanceOf(EntityNotFoundException.class);
         then(campaignRepository)
                 .should(never())
                 .save(CAMPAIGN);
         assertEquals(Boolean.FALSE, CAMPAIGN.isCampaignDeleted());
     }
 
+    /**
+     * {@link CampaignService#getDeletedCampaign(Long)}
+     */
     @Test
-    void getDeletedCampaign() {
+    void Given_SearchDeletedCampaignById_When_GetDeletedCampaign_Then_CheckIsCorrectlySearchedCampaign() {
         // given
         given(campaignRepository.findByIdAndCampaignDeletedTrue(CAMPAIGN_ID))
                 .willReturn(Optional.of(CAMPAIGN));
@@ -208,21 +240,26 @@ class CampaignServiceTest {
         assertEquals(CAMPAIGN, deletedCampaign);
     }
 
+    /**
+     * {@link CampaignService#getDeletedCampaign(Long)}
+     */
     @Test
-    void getDeletedCampaign_WithIncorrectId() {
+    void Given_SearchDeletedCampaignById_When_GetDeletedCampaign_Then_CatchExceptionByNotExistCampaign() {
         // given
-        given(campaignRepository.findByIdAndCampaignDeletedTrue(CAMPAIGN_ID))
-                .willReturn(Optional.empty());
+        given(campaignRepository.findByIdAndCampaignDeletedTrue(CAMPAIGN_ID)).willReturn(Optional.empty());
+
+        // when
+        BDDCatchException.when(() -> campaignService.getDeletedCampaign(CAMPAIGN_ID));
 
         // then
-        assertThrows(EntityNotFoundException.class, () -> campaignService.getDeletedCampaign(CAMPAIGN_ID));
-        then(campaignRepository)
-                .should()
-                .findByIdAndCampaignDeletedTrue(CAMPAIGN_ID);
+        BDDAssertions.then(caughtException()).isInstanceOf(EntityNotFoundException.class);
     }
 
+    /**
+     * {@link CampaignService#getDeletedCampaigns()}
+     */
     @Test
-    void getDeletedCampaigns() {
+    void Given_SearchAllDeletedCampaigns_When_GetDeletedCampaigns_Then_CheckIsCorrectlySearchedCampaigns() {
         // given
         given(campaignRepository.findAllByCampaignDeletedTrue())
                 .willReturn(List.of(CAMPAIGN));

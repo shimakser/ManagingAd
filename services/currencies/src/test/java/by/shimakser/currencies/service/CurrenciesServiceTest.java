@@ -27,12 +27,14 @@ class CurrenciesServiceTest {
     @InjectMocks
     private CurrenciesService currenciesService;
 
+    /**
+     * {@link CurrenciesService#getCurrencies()}
+     */
     @Test
-    void getCurrencies() {
+    void Given_SearchAllCurrencies_When_GetCurrencies_Then_CheckIsCorrectlySearchedCurrencies() {
         // given
         Currency currency = new Currency();
-        given(currenciesRepository.findAll())
-                .willReturn(List.of(currency));
+        given(currenciesRepository.findAll()).willReturn(List.of(currency));
 
         // when
         List<Currency> currencies = currenciesService.getCurrencies();

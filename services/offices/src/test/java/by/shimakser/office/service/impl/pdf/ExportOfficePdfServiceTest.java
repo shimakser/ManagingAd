@@ -15,8 +15,11 @@ class ExportOfficePdfServiceTest {
     @Autowired
     private ExportOfficePdfService exportOfficePdfService;
 
+    /**
+     * {@link ExportOfficePdfService#exportToFile(ExportRequest)}
+     */
     @Test
-    void exportToFile() {
+    void Then_CheckIsMethodFinishWithoutException() {
         // then
         assertDoesNotThrow(() -> exportOfficePdfService.exportToFile(new ExportRequest(FileType.PDF, EntityType.OFFICE)));
     }

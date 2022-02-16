@@ -10,11 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
-import java.rmi.AlreadyBoundException;
 import javax.naming.AuthenticationException;
+import javax.persistence.EntityExistsException;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,7 +36,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> addUser(@RequestBody UserDto userDto) throws AlreadyBoundException {
+    public ResponseEntity<UserDto> addUser(@RequestBody UserDto userDto) throws EntityExistsException {
         User newUser = userMapper.mapToEntity(userDto);
         producerService.sendUser(userDto);
         userService.add(newUser);
@@ -62,11 +61,10 @@ public class UserController {
     }
 
     @PutMapping(value = "/{id}")
-    public UserDto updateUserById(@PathVariable("id") Long id, @RequestBody UserDto newUserDto,
-                                  JwtAuthenticationToken token) throws AuthenticationException {
+    public UserDto updateUserById(@PathVariable("id") Long id, @RequestBody UserDto newUserDto) throws AuthenticationException {
         User user = userMapper.mapToEntity(newUserDto);
         log.info("Updated user with id: " + id);
-        return userMapper.mapToDto(userService.update(id, user, token));
+        return userMapper.mapToDto(userService.update(id, user));
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")

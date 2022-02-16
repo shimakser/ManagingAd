@@ -1,8 +1,11 @@
 package by.shimakser.service.ad;
 
+import by.shimakser.keycloak.service.SecurityService;
 import by.shimakser.model.ad.Role;
 import by.shimakser.model.ad.User;
 import by.shimakser.repository.ad.UserRepository;
+import com.googlecode.catchexception.apis.BDDCatchException;
+import org.assertj.core.api.BDDAssertions;
 import org.junit.jupiter.api.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -10,16 +13,17 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import javax.persistence.EntityNotFoundException;
 import javax.naming.AuthenticationException;
-import java.rmi.AlreadyBoundException;
-import java.util.*;
+import javax.persistence.EntityExistsException;
+import javax.persistence.EntityNotFoundException;
+import java.util.List;
+import java.util.Optional;
 
+import static com.googlecode.catchexception.apis.BDDCatchException.caughtException;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.*;
 
@@ -33,7 +37,7 @@ class UserServiceContainerTest {
     @Mock
     private PasswordEncoder bCryptPasswordEncoder;
     @Mock
-    private JwtAuthenticationToken token;
+    private SecurityService securityService;
 
     @InjectMocks
     private UserService userService;
@@ -63,8 +67,11 @@ class UserServiceContainerTest {
         assertNotNull(userRepository);
     }
 
+    /**
+     * {@link UserService#add(User)}
+     */
     @Test
-    void add() {
+    void Given_CheckIsEmailBound_When_CreateUser_Then_CheckIsCorrectlyCreatedUser() {
         // given
         given(userRepository.existsUserByUserEmail(USER.getUserEmail())).willReturn(false);
 
@@ -72,7 +79,7 @@ class UserServiceContainerTest {
         User addedUser = null;
         try {
             addedUser = userService.add(USER);
-        } catch (AlreadyBoundException e) {
+        } catch (EntityExistsException e) {
             e.printStackTrace();
         }
 
@@ -86,20 +93,29 @@ class UserServiceContainerTest {
         assertEquals(USER, addedUser);
     }
 
+    /**
+     * {@link UserService#add(User)}
+     */
     @Test
-    void add_WithExistMail() {
+    void Given_CheckIsEmailBound_When_CreateUser_Then_CatchExceptionByAlreadyBoundEmail() {
         // given
-        given(userRepository.existsUserByUserEmail(USER.getUserEmail())).willReturn(true);
+        given(userRepository.existsUserByUserEmail(USER.getUserEmail())).willThrow(new EntityExistsException());
+
+        // when
+        BDDCatchException.when(() -> userService.add(USER));
 
         // then
-        assertThrows(AlreadyBoundException.class, () -> userService.add(USER));
+        BDDAssertions.then(caughtException()).isInstanceOf(EntityExistsException.class);
         then(userRepository)
                 .should(never())
                 .save(USER);
     }
 
+    /**
+     * {@link UserService#get(Long)}
+     */
     @Test
-    void get() {
+    void Given_SearchUserById_When_GetUser_Then_CheckIsCorrectlySearchedUser() {
         // given
         given(userRepository.findById(USER_ID)).willReturn(Optional.of(USER));
 
@@ -113,20 +129,26 @@ class UserServiceContainerTest {
         assertEquals(USER, user);
     }
 
+    /**
+     * {@link UserService#get(Long)}
+     */
     @Test
-    void get_WithIncorrectId() {
+    void Given_SearchUserById_When_GetUser_Then_CatchExceptionByNotExistUser() {
         // given
-        given(userRepository.findById(USER_ID)).willReturn(Optional.empty());
+        given(userRepository.findById(USER_ID)).willThrow(new EntityNotFoundException());
+
+        // when
+        BDDCatchException.when(() -> userService.get(USER_ID));
 
         // then
-        assertThrows(EntityNotFoundException.class, () -> userService.get(USER_ID));
-        then(userRepository)
-                .should(never())
-                .save(USER);
+        BDDAssertions.then(caughtException()).isInstanceOf(EntityNotFoundException.class);
     }
 
+    /**
+     * {@link UserService#getByEmail(String)}
+     */
     @Test
-    void getByEmail() {
+    void Given_SearchUserByEmail_When_GetUser_Then_CheckIsCorrectlySearchedUser() {
         // given
         String testEmail = "mail";
         given(userRepository.findByUserEmail(testEmail)).willReturn(Optional.of(USER));
@@ -142,8 +164,11 @@ class UserServiceContainerTest {
         assertEquals(USER, user);
     }
 
+    /**
+     * {@link UserService#getAll(Optional, Optional, Optional)}
+     */
     @Test
-    void getAll() {
+    void Given_SearchAllUsers_When_GetUsers_Then_CheckIsCorrectlySearchedUsers() {
         // given
         given(userRepository.findAllByUserDeletedFalse(PageRequest.of(0, 1, Sort.Direction.ASC, "id")))
                 .willReturn(List.of(USER));
@@ -158,21 +183,20 @@ class UserServiceContainerTest {
         assertEquals(users, List.of(USER));
     }
 
-
+    /**
+     * {@link UserService#update(Long, User)}
+     */
     @Test
-    void update() {
+    void Given_SearchUserById_When_UpdateUser_Then_CheckIsCorrectlyUpdatedUser() {
         // given
         User testUser = new User(1L, "test", "test", "test", Role.USER, false);
-        Map<String, Object> tokenAttributes = new HashMap<>();
-        tokenAttributes.put("preferred_username", USER.getUsername());
-        tokenAttributes.put("realm_access", "USER");
         given(userRepository.findById(USER_ID)).willReturn(Optional.of(USER));
-        given(token.getTokenAttributes()).willReturn(tokenAttributes);
+        given(securityService.checkPrincipalAccess(USER.getUsername())).willReturn(true);
 
         // when
         User updatedUser = null;
         try {
-            updatedUser = userService.update(USER_ID, testUser, token);
+            updatedUser = userService.update(USER_ID, testUser);
         } catch (AuthenticationException e) {
             e.printStackTrace();
         }
@@ -184,25 +208,32 @@ class UserServiceContainerTest {
         then(userRepository)
                 .should()
                 .save(testUser);
-
         assertEquals(updatedUser.getUserEmail(), testUser.getUserEmail());
     }
 
+    /**
+     * {@link UserService#update(Long, User)}
+     */
     @Test
-    void update_WithIncorrectId() {
+    void Given_SearchUserById_When_UpdateUser_Then_CatchExceptionByNotExistUser() {
         // given
-        User testUser = new User(1L, "test", "test", "test", Role.USER, false);
-        given(userRepository.findById(USER_ID)).willReturn(Optional.empty());
+        given(userRepository.findById(USER_ID)).willThrow(new EntityNotFoundException());
+
+        // when
+        BDDCatchException.when(() -> userService.update(USER_ID, USER));
 
         // then
-        assertThrows(EntityNotFoundException.class, () -> userService.update(USER_ID, testUser, token));
+        BDDAssertions.then(caughtException()).isInstanceOf(EntityNotFoundException.class);
         then(userRepository)
                 .should(never())
-                .save(testUser);
+                .save(USER);
     }
 
+    /**
+     * {@link UserService#delete(Long)}
+     */
     @Test
-    void delete() {
+    void Given_SearchUserById_When_DeleteUser_Then_CheckIsCorrectlyDeletedUser() {
         // given
         given(userRepository.findById(USER_ID)).willReturn(Optional.of(USER));
 
@@ -216,21 +247,30 @@ class UserServiceContainerTest {
         assertEquals(Boolean.TRUE, USER.isUserDeleted());
     }
 
+    /**
+     * {@link UserService#delete(Long)}
+     */
     @Test
-    void delete_WithIncorrectId() {
+    void Given_SearchUserById_When_DeleteUser_Then_CatchExceptionByNotExistUser() {
         // given
-        given(userRepository.findById(USER_ID)).willReturn(Optional.empty());
+        given(userRepository.findById(USER_ID)).willThrow(new EntityNotFoundException());
+
+        // when
+        BDDCatchException.when(() -> userService.delete(USER_ID));
 
         // then
-        assertThrows(EntityNotFoundException.class, () -> userService.delete(USER_ID));
+        BDDAssertions.then(caughtException()).isInstanceOf(EntityNotFoundException.class);
         then(userRepository)
                 .should(never())
                 .save(USER);
         assertEquals(Boolean.FALSE, USER.isUserDeleted());
     }
 
+    /**
+     * {@link UserService#getDeletedUser(Long)}
+     */
     @Test
-    void getDeletedUser() {
+    void Given_SearchDeletedUserById_When_GetDeletedUser_Then_CheckIsCorrectlySearchedUser() {
         // given
         given(userRepository.findByIdAndUserDeletedTrue(USER_ID)).willReturn(Optional.of(USER));
 
@@ -244,21 +284,26 @@ class UserServiceContainerTest {
         assertEquals(USER, deletedUser);
     }
 
+    /**
+     * {@link UserService#getDeletedUser(Long)}
+     */
     @Test
-    void getDeletedUser_WithIncorrectId() {
+    void Given_SearchDeletedUserByIncorrectId_When_GetDeletedUser_Then_CatchExceptionByNotExistUser() {
         // given
-        given(userRepository.findByIdAndUserDeletedTrue(USER_ID))
-                .willReturn(Optional.empty());
+        given(userRepository.findByIdAndUserDeletedTrue(USER_ID)).willThrow(new EntityNotFoundException());
+
+        // when
+        BDDCatchException.when(() -> userService.getDeletedUser(USER_ID));
 
         // then
-        assertThrows(EntityNotFoundException.class, () -> userService.getDeletedUser(USER_ID));
-        then(userRepository)
-                .should()
-                .findByIdAndUserDeletedTrue(USER_ID);
+        BDDAssertions.then(caughtException()).isInstanceOf(EntityNotFoundException.class);
     }
 
+    /**
+     * {@link UserService#getDeletedUsers()}
+     */
     @Test
-    void getDeletedUsers() {
+    void Given_SearchAllDeletedUsers_When_GetDeletedUsers_Then_CheckIsCorrectlySearchedUsers() {
         // given
         given(userRepository.findAllByUserDeletedTrue()).willReturn(List.of(USER));
 

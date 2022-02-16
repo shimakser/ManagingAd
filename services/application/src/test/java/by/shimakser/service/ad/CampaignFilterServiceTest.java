@@ -27,16 +27,22 @@ class CampaignFilterServiceTest {
     @InjectMocks
     private CampaignFilterService campaignFilterService;
 
-    private static final Campaign CAMPAIGN = new Campaign();
-    private static final CampaignFilterRequest FILTER_REQUEST = new CampaignFilterRequest(0, 10, Sort.by("id"));
+    private static final int PAGE = 0;
+    private static final int SIZE = 1;
+    private static final String SORT = "id";
 
+    private static final Campaign CAMPAIGN = new Campaign();
+    private static final CampaignFilterRequest FILTER_REQUEST = new CampaignFilterRequest(PAGE, SIZE, Sort.by(SORT));
+    private static final PageRequest PAGE_REQUEST = PageRequest.of(PAGE, SIZE, Sort.by(SORT));
+
+    /**
+     * {@link CampaignFilterService#getByFilter(CampaignFilterRequest)}
+     */
     @Test
-    void getByFilter() {
+    void Given_SearchCampaignsByEmptyFilter_When_GetCampaigns_Then_CheckIsCorrectlySearchedCampaigns() {
         // given
-        given(campaignRepository.findAll(
-                CampaignSpecifications.empty(),
-                PageRequest.of(0, 10, Sort.by("id"))
-        )).willReturn(new PageImpl<>(List.of(CAMPAIGN)));
+        given(campaignRepository.findAll(CampaignSpecifications.empty(), PAGE_REQUEST))
+                .willReturn(new PageImpl<>(List.of(CAMPAIGN)));
 
         // when
         List<Campaign> campaigns = campaignFilterService.getByFilter(FILTER_REQUEST);
@@ -44,10 +50,7 @@ class CampaignFilterServiceTest {
         // then
         then(campaignRepository)
                 .should()
-                .findAll(
-                        CampaignSpecifications.empty(),
-                        PageRequest.of(0, 10, Sort.by("id"))
-                );
+                .findAll(CampaignSpecifications.empty(), PAGE_REQUEST);
         assertEquals(campaigns, List.of(CAMPAIGN));
     }
 }

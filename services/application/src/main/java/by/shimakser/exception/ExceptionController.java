@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import javax.naming.AuthenticationException;
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
 import java.io.FileNotFoundException;
-import java.rmi.AlreadyBoundException;
 
 @ControllerAdvice
 public class ExceptionController {
@@ -33,8 +33,8 @@ public class ExceptionController {
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(AlreadyBoundException.class)
-    public ResponseEntity<ExceptionMessage> handleAlreadyIsTakenException(AlreadyBoundException e) {
+    @ExceptionHandler(EntityExistsException.class)
+    public ResponseEntity<ExceptionMessage> handleAlreadyIsTakenException(EntityExistsException e) {
         ExceptionMessage response = new ExceptionMessage(e.getMessage());
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }

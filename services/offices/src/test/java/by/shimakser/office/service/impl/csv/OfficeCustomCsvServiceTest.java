@@ -4,6 +4,8 @@ import by.shimakser.office.model.Contact;
 import by.shimakser.office.model.ExportRequest;
 import by.shimakser.office.model.Office;
 import by.shimakser.office.repository.OfficeRepository;
+import com.googlecode.catchexception.apis.BDDCatchException;
+import org.assertj.core.api.BDDAssertions;
 import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -16,10 +18,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static com.googlecode.catchexception.apis.BDDCatchException.caughtException;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.never;
 
 @SpringBootTest
 class OfficeCustomCsvServiceTest {
@@ -30,8 +31,11 @@ class OfficeCustomCsvServiceTest {
     @InjectMocks
     private OfficeCustomCsvService officeCustomCsvService;
 
+    /**
+     * {@link OfficeCustomCsvService#exportToFile(ExportRequest)}
+     */
     @Test
-    void containsCorrectDataAfterExport() {
+    void Given_SearchOffices_When_ExportToFile_Then_CheckIsExportsBytesContainsCorrectData() {
         // given
         Office office = new Office(1L, "title", "address", 1D,
                 Collections.emptyList(), "{}");
@@ -51,8 +55,11 @@ class OfficeCustomCsvServiceTest {
         assertEquals(exportsBytesToString, exportedOffice);
     }
 
+    /**
+     * {@link OfficeCustomCsvService#contactConverterForImport(String)}
+     */
     @Test
-    void contactConverterForImport() {
+    void Given_SetStringsAndContactsForConvert_When_ConvertStringsToContacts_Then_CheckIsCorrectlyConvertedContacts() {
         // given
         String emptyInput = "[]";
         String inputContact = "[Contact(1, +375123456789, test1, test1)]";
@@ -71,8 +78,11 @@ class OfficeCustomCsvServiceTest {
         assertEquals(contactsList, List.of(firstOutputContact, secondOutputContact));
     }
 
+    /**
+     * {@link OfficeCustomCsvService#jsonConvertForImport(String)}
+     */
     @Test
-    void jsonConvertForImport() {
+    void Given_SetStringsForConvert_When_ConvertStringToJson_Then_CheckIsCorrectlyConvertedJson() {
         // given
         String emptyDescription = "null";
         String description = "{\"1\":\"description\"}";
@@ -86,16 +96,19 @@ class OfficeCustomCsvServiceTest {
         assertEquals(jsonObject.toString(), description);
     }
 
+    /**
+     * {@link OfficeCustomCsvService#importFromFile(ExportRequest)}
+     */
     @Test
-    void importFromFile_WithoutFile() {
+    void Given_SetRequest_When_ImportFromFile_Then_CatchExceptionByNotExistFile() {
         // given
         ExportRequest exportRequest = new ExportRequest();
         exportRequest.setPathToFile("/home/");
 
+        // when
+        BDDCatchException.when(() -> officeCustomCsvService.importFromFile(exportRequest));
+
         // then
-        assertThrows(FileNotFoundException.class, () -> officeCustomCsvService.importFromFile(exportRequest));
-        then(officeRepository)
-                .should(never())
-                .save(new Office());
+        BDDAssertions.then(caughtException()).isInstanceOf(FileNotFoundException.class);
     }
 }

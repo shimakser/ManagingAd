@@ -1,8 +1,8 @@
 package by.shimakser.service.ad;
 
 import by.shimakser.exception.ExceptionText;
+import by.shimakser.keycloak.service.SecurityService;
 import by.shimakser.model.ad.Advertiser;
-import by.shimakser.model.ad.Role;
 import by.shimakser.model.ad.User;
 import by.shimakser.repository.ad.AdvertiserRepository;
 import by.shimakser.repository.ad.UserRepository;
@@ -10,13 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AuthorizationServiceException;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.AuthenticationException;
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
-import java.rmi.AlreadyBoundException;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,23 +26,29 @@ public class AdvertiserService {
 
     private final AdvertiserRepository advertiserRepository;
     private final UserRepository userRepository;
+    private final SecurityService securityService;
+
+    private static final int DEFAULT_PAGE = 0;
+    private static final int DEFAULT_PAGE_SIZE = 1;
+    private static final String DEFAULT_FIELD_SORT = "id";
 
     @Autowired
-    public AdvertiserService(AdvertiserRepository advertiserRepository, UserRepository userRepository) {
+    public AdvertiserService(AdvertiserRepository advertiserRepository, UserRepository userRepository, SecurityService securityService) {
         this.advertiserRepository = advertiserRepository;
         this.userRepository = userRepository;
+        this.securityService = securityService;
     }
 
-    @Transactional(rollbackFor = {AlreadyBoundException.class, AuthorizationServiceException.class})
-    public Advertiser add(Advertiser advertiser, JwtAuthenticationToken token) throws AlreadyBoundException {
+    @Transactional(rollbackFor = {EntityExistsException.class, AuthorizationServiceException.class})
+    public Advertiser add(Advertiser advertiser) throws EntityExistsException {
         boolean isAdvertiserByTitleExist = advertiserRepository
                 .existsAdvertiserByAdvertiserTitle(advertiser.getAdvertiserTitle());
 
         if (isAdvertiserByTitleExist) {
-            throw new AlreadyBoundException(ExceptionText.ALREADY_BOUND.getExceptionDescription());
+            throw new EntityExistsException(ExceptionText.ALREADY_BOUND.getExceptionDescription());
         }
 
-        String principalName = token.getTokenAttributes().get("preferred_username").toString();
+        String principalName = securityService.getPrincipalName();
         User principalUser = userRepository.findByUsername(principalName)
                 .orElseThrow(() -> new AuthorizationServiceException(ExceptionText.AUTHORIZATION_SERVICE.getExceptionDescription()));
         advertiser.setCreator(principalUser);
@@ -63,17 +68,17 @@ public class AdvertiserService {
     @Transactional
     public List<Advertiser> getAll(Optional<Integer> page, Optional<Integer> size, Optional<String> sortBy) {
         return advertiserRepository.findAllByAdvertiserDeletedFalse(
-                PageRequest.of(page.orElse(0),
-                        size.orElse(10),
-                        Sort.Direction.ASC, sortBy.orElse("id")));
+                PageRequest.of(page.orElse(DEFAULT_PAGE),
+                        size.orElse(DEFAULT_PAGE_SIZE),
+                        Sort.Direction.ASC, sortBy.orElse(DEFAULT_FIELD_SORT)));
     }
 
     @Transactional(rollbackFor = {EntityNotFoundException.class, AuthenticationException.class})
-    public Advertiser update(Long id, Advertiser newAdvertiser, JwtAuthenticationToken token) throws EntityNotFoundException, AuthenticationException {
+    public Advertiser update(Long id, Advertiser newAdvertiser) throws EntityNotFoundException, AuthenticationException {
         Advertiser advertiserById = advertiserRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionDescription()));
 
-        if (!checkPrincipalAccess(advertiserById, token)) {
+        if (!securityService.checkPrincipalAccess(advertiserById.getCreator().getUsername())) {
             throw new AuthenticationException(ExceptionText.INSUFFICIENT_RIGHTS.getExceptionDescription());
         }
 
@@ -83,11 +88,11 @@ public class AdvertiserService {
     }
 
     @Transactional(rollbackFor = {EntityNotFoundException.class, AuthenticationException.class})
-    public void delete(Long id, JwtAuthenticationToken token) throws EntityNotFoundException, AuthenticationException {
+    public void delete(Long id) throws EntityNotFoundException, AuthenticationException {
         Advertiser advertiserById = advertiserRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionDescription()));
 
-        if (!checkPrincipalAccess(advertiserById, token)) {
+        if (!securityService.checkPrincipalAccess(advertiserById.getCreator().getUsername())) {
             throw new AuthenticationException(ExceptionText.INSUFFICIENT_RIGHTS.getExceptionDescription());
         }
 
@@ -104,18 +109,5 @@ public class AdvertiserService {
     @Transactional
     public List<Advertiser> getDeletedAdvertisers() {
         return advertiserRepository.findAllByAdvertiserDeletedTrue();
-    }
-
-    private boolean checkPrincipalAccess(Advertiser advertiser, JwtAuthenticationToken token) {
-        String creatorName = advertiser.getCreator().getUsername();
-
-        String principalName = token.getTokenAttributes().get("preferred_username").toString();
-        boolean isAdmin = token.getTokenAttributes().get("realm_access").toString().contains(Role.ADMIN.name());
-
-        if (isAdmin || creatorName.equals(principalName)) {
-            return true;
-        }
-
-        return false;
     }
 }

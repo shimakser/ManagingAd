@@ -10,11 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
 import javax.naming.AuthenticationException;
-import java.rmi.AlreadyBoundException;
+import javax.persistence.EntityExistsException;
 import java.util.List;
 
 @RestController
@@ -35,7 +34,7 @@ public class CampaignController {
     }
 
     @PostMapping
-    public ResponseEntity<CampaignDto> addCampaign(@RequestBody CampaignDto campaignDto) throws AlreadyBoundException {
+    public ResponseEntity<CampaignDto> addCampaign(@RequestBody CampaignDto campaignDto) throws EntityExistsException {
         Campaign newCampaign = campaignMapper.mapToEntity(campaignDto);
         campaignService.add(newCampaign);
         return new ResponseEntity<>(campaignDto, HttpStatus.CREATED);
@@ -52,16 +51,15 @@ public class CampaignController {
     }
 
     @PutMapping(value = "/{id}")
-    public CampaignDto updateCampaignById(@PathVariable("id") Long id, @RequestBody CampaignDto newCampaignDto,
-                                          JwtAuthenticationToken token) throws AuthenticationException {
+    public CampaignDto updateCampaignById(@PathVariable("id") Long id, @RequestBody CampaignDto newCampaignDto) throws AuthenticationException {
         Campaign campaign = campaignMapper.mapToEntity(newCampaignDto);
-        return campaignMapper.mapToDto(campaignService.update(id, campaign, token));
+        return campaignMapper.mapToDto(campaignService.update(id, campaign));
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<HttpStatus> deleteCampaignById(@PathVariable("id") Long id, JwtAuthenticationToken token)
+    public ResponseEntity<HttpStatus> deleteCampaignById(@PathVariable("id") Long id)
             throws AuthenticationException {
-        campaignService.delete(id, token);
+        campaignService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

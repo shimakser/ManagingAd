@@ -16,8 +16,11 @@ class CurrenciesSchedulerServiceTest {
     @SpyBean
     private CurrenciesSchedulerService currenciesSchedulerService;
 
+    /**
+     * {@link CurrenciesSchedulerService#schedulerCurrencies()}
+     */
     @Test
-    void schedulerCurrencies() {
+    void When_WaitBeforeStartingScheduling_Then_CheckIsSchedulingWentNeededTimes() {
         await()
                 .atMost(1, TimeUnit.HOURS)
                 .untilAsserted(() -> verify(currenciesSchedulerService, atLeast(1))
