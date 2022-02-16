@@ -1,20 +1,16 @@
 package by.shimakser.service.ad;
 
 import by.shimakser.exception.ExceptionText;
+import by.shimakser.keycloak.service.SecurityService;
 import by.shimakser.model.ad.Campaign;
-import by.shimakser.model.ad.Role;
-import by.shimakser.model.ad.User;
 import by.shimakser.repository.ad.CampaignRepository;
-import by.shimakser.repository.ad.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.AuthenticationException;
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
-import java.rmi.AlreadyBoundException;
-import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -25,21 +21,21 @@ import static java.util.function.Predicate.not;
 public class CampaignService {
 
     private final CampaignRepository campaignRepository;
-    private final UserRepository userRepository;
+    private final SecurityService securityService;
 
     @Autowired
-    public CampaignService(CampaignRepository campaignRepository, UserRepository userRepository) {
+    public CampaignService(CampaignRepository campaignRepository, SecurityService securityService) {
         this.campaignRepository = campaignRepository;
-        this.userRepository = userRepository;
+        this.securityService = securityService;
     }
 
-    @Transactional(rollbackFor = AlreadyBoundException.class)
-    public Campaign add(Campaign campaign) throws AlreadyBoundException {
+    @Transactional(rollbackFor = EntityExistsException.class)
+    public Campaign add(Campaign campaign) throws EntityExistsException {
         boolean isCampaignByTitleExist = campaignRepository
                 .existsCampaignByCampaignTitle(campaign.getCampaignTitle());
 
         if (isCampaignByTitleExist) {
-            throw new AlreadyBoundException(ExceptionText.ALREADY_BOUND.getExceptionDescription());
+            throw new EntityExistsException(ExceptionText.ALREADY_BOUND.getExceptionDescription());
         }
         LocalDateTime date = LocalDateTime.now();
         campaign.setCampaignCreatedDate(date);
@@ -56,17 +52,29 @@ public class CampaignService {
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionDescription()));
     }
 
-    @Transactional(rollbackFor = {EntityNotFoundException.class, AuthenticationException.class, AuthorizationServiceException.class})
-    public Campaign update(Long id, Campaign newCampaign, Principal creator) throws EntityNotFoundException, AuthenticationException {
-        checkCampaignByIdAndUserByPrincipal(id, creator);
+    @Transactional(rollbackFor = {EntityNotFoundException.class, AuthenticationException.class})
+    public Campaign update(Long id, Campaign newCampaign) throws EntityNotFoundException, AuthenticationException {
+        Campaign campaignById = campaignRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionDescription()));
+
+        if (!securityService.checkPrincipalAccess(campaignById.getAdvertiser().getCreator().getUsername())) {
+            throw new AuthenticationException(ExceptionText.INSUFFICIENT_RIGHTS.getExceptionDescription());
+        }
+
         newCampaign.setId(id);
         campaignRepository.save(newCampaign);
         return newCampaign;
     }
 
-    @Transactional(rollbackFor = {EntityNotFoundException.class, AuthenticationException.class, AuthorizationServiceException.class})
-    public void delete(Long id, Principal creator) throws EntityNotFoundException, AuthenticationException {
-        Campaign campaignById = checkCampaignByIdAndUserByPrincipal(id, creator);
+    @Transactional(rollbackFor = {EntityNotFoundException.class, AuthenticationException.class})
+    public void delete(Long id) throws EntityNotFoundException, AuthenticationException {
+        Campaign campaignById = campaignRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionDescription()));
+
+        if (!securityService.checkPrincipalAccess(campaignById.getAdvertiser().getCreator().getUsername())) {
+            throw new AuthenticationException(ExceptionText.INSUFFICIENT_RIGHTS.getExceptionDescription());
+        }
+
         campaignById.setCampaignDeleted(true);
         LocalDateTime date = LocalDateTime.now();
         campaignById.setCampaignDeletedDate(date);
@@ -82,19 +90,5 @@ public class CampaignService {
     @Transactional
     public List<Campaign> getDeletedCampaigns() {
         return campaignRepository.findAllByCampaignDeletedTrue();
-    }
-
-    public Campaign checkCampaignByIdAndUserByPrincipal(Long id, Principal user)
-            throws EntityNotFoundException, AuthenticationException {
-        Campaign campaignById = campaignRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionDescription()));
-        User principalUser = userRepository.findByUsername(user.getName())
-                .orElseThrow(() -> new AuthorizationServiceException(ExceptionText.AUTHORIZATION_SERVICE.getExceptionDescription()));
-        boolean checkAccess = principalUser.getUserRole().equals(Role.ADMIN)
-                || principalUser.getId().equals(campaignById.getAdvertiser().getCreator().getId());
-        if (!checkAccess) {
-            throw new AuthenticationException(ExceptionText.INSUFFICIENT_RIGHTS.getExceptionDescription());
-        }
-        return campaignById;
     }
 }

@@ -1,5 +1,7 @@
-package by.shimakser.ssl;
+package by.shimakser.keycloak.controller;
 
+import by.shimakser.dto.SslRequest;
+import by.shimakser.keycloak.service.SslService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

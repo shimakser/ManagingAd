@@ -2,7 +2,7 @@ version: '3.3'
 
 services:
 
-#elk
+  #elk
   elasticsearch:
     container_name: elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:7.5.1
@@ -11,7 +11,7 @@ services:
       - "9300:9300"
     volumes:
       - type: bind
-        source: ./elk/elasticsearch/config/elasticsearch.yml
+        source: ./configs/elk/elasticsearch/config/elasticsearch.yml
         target: /usr/share/elasticsearch/config/elasticsearch.yml
         read_only: true
       - type: volume
@@ -33,7 +33,7 @@ services:
         target: /managingad/log
         read_only: true
       - type: bind
-        source: ./elk/logstash/config/logstash.yml
+        source: ./configs/elk/logstash/config/logstash.yml
         target: /usr/share/logstash/config/logstash.yml
         read_only: true
       - type: bind
@@ -57,7 +57,7 @@ services:
     image: docker.elastic.co/kibana/kibana:7.5.1
     volumes:
       - type: bind
-        source: ./elk/kibana/config/kibana.yml
+        source: ./configs/elk/kibana/config/kibana.yml
         target: /usr/share/kibana/config/kibana.yml
         read_only: true
     ports:
@@ -67,7 +67,7 @@ services:
     depends_on:
       - elasticsearch
 
-#measage brokers
+  #measage brokers
   zookeeper:
     image: confluentinc/cp-zookeeper:6.2.1
     hostname: zookeeper
@@ -113,12 +113,12 @@ services:
     networks:
       - network
 
-#databases
+  #databases
   postgres:
     container_name: postgresdb
     image: postgres:14
     volumes:
-      - ./init-db:/docker-entrypoint-initdb.d
+      - ./scripts/init-db:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
     environment:
@@ -141,7 +141,7 @@ services:
     networks:
       - network
 
-#keycloak
+  #keycloak
   keycloak:
     image: jboss/keycloak
     container_name: keycloak
@@ -160,7 +160,7 @@ services:
     networks:
       - network
 
-#cache
+  #cache
   redis:
     image: redis
     container_name: redis
@@ -171,7 +171,7 @@ services:
     networks:
       - network
 
-#applications
+  #applications
   app:
     container_name: managingad
     image: application-app
@@ -195,7 +195,7 @@ services:
       CURRENCIES_PORT: 8081
       KEYCLOAK_REALM: SpringBootKeycloak
       KEYCLOAK_CLIENT: managingad-app
-      KEYCLOAK_SERVER: http://localhost:9000/auth
+      KEYCLOAK_SERVER: http://keycloak:9000/auth
       KEYCLOAK_SECRET: 16NaIfpxQ7BWZ5yGhn5BK1AWs3YtdVAt
       KEYCLOAK_USERNAME: root
       KEYCLOAK_PASSWORD: root

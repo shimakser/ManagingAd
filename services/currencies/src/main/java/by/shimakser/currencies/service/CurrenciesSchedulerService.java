@@ -27,7 +27,7 @@ public class CurrenciesSchedulerService {
         this.currenciesSender = currenciesSender;
     }
 
-    @Scheduled(fixedDelayString = "PT1H")
+    @Scheduled(fixedRateString = "PT1H")
     public void schedulerCurrencies() {
         LocalDateTime date = LocalDateTime.now();
 

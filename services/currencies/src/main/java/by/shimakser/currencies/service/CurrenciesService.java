@@ -34,7 +34,6 @@ public class CurrenciesService {
                 : new ArrayList<>(currenciesFeignClient.getCurrencies().getValute().values());
     }
 
-    @Transactional
     public Currency getCurrency(String id) {
         return convertService.getEntity(currenciesFeignClient.getCurrencies(), id);
     }

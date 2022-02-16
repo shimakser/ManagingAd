@@ -13,8 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.naming.AuthenticationException;
-import java.rmi.AlreadyBoundException;
-import java.security.Principal;
+import javax.persistence.EntityExistsException;
 import java.util.List;
 
 @RestController
@@ -35,10 +34,10 @@ public class CampaignController {
     }
 
     @PostMapping
-    public ResponseEntity<CampaignDto> addCampaign(@RequestBody CampaignDto campaignDto) throws AlreadyBoundException {
+    public ResponseEntity<CampaignDto> addCampaign(@RequestBody CampaignDto campaignDto) throws EntityExistsException {
         Campaign newCampaign = campaignMapper.mapToEntity(campaignDto);
-        campaignService.add(newCampaign);
-        return new ResponseEntity<>(campaignDto, HttpStatus.CREATED);
+        Campaign addedCampaign = campaignService.add(newCampaign);
+        return new ResponseEntity<>(campaignMapper.mapToDto(addedCampaign), HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/{id}")
@@ -52,27 +51,26 @@ public class CampaignController {
     }
 
     @PutMapping(value = "/{id}")
-    public CampaignDto updateCampaignById(@PathVariable("id") Long id,
-                                          @RequestBody CampaignDto newCampaignDto,
-                                          Principal creator) throws AuthenticationException {
+    public CampaignDto updateCampaignById(@PathVariable("id") Long id, @RequestBody CampaignDto newCampaignDto) throws AuthenticationException {
         Campaign campaign = campaignMapper.mapToEntity(newCampaignDto);
-        return campaignMapper.mapToDto(campaignService.update(id, campaign, creator));
+        Campaign updatedCampaign = campaignService.update(id, campaign);
+        return campaignMapper.mapToDto(updatedCampaign);
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<HttpStatus> deleteCampaignById(@PathVariable("id") Long id, Principal creator)
+    public ResponseEntity<HttpStatus> deleteCampaignById(@PathVariable("id") Long id)
             throws AuthenticationException {
-        campaignService.delete(id, creator);
+        campaignService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(value = "/deleted/{id}")
     public CampaignDto getDeletedCampaignById(@PathVariable Long id) {
         return campaignMapper.mapToDto(campaignService.getDeletedCampaign(id));
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(value = "/deleted")
     public List<CampaignDto> getAllDeletedCampaigns() {
         return campaignMapper.mapToListDto(campaignService.getDeletedCampaigns());

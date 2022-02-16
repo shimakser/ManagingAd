@@ -1,17 +1,51 @@
+server:
+  port: ${PORT}
+  servlet:
+    context-path: /managingad
+
 spring:
   datasource:
-    url: ${POSTGRES_URL}
-    username: ${POSTGRES_USERNAME}
+    db: ${DB}
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${DB}
+    username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   flyway:
-    url: ${POSTGRES_URL}
-    user: ${POSTGRES_USERNAME}
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${DB}
+    user: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
     locations: classpath:db/migration
 
-jwt:
-  token:
-    secret: shimakser
-    expired: 3600000
+  jpa:
+    open-in-view: true
+
+  data:
+    mongodb:
+      host: ${MONGO_HOST}
+      port: ${MONGO_PORT}
+      database: ${DB}
+
+  kafka:
+    bootstrap-servers: ${KAFKA_HOST}:${KAFKA_PORT}
+    topic:
+      registration-topic: registration-topic
+      request-topic: request-topic
+      requestreply-topic: requestreply-topic
+    consumer:
+      registration-group: registration-group
+      requestreply-group: requestreply-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties.spring.json.trusted.packages: by.shimakser.dto;
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+
+  cache:
+    collection-name: Currency
+    cache-name: currency
+
+feign:
+  application-url: ${CURRENCIES_HOST}:${CURRENCIES_PORT}/currencies

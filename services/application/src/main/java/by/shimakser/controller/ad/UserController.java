@@ -13,8 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.naming.AuthenticationException;
-import java.rmi.AlreadyBoundException;
-import java.security.Principal;
+import javax.persistence.EntityExistsException;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,12 +36,12 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> addUser(@RequestBody UserDto userDto) throws AlreadyBoundException {
+    public ResponseEntity<UserDto> addUser(@RequestBody UserDto userDto) throws EntityExistsException {
         User newUser = userMapper.mapToEntity(userDto);
         producerService.sendUser(userDto);
-        userService.add(newUser);
+        User addedUser = userService.add(newUser);
         log.info("Added user: " + userDto);
-        return new ResponseEntity<>(userDto, HttpStatus.CREATED);
+        return new ResponseEntity<>(userMapper.mapToDto(addedUser), HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/{id}")
@@ -51,27 +50,25 @@ public class UserController {
         return userMapper.mapToDto(userService.get(id));
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public List<UserDto> getAllUsers(
-            @RequestParam Optional<Integer> page,
-            @RequestParam Optional<Integer> size,
-            @RequestParam Optional<String> sortBy
+    public List<UserDto> getAllUsers(@RequestParam Optional<Integer> page,
+                                     @RequestParam Optional<Integer> size,
+                                     @RequestParam Optional<String> sortBy
     ) {
         log.info("Search all users");
         return userMapper.mapToListDto(userService.getAll(page, size, sortBy));
     }
 
     @PutMapping(value = "/{id}")
-    public UserDto updateUserById(@PathVariable("id") Long id,
-                                  @RequestBody UserDto newUserDto,
-                                  Principal principal) throws AuthenticationException {
+    public UserDto updateUserById(@PathVariable("id") Long id, @RequestBody UserDto newUserDto) throws AuthenticationException {
         User user = userMapper.mapToEntity(newUserDto);
         log.info("Updated user with id: " + id);
-        return userMapper.mapToDto(userService.update(id, user, principal));
+        User updatedUser = userService.update(id, user);
+        return userMapper.mapToDto(updatedUser);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<HttpStatus> deleteUserById(@PathVariable("id") Long id) {
         userService.delete(id);
@@ -79,13 +76,13 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(value = "/deleted/{id}")
     public UserDto getDeletedUserById(@PathVariable Long id) {
         return userMapper.mapToDto(userService.getDeletedUser(id));
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(value = "/deleted")
     public List<UserDto> getAllDeletedUsers() {
         return userMapper.mapToListDto(userService.getDeletedUsers());

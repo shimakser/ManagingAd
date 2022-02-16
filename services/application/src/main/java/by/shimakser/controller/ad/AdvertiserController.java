@@ -11,8 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.naming.AuthenticationException;
-import java.rmi.AlreadyBoundException;
-import java.security.Principal;
+import javax.persistence.EntityExistsException;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,11 +30,11 @@ public class AdvertiserController {
     }
 
     @PostMapping
-    public ResponseEntity<AdvertiserDto> addAdvertiser(@RequestBody AdvertiserDto advertiserDto, Principal user)
-            throws AlreadyBoundException {
+    public ResponseEntity<AdvertiserDto> addAdvertiser(@RequestBody AdvertiserDto advertiserDto)
+            throws EntityExistsException {
         Advertiser newAdvertiser = advertiserMapper.mapToEntity(advertiserDto);
-        advertiserService.add(newAdvertiser, user);
-        return new ResponseEntity<>(advertiserDto, HttpStatus.CREATED);
+        Advertiser addedAdvertiser = advertiserService.add(newAdvertiser);
+        return new ResponseEntity<>(advertiserMapper.mapToDto(addedAdvertiser), HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/{id}")
@@ -43,38 +42,36 @@ public class AdvertiserController {
         return advertiserMapper.mapToDto(advertiserService.get(id));
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
-    public List<AdvertiserDto> getAllAdvertisers(
-            @RequestParam Optional<Integer> page,
-            @RequestParam Optional<Integer> size,
-            @RequestParam Optional<String> sortBy
+    public List<AdvertiserDto> getAllAdvertisers(@RequestParam Optional<Integer> page,
+                                                 @RequestParam Optional<Integer> size,
+                                                 @RequestParam Optional<String> sortBy
     ) {
         return advertiserMapper.mapToListDto(advertiserService.getAll(page, size, sortBy));
     }
 
     @PutMapping(value = "/{id}")
-    public AdvertiserDto updateAdvertiserById(@PathVariable("id") Long id,
-                                              @RequestBody AdvertiserDto newAdvertiserDto,
-                                              Principal creator) throws AuthenticationException {
+    public AdvertiserDto updateAdvertiserById(@PathVariable("id") Long id, @RequestBody AdvertiserDto newAdvertiserDto) throws AuthenticationException {
         Advertiser advertiser = advertiserMapper.mapToEntity(newAdvertiserDto);
-        return advertiserMapper.mapToDto(advertiserService.update(id, advertiser, creator));
+        Advertiser updatedAdvertiser = advertiserService.update(id, advertiser);
+        return advertiserMapper.mapToDto(updatedAdvertiser);
     }
 
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<HttpStatus> deleteAdvertiserById(@PathVariable("id") Long id, Principal creator)
+    public ResponseEntity<HttpStatus> deleteAdvertiserById(@PathVariable("id") Long id)
             throws AuthenticationException {
-        advertiserService.delete(id, creator);
+        advertiserService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(value = "/deleted/{id}")
     public AdvertiserDto getDeletedAdvertiserById(@PathVariable Long id) {
         return advertiserMapper.mapToDto(advertiserService.getDeletedAdvertiser(id));
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(value = "/deleted")
     public List<AdvertiserDto> getAllDeletedAdvertisers() {
         return advertiserMapper.mapToListDto(advertiserService.getDeletedAdvertisers());

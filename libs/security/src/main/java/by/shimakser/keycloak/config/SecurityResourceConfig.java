@@ -25,6 +25,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Configuration
@@ -46,7 +47,7 @@ public class SecurityResourceConfig extends WebSecurityConfigurerAdapter {
         PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
         YamlPropertiesFactoryBean yaml = new YamlPropertiesFactoryBean();
         yaml.setResources(new ClassPathResource("application-keycloak.yml"));
-        configurer.setProperties(yaml.getObject());
+        configurer.setProperties(Objects.requireNonNull(yaml.getObject()));
         return configurer;
     }
 

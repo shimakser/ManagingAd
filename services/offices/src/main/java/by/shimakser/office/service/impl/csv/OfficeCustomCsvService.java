@@ -12,6 +12,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,22 +36,23 @@ public class OfficeCustomCsvService extends BaseCsvService<Office> {
         }
 
         ID_OF_OPERATION.incrementAndGet();
-        Runnable exportTask = () -> {
+        Runnable importTask = () -> {
             try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
                 String line;
                 statusOfExport.put(ID_OF_OPERATION.get(), new ExportOperationInfo(Status.UPLOADED, path));
 
                 while ((line = reader.readLine()) != null) {
-                    String[] arrayOfOffices = line.replace("\"", "").split(",", 5);
+                    String officeLine = line.substring(7, line.length() - 1);
+                    String[] arrayOfOffices = officeLine.replace("\"", "").split(",", 5);
 
-                    int indexOfClosSqBracket = arrayOfOffices[4].indexOf("]");
-                    String strListOfContacts = arrayOfOffices[4].substring(8, indexOfClosSqBracket);
+                    String strContacts = arrayOfOffices[4].substring(arrayOfOffices[4].indexOf("["), arrayOfOffices[4].indexOf("]") + 1);
 
-                    String descriptions = arrayOfOffices[4].substring(indexOfClosSqBracket + 2);
+                    int indexOfContactListEnd = arrayOfOffices[4].indexOf("]");
+                    String strDescriptions = arrayOfOffices[4].substring(indexOfContactListEnd + 3);
 
                     Office office = new Office(Long.parseLong(arrayOfOffices[0]), arrayOfOffices[1],
                             arrayOfOffices[2], Double.parseDouble(arrayOfOffices[3]),
-                            contactConverterForExport(strListOfContacts), jsonConvertForExport(descriptions).toString());
+                            contactConverterForImport(strContacts), jsonConvertForImport(strDescriptions).toString());
                     officeRepository.save(office);
 
                     statusOfExport.put(ID_OF_OPERATION.get(), new ExportOperationInfo(Status.UPLOADED, path));
@@ -60,8 +62,8 @@ public class OfficeCustomCsvService extends BaseCsvService<Office> {
                 ex.printStackTrace();
             }
         };
-        Thread exportThread = new Thread(exportTask);
-        exportThread.start();
+        Thread importThread = new Thread(importTask);
+        importThread.start();
         return ID_OF_OPERATION.get();
     }
 
@@ -84,7 +86,6 @@ public class OfficeCustomCsvService extends BaseCsvService<Office> {
             statusOfImport.put(ID_OF_OPERATION.get(), new ExportOperationInfo(Status.NOT_LOADED, file.toPath().toString()));
             e.printStackTrace();
         }
-
         return Files.readAllBytes(Path.of(file.getPath()));
     }
 
@@ -93,11 +94,17 @@ public class OfficeCustomCsvService extends BaseCsvService<Office> {
         return officeRepository.findAll();
     }
 
-    private List<Contact> contactConverterForExport(String strContacts) {
+    protected List<Contact> contactConverterForImport(String strContacts) {
+        if (strContacts.equals("[]")) {
+            return Collections.emptyList();
+        }
+
+        String strListOfContacts = strContacts.substring(8, strContacts.length() - 1);
+
         String[] arrWithContacts;
-        if (strContacts.contains(", Contact")) {
-            arrWithContacts = strContacts.split(", Contact");
-        } else arrWithContacts = new String[]{strContacts};
+        if (strListOfContacts.contains(", Contact")) {
+            arrWithContacts = strListOfContacts.split(", Contact");
+        } else arrWithContacts = new String[]{strListOfContacts};
 
         return Arrays.stream(arrWithContacts)
                 .map(contacts -> contacts.substring(1, contacts.length() - 1))
@@ -106,7 +113,11 @@ public class OfficeCustomCsvService extends BaseCsvService<Office> {
                 .collect(Collectors.toList());
     }
 
-    protected JSONObject jsonConvertForExport(String json) {
+    protected JSONObject jsonConvertForImport(String json) {
+        if (json.equals("null")) {
+            return new JSONObject();
+        }
+
         return (json.equals("") || json.equals("{}"))
                 ? new JSONObject()
                 : new JSONObject(json);

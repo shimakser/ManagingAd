@@ -1,3 +1,16 @@
+server:
+  ssl:
+    enabled: true
+    protocol: TLS
+    enabled-protocols: TLSv1.2
+    key-store-type: PKCS12
+    key-store: classpath:keystore/Server-keystore.p12
+    key-store-password: password
+    client-auth: need
+    trust-store-type: PKCS12
+    trust-store: classpath:keystore/Server-truststore.p12
+    trust-store-password: password
+
 spring:
   security:
     oauth2:
