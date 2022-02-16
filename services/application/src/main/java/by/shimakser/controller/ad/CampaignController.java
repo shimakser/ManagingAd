@@ -36,8 +36,8 @@ public class CampaignController {
     @PostMapping
     public ResponseEntity<CampaignDto> addCampaign(@RequestBody CampaignDto campaignDto) throws EntityExistsException {
         Campaign newCampaign = campaignMapper.mapToEntity(campaignDto);
-        campaignService.add(newCampaign);
-        return new ResponseEntity<>(campaignDto, HttpStatus.CREATED);
+        Campaign addedCampaign = campaignService.add(newCampaign);
+        return new ResponseEntity<>(campaignMapper.mapToDto(addedCampaign), HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/{id}")
@@ -53,7 +53,8 @@ public class CampaignController {
     @PutMapping(value = "/{id}")
     public CampaignDto updateCampaignById(@PathVariable("id") Long id, @RequestBody CampaignDto newCampaignDto) throws AuthenticationException {
         Campaign campaign = campaignMapper.mapToEntity(newCampaignDto);
-        return campaignMapper.mapToDto(campaignService.update(id, campaign));
+        Campaign updatedCampaign = campaignService.update(id, campaign);
+        return campaignMapper.mapToDto(updatedCampaign);
     }
 
     @DeleteMapping(value = "/{id}")
@@ -63,13 +64,13 @@ public class CampaignController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(value = "/deleted/{id}")
     public CampaignDto getDeletedCampaignById(@PathVariable Long id) {
         return campaignMapper.mapToDto(campaignService.getDeletedCampaign(id));
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(value = "/deleted")
     public List<CampaignDto> getAllDeletedCampaigns() {
         return campaignMapper.mapToListDto(campaignService.getDeletedCampaigns());

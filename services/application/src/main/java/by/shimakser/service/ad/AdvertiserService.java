@@ -29,7 +29,7 @@ public class AdvertiserService {
     private final SecurityService securityService;
 
     private static final int DEFAULT_PAGE = 0;
-    private static final int DEFAULT_PAGE_SIZE = 1;
+    private static final int DEFAULT_PAGE_SIZE = 3;
     private static final String DEFAULT_FIELD_SORT = "id";
 
     @Autowired

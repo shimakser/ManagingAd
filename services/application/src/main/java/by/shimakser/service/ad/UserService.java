@@ -28,7 +28,7 @@ public class UserService {
     private final SecurityService securityService;
 
     private static final int DEFAULT_PAGE = 0;
-    private static final int DEFAULT_PAGE_SIZE = 1;
+    private static final int DEFAULT_PAGE_SIZE = 3;
     private static final String DEFAULT_FIELD_SORT = "id";
 
     @Autowired
@@ -68,7 +68,7 @@ public class UserService {
     }
 
     @Transactional
-    public List<User> getAll(Optional<Integer> page,Optional<Integer> size, Optional<String> sortBy) {
+    public List<User> getAll(Optional<Integer> page, Optional<Integer> size, Optional<String> sortBy) {
         return userRepository.findAllByUserDeletedFalse(
                 PageRequest.of(page.orElse(DEFAULT_PAGE),
                         size.orElse(DEFAULT_PAGE_SIZE),

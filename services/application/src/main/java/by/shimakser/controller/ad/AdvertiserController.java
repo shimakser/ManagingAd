@@ -33,8 +33,8 @@ public class AdvertiserController {
     public ResponseEntity<AdvertiserDto> addAdvertiser(@RequestBody AdvertiserDto advertiserDto)
             throws EntityExistsException {
         Advertiser newAdvertiser = advertiserMapper.mapToEntity(advertiserDto);
-        advertiserService.add(newAdvertiser);
-        return new ResponseEntity<>(advertiserDto, HttpStatus.CREATED);
+        Advertiser addedAdvertiser = advertiserService.add(newAdvertiser);
+        return new ResponseEntity<>(advertiserMapper.mapToDto(addedAdvertiser), HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/{id}")
@@ -42,7 +42,7 @@ public class AdvertiserController {
         return advertiserMapper.mapToDto(advertiserService.get(id));
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public List<AdvertiserDto> getAllAdvertisers(@RequestParam Optional<Integer> page,
                                                  @RequestParam Optional<Integer> size,
@@ -54,7 +54,8 @@ public class AdvertiserController {
     @PutMapping(value = "/{id}")
     public AdvertiserDto updateAdvertiserById(@PathVariable("id") Long id, @RequestBody AdvertiserDto newAdvertiserDto) throws AuthenticationException {
         Advertiser advertiser = advertiserMapper.mapToEntity(newAdvertiserDto);
-        return advertiserMapper.mapToDto(advertiserService.update(id, advertiser));
+        Advertiser updatedAdvertiser = advertiserService.update(id, advertiser);
+        return advertiserMapper.mapToDto(updatedAdvertiser);
     }
 
     @DeleteMapping(value = "/{id}")
@@ -64,13 +65,13 @@ public class AdvertiserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(value = "/deleted/{id}")
     public AdvertiserDto getDeletedAdvertiserById(@PathVariable Long id) {
         return advertiserMapper.mapToDto(advertiserService.getDeletedAdvertiser(id));
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping(value = "/deleted")
     public List<AdvertiserDto> getAllDeletedAdvertisers() {
         return advertiserMapper.mapToListDto(advertiserService.getDeletedAdvertisers());

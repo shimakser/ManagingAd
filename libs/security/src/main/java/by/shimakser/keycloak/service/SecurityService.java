@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 public class SecurityService {
 
     public boolean checkPrincipalAccess(String creator) {
-        System.out.println(getPrincipalRoles());
         boolean isAdmin = getPrincipalRoles().toString().contains("ROLE_ADMIN");
 
         if (isAdmin || creator.equals(getPrincipalName())) {
