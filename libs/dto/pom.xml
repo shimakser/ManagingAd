@@ -34,6 +34,12 @@
             <version>1.18.20</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>3.0.9</version>
+            <type>pom</type>
+        </dependency>
 
         <dependency>
             <groupId>org.json</groupId>

@@ -5,6 +5,7 @@ import by.shimakser.keycloak.service.SecurityService;
 import by.shimakser.model.ad.Role;
 import by.shimakser.model.ad.User;
 import by.shimakser.repository.ad.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -20,6 +21,7 @@ import java.util.Optional;
 
 import static java.util.function.Predicate.not;
 
+@Slf4j
 @Service
 public class UserService {
 
@@ -49,6 +51,8 @@ public class UserService {
         user.setUserRole(Role.USER);
         user.setUserDeleted(Boolean.FALSE);
         userRepository.save(user);
+
+        log.info("Added user: " + user);
         return user;
     }
 
@@ -56,6 +60,9 @@ public class UserService {
     public User get(Long id) throws EntityNotFoundException {
         User userById = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionDescription()));
+
+        log.info("Search user with id: " + id);
+
         return Optional.of(userById)
                 .filter(not(User::isUserDeleted))
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionDescription()));
@@ -69,6 +76,7 @@ public class UserService {
 
     @Transactional
     public List<User> getAll(Optional<Integer> page, Optional<Integer> size, Optional<String> sortBy) {
+        log.info("Search all users");
         return userRepository.findAllByUserDeletedFalse(
                 PageRequest.of(page.orElse(DEFAULT_PAGE),
                         size.orElse(DEFAULT_PAGE_SIZE),
@@ -87,6 +95,8 @@ public class UserService {
         newUser.setId(id);
         newUser.setPassword(bCryptPasswordEncoder.encode(userById.getPassword()));
         userRepository.save(newUser);
+
+        log.info("Updated user with id: " + id);
         return newUser;
     }
 
@@ -96,6 +106,8 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionDescription()));
         userById.setUserDeleted(Boolean.TRUE);
         userRepository.save(userById);
+
+        log.info("Deleted user with id: " + id);
     }
 
     @Transactional(rollbackFor = EntityNotFoundException.class)

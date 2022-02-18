@@ -79,13 +79,6 @@
             <version>${spring.boot.version}</version>
         </dependency>
 
-        <!--Rest
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-rest</artifactId>
-            <version>${spring.boot.version}</version>
-        </dependency>-->
-
         <!--Cache-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -138,7 +131,6 @@
             <version>4.3.1</version>
             <scope>test</scope>
         </dependency>
-
         <!--TestContainer-->
         <dependency>
             <groupId>org.testcontainers</groupId>
@@ -152,7 +144,6 @@
             <version>${org.testcontainers}</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>

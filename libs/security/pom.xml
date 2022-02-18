@@ -36,6 +36,7 @@
             <version>${spring.boot.version}</version>
         </dependency>
 
+        <!--oauth2 client-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
@@ -54,7 +55,7 @@
             <version>16.1.1</version>
         </dependency>
 
-        <!--Resource-server-->
+        <!--oauth2 resource server-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>

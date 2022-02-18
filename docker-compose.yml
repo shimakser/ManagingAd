@@ -11,7 +11,7 @@ services:
       - "9300:9300"
     volumes:
       - type: bind
-        source: ./configs/elk/elasticsearch/config/elasticsearch.yml
+        source: ./elk/elasticsearch/config/elasticsearch.yml
         target: /usr/share/elasticsearch/config/elasticsearch.yml
         read_only: true
       - type: volume
@@ -30,10 +30,10 @@ services:
     volumes:
       - type: volume
         source: log
-        target: /managingad/log
+        target: /log
         read_only: true
       - type: bind
-        source: ./configs/elk/logstash/config/logstash.yml
+        source: ./elk/logstash/config/logstash.yml
         target: /usr/share/logstash/config/logstash.yml
         read_only: true
       - type: bind
@@ -57,7 +57,7 @@ services:
     image: docker.elastic.co/kibana/kibana:7.5.1
     volumes:
       - type: bind
-        source: ./configs/elk/kibana/config/kibana.yml
+        source: ./elk/kibana/config/kibana.yml
         target: /usr/share/kibana/config/kibana.yml
         read_only: true
     ports:
@@ -196,11 +196,11 @@ services:
       KEYCLOAK_REALM: SpringBootKeycloak
       KEYCLOAK_CLIENT: managingad-app
       KEYCLOAK_SERVER: http://keycloak:9000/auth
-      KEYCLOAK_SECRET: 16NaIfpxQ7BWZ5yGhn5BK1AWs3YtdVAt
+      KEYCLOAK_SECRET: qqPlijJ1CAEcRlWvLrCsrFeLacr4ef06
       KEYCLOAK_USERNAME: root
       KEYCLOAK_PASSWORD: root
     volumes:
-      - log:/managingad/log
+      - log:/log
     depends_on:
       - postgres
       - keycloak
