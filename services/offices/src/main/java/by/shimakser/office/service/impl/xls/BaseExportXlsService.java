@@ -5,6 +5,7 @@ import by.shimakser.office.annotation.ExportField;
 import by.shimakser.office.model.ExportRequest;
 import by.shimakser.office.model.FileType;
 import by.shimakser.office.service.BaseExportService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -23,6 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static by.shimakser.office.annotation.FieldNameAnalyzer.checkFieldsNames;
 
+@Slf4j
 @Service
 public abstract class BaseExportXlsService<T> extends BaseExportService<T> {
 
@@ -110,9 +112,11 @@ public abstract class BaseExportXlsService<T> extends BaseExportService<T> {
         try (FileOutputStream out = new FileOutputStream(file)) {
             workbook.write(out);
             workbook.close();
+            log.info("Data successful export to .xls");
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("IOException from generation file to export to xls.", e);
         }
+
         return Files.readAllBytes(file.toPath());
     }
 
@@ -142,7 +146,7 @@ public abstract class BaseExportXlsService<T> extends BaseExportService<T> {
             Picture image = drawing.createPicture(anchor, pictureId);
             image.resize(IMAGE_WIDTH, IMAGE_HEIGHT);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("IOException from adding image into file.", e);
         }
     }
 
@@ -227,7 +231,7 @@ public abstract class BaseExportXlsService<T> extends BaseExportService<T> {
             cell.setCellValue(name.toString());
             cell.setCellStyle(getStyle());
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            log.error("IllegalAccessException from getting value of field {}.", field, e);
         }
     }
 
@@ -255,7 +259,7 @@ public abstract class BaseExportXlsService<T> extends BaseExportService<T> {
                         String name = subField.get(subEntity).toString();
                         cell.setCellValue(name);
                     } catch (IllegalAccessException e) {
-                        e.printStackTrace();
+                        log.error("IllegalAccessException from getting value of subField {}.", subField, e);
                     }
                     cell.setCellStyle(getStyle());
                 }

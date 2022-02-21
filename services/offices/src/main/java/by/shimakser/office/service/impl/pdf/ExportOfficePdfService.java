@@ -9,6 +9,7 @@ import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 @Service
 public class ExportOfficePdfService extends BaseExportService<Office> {
 
@@ -64,9 +66,10 @@ public class ExportOfficePdfService extends BaseExportService<Office> {
             document.add(table);
             document.close();
         } catch (IOException | DocumentException e) {
-            e.printStackTrace();
+            log.error("IOException/DocumentException from exporting data into pdf.", e);
         }
 
+        log.info("Export office data from db into pdf.");
         return Files.readAllBytes(file.toPath());
     }
 
@@ -138,7 +141,7 @@ public class ExportOfficePdfService extends BaseExportService<Office> {
         try {
             contactsColumns.setWidths(CONTACTS_COLUMN_WIDTH);
         } catch (DocumentException e) {
-            e.printStackTrace();
+            log.error("DocumentException from writing subColumnHeaders into pdf.", e);
         }
 
         Arrays.stream(CONTACTS_FIELDS).forEach(contactsField -> {
@@ -157,7 +160,7 @@ public class ExportOfficePdfService extends BaseExportService<Office> {
         try {
             contactsTable.setWidths(CONTACTS_COLUMN_WIDTH);
         } catch (DocumentException e) {
-            e.printStackTrace();
+            log.error("DocumentException from setting table width.", e);
         }
 
         office.getOfficeContacts().forEach(contact -> {
@@ -179,7 +182,7 @@ public class ExportOfficePdfService extends BaseExportService<Office> {
             document.add(image);
             document.add(Chunk.NEWLINE);
         } catch (IOException | DocumentException e) {
-            e.printStackTrace();
+            log.error("IOException/DocumentException from setting image into file.", e);
         }
     }
 }

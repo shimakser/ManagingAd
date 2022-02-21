@@ -16,3 +16,10 @@ spring:
 
   jpa:
     open-in-view: true
+
+logging:
+  file:
+    name: log/offices.log
+  level:
+    by.shimakser.currencies: debug
+    root: info

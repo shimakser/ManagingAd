@@ -4,6 +4,7 @@ import by.shimakser.exception.ExceptionText;
 import by.shimakser.keycloak.service.SecurityService;
 import by.shimakser.model.ad.Campaign;
 import by.shimakser.repository.ad.CampaignRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,7 @@ import java.util.Optional;
 
 import static java.util.function.Predicate.not;
 
+@Slf4j
 @Service
 public class CampaignService {
 
@@ -40,6 +42,8 @@ public class CampaignService {
         LocalDateTime date = LocalDateTime.now();
         campaign.setCampaignCreatedDate(date);
         campaignRepository.save(campaign);
+
+        log.info("Campaign {} successfully created with title {}.", campaign.getId(), campaign.getCampaignTitle());
         return campaign;
     }
 
@@ -47,6 +51,8 @@ public class CampaignService {
     public Campaign get(Long id) throws EntityNotFoundException {
         Campaign campaignById = campaignRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionDescription()));
+
+        log.info("Search campaign with id {}.", id);
         return Optional.of(campaignById)
                 .filter(not(Campaign::isCampaignDeleted))
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionDescription()));
@@ -63,6 +69,8 @@ public class CampaignService {
 
         newCampaign.setId(id);
         campaignRepository.save(newCampaign);
+
+        log.info("Campaign {} updated.", id);
         return newCampaign;
     }
 
@@ -79,16 +87,20 @@ public class CampaignService {
         LocalDateTime date = LocalDateTime.now();
         campaignById.setCampaignDeletedDate(date);
         campaignRepository.save(campaignById);
+
+        log.info("Campaign {} deleted.", id);
     }
 
     @Transactional(rollbackFor = EntityNotFoundException.class)
     public Campaign getDeletedCampaign(Long id) throws EntityNotFoundException {
+        log.info("Search deleted campaign {}.", id);
         return campaignRepository.findByIdAndCampaignDeletedTrue(id)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionDescription()));
     }
 
     @Transactional
     public List<Campaign> getDeletedCampaigns() {
+        log.info("Search all deleted campaigns.");
         return campaignRepository.findAllByCampaignDeletedTrue();
     }
 }

@@ -5,6 +5,7 @@ import by.shimakser.keycloak.service.SecurityService;
 import by.shimakser.model.ad.Role;
 import by.shimakser.model.ad.User;
 import by.shimakser.repository.ad.UserRepository;
+import by.shimakser.service.kafka.ProducerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -28,16 +29,19 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder bCryptPasswordEncoder;
     private final SecurityService securityService;
+    private final ProducerService producerService;
 
     private static final int DEFAULT_PAGE = 0;
     private static final int DEFAULT_PAGE_SIZE = 3;
     private static final String DEFAULT_FIELD_SORT = "id";
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder bCryptPasswordEncoder, SecurityService securityService) {
+    public UserService(UserRepository userRepository, PasswordEncoder bCryptPasswordEncoder,
+                       SecurityService securityService, ProducerService producerService) {
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.securityService = securityService;
+        this.producerService = producerService;
     }
 
     @Transactional(rollbackFor = EntityExistsException.class)
@@ -52,7 +56,9 @@ public class UserService {
         user.setUserDeleted(Boolean.FALSE);
         userRepository.save(user);
 
-        log.info("Added user: " + user);
+        producerService.sendUser(user);
+
+        log.info("User {} successfully registered with e-mail {}.", user.getId(), user.getUserEmail());
         return user;
     }
 
@@ -61,8 +67,7 @@ public class UserService {
         User userById = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionDescription()));
 
-        log.info("Search user with id: " + id);
-
+        log.info("Search user with id {}.", id);
         return Optional.of(userById)
                 .filter(not(User::isUserDeleted))
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionDescription()));
@@ -76,7 +81,8 @@ public class UserService {
 
     @Transactional
     public List<User> getAll(Optional<Integer> page, Optional<Integer> size, Optional<String> sortBy) {
-        log.info("Search all users");
+        log.info("Searched all users by page {}, size {}, sort by {}.",
+                page.orElseGet(() -> DEFAULT_PAGE), size.orElseGet(() -> DEFAULT_PAGE_SIZE), sortBy.orElseGet(() -> DEFAULT_FIELD_SORT));
         return userRepository.findAllByUserDeletedFalse(
                 PageRequest.of(page.orElse(DEFAULT_PAGE),
                         size.orElse(DEFAULT_PAGE_SIZE),
@@ -96,7 +102,7 @@ public class UserService {
         newUser.setPassword(bCryptPasswordEncoder.encode(userById.getPassword()));
         userRepository.save(newUser);
 
-        log.info("Updated user with id: " + id);
+        log.info("User {} updated.", id);
         return newUser;
     }
 
@@ -107,17 +113,19 @@ public class UserService {
         userById.setUserDeleted(Boolean.TRUE);
         userRepository.save(userById);
 
-        log.info("Deleted user with id: " + id);
+        log.info("User {} deleted.", id);
     }
 
     @Transactional(rollbackFor = EntityNotFoundException.class)
     public User getDeletedUser(Long id) throws EntityNotFoundException {
+        log.info("Search deleted user {}.", id);
         return userRepository.findByIdAndUserDeletedTrue(id)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionDescription()));
     }
 
     @Transactional
     public List<User> getDeletedUsers() {
+        log.info("Search all deleted users.");
         return userRepository.findAllByUserDeletedTrue();
     }
 }

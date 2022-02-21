@@ -4,6 +4,7 @@ import by.shimakser.office.exception.ExceptionOfficeText;
 import by.shimakser.office.model.ExportOperationInfo;
 import by.shimakser.office.model.Status;
 import javassist.NotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -13,6 +14,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+@Slf4j
 @Service
 public abstract class BaseCsvService<T> implements CsvService<T> {
 
@@ -23,6 +25,8 @@ public abstract class BaseCsvService<T> implements CsvService<T> {
     public Status getStatusOfImportById(Long id) throws NotFoundException {
         ExportOperationInfo operationInfo = Optional.ofNullable(statusOfImport.get(id))
                 .orElseThrow(() -> new NotFoundException(ExceptionOfficeText.NOT_FOUND.getExceptionDescription()));
+
+        log.info("Search status of import {}.", id);
         return operationInfo.getStatus();
     }
 
@@ -30,6 +34,8 @@ public abstract class BaseCsvService<T> implements CsvService<T> {
     public Status getStatusOfExportById(Long id) throws NotFoundException {
         ExportOperationInfo operationInfo = Optional.ofNullable(statusOfExport.get(id))
                 .orElseThrow(() -> new NotFoundException(ExceptionOfficeText.NOT_FOUND.getExceptionDescription()));
+
+        log.info("Search status of export {}.", id);
         return operationInfo.getStatus();
     }
 
@@ -39,6 +45,7 @@ public abstract class BaseCsvService<T> implements CsvService<T> {
                 .filter(info -> info.getStatus().equals(Status.UPLOADED))
                 .orElseThrow(() -> new NotFoundException(ExceptionOfficeText.NOT_FOUND.getExceptionDescription()));
 
+        log.info("Search exported file by id {}.", id);
         return Files.readAllBytes(Path.of(operationInfo.getPath()));
     }
 }

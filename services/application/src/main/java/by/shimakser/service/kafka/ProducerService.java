@@ -2,6 +2,8 @@ package by.shimakser.service.kafka;
 
 import by.shimakser.dto.NumbersRequest;
 import by.shimakser.dto.UserDto;
+import by.shimakser.mapper.UserMapper;
+import by.shimakser.model.ad.User;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
@@ -19,8 +21,8 @@ import java.util.concurrent.ExecutionException;
 public class ProducerService {
 
     private final ReplyingKafkaTemplate<String, NumbersRequest, NumbersRequest> requestReplyKafkaTemplate;
-
     private final KafkaTemplate<String, UserDto> userKafkaTemplate;
+    private final UserMapper userMapper;
 
     @Value(value = "${spring.kafka.topic.registration-topic}")
     private String registrationTopic;
@@ -33,12 +35,14 @@ public class ProducerService {
 
     @Autowired
     public ProducerService(ReplyingKafkaTemplate<String, NumbersRequest, NumbersRequest> requestReplyKafkaTemplate,
-                           KafkaTemplate<String, UserDto> userKafkaTemplate) {
+                           KafkaTemplate<String, UserDto> userKafkaTemplate, UserMapper userMapper) {
         this.requestReplyKafkaTemplate = requestReplyKafkaTemplate;
         this.userKafkaTemplate = userKafkaTemplate;
+        this.userMapper = userMapper;
     }
 
-    public void sendUser(UserDto userDto) {
+    public void sendUser(User user) {
+        UserDto userDto = userMapper.mapToDto(user);
         userKafkaTemplate.send(registrationTopic, userDto);
     }
 

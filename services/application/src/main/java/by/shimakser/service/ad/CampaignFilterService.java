@@ -5,6 +5,7 @@ import by.shimakser.filter.campaign.CampaignSpecifications;
 import by.shimakser.model.ad.Campaign;
 import by.shimakser.repository.ad.CampaignRepository;
 import by.shimakser.service.FilterService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class CampaignFilterService extends FilterService {
 
@@ -27,6 +29,8 @@ public class CampaignFilterService extends FilterService {
 
     @Transactional
     public List<Campaign> getByFilter(CampaignFilterRequest campaignFilterRequest) {
+        log.info("Searched all campaigns by page {}, size {}, sort by {}.",
+                campaignFilterRequest.getPageNumber(),  campaignFilterRequest.getPageSize(), campaignFilterRequest.getSort());
         return campaignRepository.findAll(
                         buildSpecification(campaignFilterRequest),
                         buildPageable(campaignFilterRequest))

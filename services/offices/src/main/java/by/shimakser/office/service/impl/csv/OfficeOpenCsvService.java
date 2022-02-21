@@ -8,6 +8,7 @@ import by.shimakser.office.repository.OfficeRepository;
 import com.opencsv.bean.*;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+@Slf4j
 @Service("officeOpenCsvService")
 public class OfficeOpenCsvService extends BaseCsvService<Office> {
 
@@ -54,9 +56,10 @@ public class OfficeOpenCsvService extends BaseCsvService<Office> {
             officeRepository.saveAll(list);
 
             statusOfExport.put(ID_OF_OPERATION.get(), new ExportOperationInfo(Status.UPLOADED, path));
+            log.info("Import {} office data from csv into db.", ID_OF_OPERATION.get());
         } catch (IOException e) {
             statusOfExport.put(ID_OF_OPERATION.get(), new ExportOperationInfo(Status.NOT_LOADED, path));
-            e.printStackTrace();
+            log.error("IOException from importing data from csv:{} into db.", path, e);
         }
 
         return ID_OF_OPERATION.get();
@@ -85,9 +88,10 @@ public class OfficeOpenCsvService extends BaseCsvService<Office> {
             beanWriter.write(getDataToExport());
 
             statusOfImport.put(ID_OF_OPERATION.get(), new ExportOperationInfo(Status.UPLOADED, file.toPath().toString()));
+            log.info("Export {} office data from db into csv.", ID_OF_OPERATION.get());
         } catch (IOException | CsvRequiredFieldEmptyException | CsvDataTypeMismatchException e) {
             statusOfImport.put(ID_OF_OPERATION.get(), new ExportOperationInfo(Status.NOT_LOADED, file.toPath().toString()));
-            e.printStackTrace();
+            log.error("IOException from exporting data from db into csv.", e);
         }
 
         return Files.readAllBytes(Path.of(file.getPath()));

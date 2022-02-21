@@ -6,6 +6,7 @@ import by.shimakser.model.ad.Advertiser;
 import by.shimakser.model.ad.User;
 import by.shimakser.repository.ad.AdvertiserRepository;
 import by.shimakser.repository.ad.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -21,6 +22,7 @@ import java.util.Optional;
 
 import static java.util.function.Predicate.not;
 
+@Slf4j
 @Service
 public class AdvertiserService {
 
@@ -53,6 +55,8 @@ public class AdvertiserService {
                 .orElseThrow(() -> new AuthorizationServiceException(ExceptionText.AUTHORIZATION_SERVICE.getExceptionDescription()));
         advertiser.setCreator(principalUser);
         advertiserRepository.save(advertiser);
+
+        log.info("Advertiser {} successfully created with title {}.", advertiser.getId(), advertiser.getAdvertiserTitle());
         return advertiser;
     }
 
@@ -60,6 +64,8 @@ public class AdvertiserService {
     public Advertiser get(Long id) throws EntityNotFoundException {
         Advertiser advertiserById = advertiserRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionDescription()));
+
+        log.info("Search advertiser with id {}.", id);
         return Optional.of(advertiserById)
                 .filter(not(Advertiser::isAdvertiserDeleted))
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionDescription()));
@@ -67,6 +73,8 @@ public class AdvertiserService {
 
     @Transactional
     public List<Advertiser> getAll(Optional<Integer> page, Optional<Integer> size, Optional<String> sortBy) {
+        log.info("Searched all advertisers by page {}, size {}, sort by {}.",
+                page.orElseGet(() -> DEFAULT_PAGE), size.orElseGet(() -> DEFAULT_PAGE_SIZE), sortBy.orElseGet(() -> DEFAULT_FIELD_SORT));
         return advertiserRepository.findAllByAdvertiserDeletedFalse(
                 PageRequest.of(page.orElse(DEFAULT_PAGE),
                         size.orElse(DEFAULT_PAGE_SIZE),
@@ -84,6 +92,8 @@ public class AdvertiserService {
 
         newAdvertiser.setId(id);
         advertiserRepository.save(newAdvertiser);
+
+        log.info("Advertiser {} updated.", id);
         return newAdvertiser;
     }
 
@@ -98,16 +108,20 @@ public class AdvertiserService {
 
         advertiserById.setAdvertiserDeleted(true);
         advertiserRepository.save(advertiserById);
+
+        log.info("Advertiser {} deleted.", id);
     }
 
     @Transactional(rollbackFor = EntityNotFoundException.class)
     public Advertiser getDeletedAdvertiser(Long id) throws EntityNotFoundException {
+        log.info("Search deleted advertiser {}.", id);
         return advertiserRepository.findByIdAndAdvertiserDeletedTrue(id)
                 .orElseThrow(() -> new EntityNotFoundException(ExceptionText.ENTITY_NOT_FOUND.getExceptionDescription()));
     }
 
     @Transactional
     public List<Advertiser> getDeletedAdvertisers() {
+        log.info("Search all deleted advertisers.");
         return advertiserRepository.findAllByAdvertiserDeletedTrue();
     }
 }

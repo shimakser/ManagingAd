@@ -4,11 +4,13 @@ import by.shimakser.office.model.EntityType;
 import by.shimakser.office.model.ExportServiceStructure;
 import by.shimakser.office.model.FileType;
 import by.shimakser.office.service.ExportService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+@Slf4j
 @Component
 public class ExportDispatcher implements Dispatcher<EntityType, FileType, ExportService<?>> {
 
@@ -34,6 +36,9 @@ public class ExportDispatcher implements Dispatcher<EntityType, FileType, Export
                 .map(map -> map.get(entityType))
                 .filter(Objects::nonNull)
                 .findAny()
-                .orElseThrow(() -> new NoSuchElementException("No such service by " + entityType + " and " + fileType));
+                .orElseThrow(() -> {
+                    log.error("NoSuchElementException: No such ExportService by {} and {}.", entityType, fileType);
+                    return new NoSuchElementException("No such service by " + entityType + " and " + fileType);
+                });
     }
 }

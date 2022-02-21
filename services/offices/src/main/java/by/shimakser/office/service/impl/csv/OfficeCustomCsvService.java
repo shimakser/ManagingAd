@@ -3,6 +3,7 @@ package by.shimakser.office.service.impl.csv;
 import by.shimakser.office.exception.ExceptionOfficeText;
 import by.shimakser.office.model.*;
 import by.shimakser.office.repository.OfficeRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service("officeCustomService")
 public class OfficeCustomCsvService extends BaseCsvService<Office> {
 
@@ -57,9 +59,10 @@ public class OfficeCustomCsvService extends BaseCsvService<Office> {
 
                     statusOfExport.put(ID_OF_OPERATION.get(), new ExportOperationInfo(Status.UPLOADED, path));
                 }
+                log.info("Import {} office data from db into csv file.", ID_OF_OPERATION.get());
             } catch (IOException ex) {
                 statusOfExport.put(ID_OF_OPERATION.get(), new ExportOperationInfo(Status.NOT_LOADED, path));
-                ex.printStackTrace();
+                log.error("IOException from importing data from csv:{} into db.", path, ex);
             }
         };
         Thread importThread = new Thread(importTask);
@@ -82,9 +85,10 @@ public class OfficeCustomCsvService extends BaseCsvService<Office> {
                 writer.write("\n");
             }
             statusOfImport.put(ID_OF_OPERATION.get(), new ExportOperationInfo(Status.UPLOADED, file.toPath().toString()));
+            log.info("Export {} office data from db into csv.", ID_OF_OPERATION.get());
         } catch (IOException e) {
             statusOfImport.put(ID_OF_OPERATION.get(), new ExportOperationInfo(Status.NOT_LOADED, file.toPath().toString()));
-            e.printStackTrace();
+            log.error("IOException from exporting data from db into csv.", e);
         }
         return Files.readAllBytes(Path.of(file.getPath()));
     }
