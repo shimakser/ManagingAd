@@ -1,4 +1,4 @@
-package by.shimakser.currencies.model;
+package by.shimakser.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -21,5 +21,5 @@ public class Currencies {
     @JsonProperty(value = "Timestamp")
     private String timestamp;
     @JsonProperty(value = "Valute")
-    private Map<String, Currency> valute;
+    private Map<String, CurrencyDto> valute;
 }

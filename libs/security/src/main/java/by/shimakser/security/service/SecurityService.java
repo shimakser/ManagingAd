@@ -1,4 +1,4 @@
-package by.shimakser.keycloak.service;
+package by.shimakser.security.service;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

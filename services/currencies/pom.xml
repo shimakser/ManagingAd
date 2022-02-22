@@ -22,10 +22,16 @@
         <maven.compiler.target>11</maven.compiler.target>
 
         <spring.boot.version>2.5.5</spring.boot.version>
+        <org.mapstruct>1.4.2.Final</org.mapstruct>
     </properties>
 
     <dependencies>
         <!--Modules-->
+        <dependency>
+            <groupId>by.shimakser.feign</groupId>
+            <artifactId>feign</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>by.shimakser.rabbitmq</groupId>
             <artifactId>rabbitmq</artifactId>
@@ -39,19 +45,11 @@
             <version>${spring.boot.version}</version>
         </dependency>
 
-        <!--Feign-->
+        <!--Mapstruct-->
         <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
-            <version>3.0.4</version>
-        </dependency>
-
-        <!--Lombok-->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.20</version>
-            <scope>provided</scope>
+            <groupId>org.mapstruct</groupId>
+            <artifactId>mapstruct</artifactId>
+            <version>${org.mapstruct}</version>
         </dependency>
 
         <!--DB-->
@@ -127,6 +125,22 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.5.1</version>
+                <configuration>
+                    <source>11</source>
+                    <target>11</target>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.22</version>
+                        </path>
+                        <path>
+                            <groupId>org.mapstruct</groupId>
+                            <artifactId>mapstruct-processor</artifactId>
+                            <version>${org.mapstruct}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
             </plugin>
         </plugins>
     </build>

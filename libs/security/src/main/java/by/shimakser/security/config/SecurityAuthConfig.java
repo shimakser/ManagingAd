@@ -1,4 +1,4 @@
-package by.shimakser.keycloak.config;
+package by.shimakser.security.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

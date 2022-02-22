@@ -1,7 +1,7 @@
-package by.shimakser.currencies.feign;
+package by.shimakser.feign.client;
 
-import by.shimakser.currencies.config.MessageConverterConfig;
-import by.shimakser.currencies.model.Currencies;
+import by.shimakser.dto.Currencies;
+import by.shimakser.feign.config.MessageConverterConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 

@@ -24,6 +24,7 @@
         <spring.boot.version>2.5.1</spring.boot.version>
         <org.flywaydb>8.0.3</org.flywaydb>
         <org.testcontainers>1.16.2</org.testcontainers>
+        <org.mapstruct>1.4.2.Final</org.mapstruct>
     </properties>
 
     <dependencies>
@@ -95,7 +96,7 @@
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
-            <version>1.4.2.Final</version>
+            <version>${org.mapstruct}</version>
         </dependency>
 
         <!--Hibernate JpaModelGen-->
@@ -190,7 +191,7 @@
                         <path>
                             <groupId>org.mapstruct</groupId>
                             <artifactId>mapstruct-processor</artifactId>
-                            <version>1.4.2.Final</version>
+                            <version>${org.mapstruct}</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>

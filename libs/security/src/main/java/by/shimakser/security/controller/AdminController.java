@@ -1,6 +1,6 @@
-package by.shimakser.keycloak.controller;
+package by.shimakser.security.controller;
 
-import by.shimakser.keycloak.service.AdminKeycloakService;
+import by.shimakser.security.service.AdminKeycloakService;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;

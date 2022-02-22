@@ -1,6 +1,6 @@
 package by.shimakser.service.ad;
 
-import by.shimakser.keycloak.service.SecurityService;
+import by.shimakser.security.service.SecurityService;
 import by.shimakser.model.ad.Advertiser;
 import by.shimakser.model.ad.Role;
 import by.shimakser.model.ad.User;

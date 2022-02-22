@@ -1,6 +1,6 @@
 package by.shimakser.service.currency;
 
-import by.shimakser.feign.CurrencyFeignClient;
+import by.shimakser.feign.client.CurrencyFeignClient;
 import by.shimakser.mapper.CurrencyMapper;
 import by.shimakser.model.currency.Currency;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +16,6 @@ import java.util.List;
 public class CurrencyService {
 
     private final CurrencyFeignClient currencyFeignClient;
-
     private final CurrencyMapper currencyMapper;
 
     @Autowired

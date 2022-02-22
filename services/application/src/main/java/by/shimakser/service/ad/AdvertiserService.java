@@ -1,7 +1,7 @@
 package by.shimakser.service.ad;
 
 import by.shimakser.exception.ExceptionText;
-import by.shimakser.keycloak.service.SecurityService;
+import by.shimakser.security.service.SecurityService;
 import by.shimakser.model.ad.Advertiser;
 import by.shimakser.model.ad.User;
 import by.shimakser.repository.ad.AdvertiserRepository;

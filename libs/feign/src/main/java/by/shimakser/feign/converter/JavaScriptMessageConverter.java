@@ -1,4 +1,4 @@
-package by.shimakser.currencies.converter;
+package by.shimakser.feign.converter;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.AbstractJackson2HttpMessageConverter;

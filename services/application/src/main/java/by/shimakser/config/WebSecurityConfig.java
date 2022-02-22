@@ -1,6 +1,6 @@
 package by.shimakser.config;
 
-import by.shimakser.keycloak.config.SecurityResourceConfig;
+import by.shimakser.security.config.SecurityResourceConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;

@@ -1,7 +1,7 @@
 package by.shimakser.service.ad;
 
 import by.shimakser.exception.ExceptionText;
-import by.shimakser.keycloak.service.SecurityService;
+import by.shimakser.security.service.SecurityService;
 import by.shimakser.model.ad.Campaign;
 import by.shimakser.repository.ad.CampaignRepository;
 import lombok.extern.slf4j.Slf4j;

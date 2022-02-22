@@ -1,4 +1,4 @@
-package by.shimakser.feign;
+package by.shimakser.feign.client;
 
 import by.shimakser.dto.CurrencyDto;
 import org.springframework.cloud.openfeign.FeignClient;

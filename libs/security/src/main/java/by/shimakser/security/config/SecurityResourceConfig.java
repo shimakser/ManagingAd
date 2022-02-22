@@ -1,4 +1,4 @@
-package by.shimakser.keycloak.config;
+package by.shimakser.security.config;
 
 import com.nimbusds.jose.shaded.json.JSONArray;
 import com.nimbusds.jose.shaded.json.JSONObject;

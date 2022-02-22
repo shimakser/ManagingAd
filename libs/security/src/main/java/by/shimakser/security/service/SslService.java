@@ -1,4 +1,4 @@
-package by.shimakser.keycloak.service;
+package by.shimakser.security.service;
 
 import by.shimakser.dto.SslRequest;
 import lombok.extern.slf4j.Slf4j;
