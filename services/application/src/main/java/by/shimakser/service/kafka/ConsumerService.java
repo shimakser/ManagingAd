@@ -14,7 +14,7 @@ public class ConsumerService {
 
     @KafkaListener(topics = "${spring.kafka.topic.registration-topic}")
     public void registrationListener(ConsumerRecord<String, UserDto> consumerRecord) {
-        log.info("New user: " + consumerRecord.value().toString());
+        log.info("KafkaListener consume new user: " + consumerRecord.value().toString());
     }
 
     @KafkaListener(topics = "${spring.kafka.topic.request-topic}")

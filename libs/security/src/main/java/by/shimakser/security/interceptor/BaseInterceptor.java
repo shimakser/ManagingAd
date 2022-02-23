@@ -1,4 +1,4 @@
-package by.shimakser.security.service;
+package by.shimakser.security.interceptor;
 
 import lombok.Getter;
 import org.slf4j.MDC;
@@ -9,11 +9,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 
 @Getter
 @Service
-public class AttributeService {
+public class BaseInterceptor {
 
     private static final String USER_ID = "id";
     private static final String USERNAME = "username";
@@ -46,10 +45,7 @@ public class AttributeService {
     }
 
     public String getRandomNumber() {
-        Supplier<String> randomNumber = () -> {
-            int value = (int) (Math.random() * ((100 - 1) + 1));
-            return String.valueOf(value);
-        };
-        return randomNumber.get();
+        int value = (int) (Math.random() * ((100 - 1) + 1));
+        return String.valueOf(value);
     }
 }

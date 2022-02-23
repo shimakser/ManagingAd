@@ -19,9 +19,6 @@ public class KafkaRegistrationConfig {
         this.kafkaConfig = kafkaConfig;
     }
 
-    @Value(value = "${spring.kafka.consumer.registration-group}")
-    private String consumerRegistrationGroup;
-
     @Bean
     public KafkaTemplate<String, UserDto> registrationKafkaTemplate() {
         return new KafkaTemplate<>(registrationProducerFactory());
@@ -42,7 +39,6 @@ public class KafkaRegistrationConfig {
 
     @Bean
     public ConsumerFactory<String, UserDto> registrationConsumerFactory() {
-        kafkaConfig.consumerConfigs().put(ConsumerConfig.GROUP_ID_CONFIG, consumerRegistrationGroup);
         return new DefaultKafkaConsumerFactory<>(kafkaConfig.consumerConfigs());
     }
 }
