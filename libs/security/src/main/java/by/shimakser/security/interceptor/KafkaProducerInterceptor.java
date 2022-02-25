@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerInterceptor;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
+import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -16,13 +17,13 @@ public class KafkaProducerInterceptor extends BaseInterceptor implements Produce
     @Override
     public ProducerRecord<String, Object> onSend(ProducerRecord<String, Object> producerRecord) {
 
-        super.setMdcAndHeader(super.getRandomNumber())
+        MDC.getCopyOfContextMap()
                 .forEach((key, value) -> producerRecord
                         .headers()
                         .add(key, value.getBytes(StandardCharsets.UTF_8)));
 
-        log.info("Intercepted kafka message [{}] to topic {}", producerRecord.value(), producerRecord.topic());
-        return new ProducerRecord<>(producerRecord.topic(), producerRecord.key(), producerRecord.value());
+        log.info("Intercepted sending kafka message [{}] to topic {}.", producerRecord.value(), producerRecord.topic());
+        return producerRecord;
     }
 
     @Override
@@ -34,5 +35,6 @@ public class KafkaProducerInterceptor extends BaseInterceptor implements Produce
     }
 
     @Override
-    public void close() {}
+    public void close() {
+    }
 }
