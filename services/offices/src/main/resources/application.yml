@@ -20,6 +20,9 @@ spring:
 logging:
   file:
     name: log/offices.log
+  pattern:
+    file: "%level | %logger | %msg | %X{id} %X{username} %X{attribute}%n"
+    console: "%level | %logger | %msg | %X{id} %X{username} %X{attribute}%n"
   level:
     by.shimakser.currencies: debug
     root: info

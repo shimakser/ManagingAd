@@ -47,10 +47,10 @@ services:
       - "5000:5000/tcp"
       - "5000:5000/udp"
       - "9600:9600"
-    networks:
-      - network
     depends_on:
       - elasticsearch
+    networks:
+      - network
 
   kibana:
     container_name: kibana
@@ -65,7 +65,7 @@ services:
     networks:
       - network
     depends_on:
-      - elasticsearch
+      - logstash
 
   #measage brokers
   zookeeper:
@@ -154,7 +154,7 @@ services:
       KEYCLOAK_USER: root
       KEYCLOAK_PASSWORD: root
     ports:
-      - "9000:8080"
+      - "8080:8080"
     depends_on:
       - postgres
     networks:
@@ -179,9 +179,9 @@ services:
       context: .
       dockerfile: Dockerfile-app
     ports:
-      - "8080:8080"
+      - "8085:8085"
     environment:
-      PORT: 8080
+      PORT: 8085
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root
       POSTGRES_HOST: postgresdb
@@ -195,8 +195,8 @@ services:
       CURRENCIES_PORT: 8081
       KEYCLOAK_REALM: SpringBootKeycloak
       KEYCLOAK_CLIENT: managingad-app
-      KEYCLOAK_SERVER: http://keycloak:9000/auth
-      KEYCLOAK_SECRET: qqPlijJ1CAEcRlWvLrCsrFeLacr4ef06
+      KEYCLOAK_SERVER: http://keycloak:8080/auth
+      KEYCLOAK_SECRET: LdZGY8o9hsVZ567Jeydo2LEjWDPEPB5o
       KEYCLOAK_USERNAME: root
       KEYCLOAK_PASSWORD: root
     volumes:
@@ -227,6 +227,8 @@ services:
       RABBITMQ_PORT: 5672
       RABBITMQ_USERNAME: guest
       RABBITMQ_PASSWORD: guest
+    volumes:
+      - log:/log
     depends_on:
       - rabbitmq
       - mongodb
@@ -248,6 +250,8 @@ services:
       POSTGRES_HOST: postgresdb
       POSTGRES_PORT: 5432
       DB: offices
+    volumes:
+      - log:/log
     depends_on:
       - postgres
     networks:
