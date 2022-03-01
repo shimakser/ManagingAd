@@ -43,13 +43,10 @@ public class KafkaConsumerAspectInterceptor extends BaseInterceptor {
     private void setKafkaHeaderToMdc(Headers headers) {
         Map<String, String> kafkaHeaders = new HashMap<>();
 
-        System.out.println(headers);
         headers.forEach(header -> kafkaHeaders.put(header.key(), new String(header.value(), StandardCharsets.UTF_8)));
-        System.out.println("1-"+kafkaHeaders);
         kafkaHeaders.put(PARENT_OPERATION_ID, kafkaHeaders.get(OPERATION_ID));
         kafkaHeaders.put(OPERATION_ID, super.getRandomNumber());
 
-        System.out.println("2-"+kafkaHeaders);
         MDC.setContextMap(kafkaHeaders);
     }
 }

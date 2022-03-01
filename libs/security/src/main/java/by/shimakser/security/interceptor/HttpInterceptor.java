@@ -1,6 +1,7 @@
 package by.shimakser.security.interceptor;
 
 import org.slf4j.MDC;
+import org.springframework.security.access.AuthorizationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -45,7 +46,10 @@ public class HttpInterceptor extends BaseInterceptor implements HandlerIntercept
 
     private Jwt getPrincipal() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return (Jwt) auth.getPrincipal();
+
+        if (auth.getPrincipal().equals("anonymousUser")) {
+            throw new AuthorizationServiceException("Authorization required.");
+        } else return (Jwt) auth.getPrincipal();
     }
 
     public void clearMdc() {

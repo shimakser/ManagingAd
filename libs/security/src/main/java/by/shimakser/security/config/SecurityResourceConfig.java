@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.io.ClassPathResource;
@@ -43,12 +45,13 @@ public class SecurityResourceConfig extends WebSecurityConfigurerAdapter {
     private String keycloakPassword;
 
     @Bean
-    public static PropertySourcesPlaceholderConfigurer setProperties() {
-        PropertySourcesPlaceholderConfigurer configurer = new PropertySourcesPlaceholderConfigurer();
+    public static PropertySourcesPlaceholderConfigurer setSecurityProperties() {
+        PropertySourcesPlaceholderConfigurer securityConfigurer = new PropertySourcesPlaceholderConfigurer();
         YamlPropertiesFactoryBean yaml = new YamlPropertiesFactoryBean();
-        yaml.setResources(new ClassPathResource("application-keycloak.yml"));
-        configurer.setProperties(Objects.requireNonNull(yaml.getObject()));
-        return configurer;
+        yaml.setResources(new ClassPathResource("application-security.yml"));
+        securityConfigurer.setProperties(Objects.requireNonNull(yaml.getObject()));
+        securityConfigurer.setIgnoreUnresolvablePlaceholders(true);
+        return securityConfigurer;
     }
 
     @Bean

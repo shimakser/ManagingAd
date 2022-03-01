@@ -8,10 +8,7 @@ import by.shimakser.security.interceptor.KafkaProducerInterceptor;
 import feign.RequestInterceptor;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.*;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -21,17 +18,15 @@ import java.util.Map;
 
 @Configuration
 @EnableAspectJAutoProxy
+@ComponentScan(basePackages = "by.shimakser.interceptor")
 public class InterceptorConfig extends WebMvcConfigurerAdapter {
-
-    @Autowired
-    private HttpInterceptor httpInterceptor;
 
     @Autowired
     private KafkaConfig kafkaConfig;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(httpInterceptor);
+        registry.addInterceptor(new HttpInterceptor());
     }
 
     @Bean

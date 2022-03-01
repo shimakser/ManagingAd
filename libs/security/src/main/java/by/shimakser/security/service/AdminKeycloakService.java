@@ -13,7 +13,7 @@ import javax.ws.rs.NotFoundException;
 import java.util.List;
 
 @Service
-@PropertySource(value = {"classpath:application-keycloak.yml"})
+@PropertySource(value = {"classpath:application-security.yml"})
 public class AdminKeycloakService {
 
     @Autowired
