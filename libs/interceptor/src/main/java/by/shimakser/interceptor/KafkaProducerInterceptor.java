@@ -16,7 +16,6 @@ public class KafkaProducerInterceptor extends BaseInterceptor implements Produce
 
     @Override
     public ProducerRecord<String, Object> onSend(ProducerRecord<String, Object> producerRecord) {
-
         MDC.getCopyOfContextMap()
                 .forEach((key, value) -> producerRecord
                         .headers()

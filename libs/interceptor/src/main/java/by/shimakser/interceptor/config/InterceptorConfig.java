@@ -37,7 +37,7 @@ public class InterceptorConfig extends WebMvcConfigurerAdapter {
 
     @Primary
     @Bean
-    public KafkaTemplate<String, Object> interceptorUserKafkaTemplate() {
+    public KafkaTemplate<String, Object> interceptorProducerKafkaTemplate() {
         Map<String, Object> props = kafkaConfig.producerConfigs();
         props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, KafkaProducerInterceptor.class.getName());
 

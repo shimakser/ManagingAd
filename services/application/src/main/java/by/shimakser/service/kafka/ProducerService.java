@@ -23,7 +23,7 @@ import java.util.concurrent.ExecutionException;
 public class ProducerService {
 
     private final ReplyingKafkaTemplate<String, NumbersRequest, NumbersRequest> requestReplyKafkaTemplate;
-    private final KafkaTemplate<String, UserDto> userKafkaTemplate;
+    private final KafkaTemplate<String, Object> userKafkaTemplate;
     private final UserMapper userMapper;
 
     @Value(value = "${spring.kafka.topic.registration}")
@@ -37,7 +37,7 @@ public class ProducerService {
 
     @Autowired
     public ProducerService(ReplyingKafkaTemplate<String, NumbersRequest, NumbersRequest> requestReplyKafkaTemplate,
-                           KafkaTemplate<String, UserDto> userKafkaTemplate, UserMapper userMapper) {
+                           KafkaTemplate<String, Object> userKafkaTemplate, UserMapper userMapper) {
         this.requestReplyKafkaTemplate = requestReplyKafkaTemplate;
         this.userKafkaTemplate = userKafkaTemplate;
         this.userMapper = userMapper;
