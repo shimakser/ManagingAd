@@ -24,5 +24,5 @@ logging:
     file: "%level | %logger | %msg | %X{id} %X{username} %X{attribute} %X{X-REQUEST-ID} %X{operationId} %X{parentOperationId}%n"
     console: "%level | %logger | %msg | %X{id} %X{username} %X{attribute} %X{X-REQUEST-ID} %X{operationId} %X{parentOperationId}%n"
   level:
-    by.shimakser.currencies: debug
+    by.shimakser.office: debug
     root: info

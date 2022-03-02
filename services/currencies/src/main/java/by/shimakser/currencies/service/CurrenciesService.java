@@ -4,11 +4,11 @@ import by.shimakser.currencies.mapper.CurrencyMapper;
 import by.shimakser.currencies.model.Currency;
 import by.shimakser.currencies.model.CurrencyCode;
 import by.shimakser.currencies.repository.CurrenciesRepository;
+import by.shimakser.currencies.service.kafka.CurrencyKafkaService;
 import by.shimakser.dto.Currencies;
 import by.shimakser.feign.client.CurrenciesFeignClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,18 +26,24 @@ public class CurrenciesService {
     private final CurrenciesRepository currenciesRepository;
     private final CurrencyMapper currencyMapper;
 
+    private final CurrencyKafkaService currencyKafkaService;
+
     @Autowired
     public CurrenciesService(CurrenciesFeignClient currenciesFeignClient,
                              CurrenciesRepository currenciesRepository,
-                             CurrencyMapper currencyMapper) {
+                             CurrencyMapper currencyMapper,
+                             CurrencyKafkaService currencyKafkaService) {
         this.currenciesFeignClient = currenciesFeignClient;
         this.currenciesRepository = currenciesRepository;
         this.currencyMapper = currencyMapper;
+        this.currencyKafkaService = currencyKafkaService;
     }
 
     @Transactional
     public List<Currency> getCurrencies() {
         List<Currency> currencies = currenciesRepository.findAll();
+
+        currencyKafkaService.sendCurrencyToKafka();
 
         log.info("Searched all currencies.");
         return  !currencies.isEmpty()
@@ -49,8 +55,10 @@ public class CurrenciesService {
     }
 
     public Currency getCurrency(String id) {
+        Currencies currencies = currenciesFeignClient.getCurrencies();
         log.info("Search Currency {}", id);
-        return getEntity(currenciesFeignClient.getCurrencies(), id);
+
+        return getEntity(currencies, id);
     }
 
     public Currency getEntity(Currencies currencies, String id) {

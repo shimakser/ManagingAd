@@ -1,4 +1,4 @@
-package by.shimakser.security.interceptor;
+package by.shimakser.interceptor;
 
 import org.springframework.stereotype.Component;
 

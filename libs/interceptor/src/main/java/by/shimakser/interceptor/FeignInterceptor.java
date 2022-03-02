@@ -1,4 +1,4 @@
-package by.shimakser.security.interceptor;
+package by.shimakser.interceptor;
 
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
@@ -18,7 +18,7 @@ public class FeignInterceptor extends BaseInterceptor implements RequestIntercep
         setHeaderToMdc()
                 .forEach((key, value) -> template.header(key, List.of(value)));
 
-        log.info("Intercept feign request to path {}", template.path());
+        log.info("Intercept feign request.");
     }
 
     private Map<String, String> setHeaderToMdc() {

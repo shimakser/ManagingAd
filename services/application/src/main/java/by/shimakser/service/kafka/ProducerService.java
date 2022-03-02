@@ -4,6 +4,7 @@ import by.shimakser.dto.NumbersRequest;
 import by.shimakser.dto.UserDto;
 import by.shimakser.mapper.UserMapper;
 import by.shimakser.model.ad.User;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.concurrent.ExecutionException;
 
+@Slf4j
 @Service
 public class ProducerService {
 
@@ -24,13 +26,13 @@ public class ProducerService {
     private final KafkaTemplate<String, UserDto> userKafkaTemplate;
     private final UserMapper userMapper;
 
-    @Value(value = "${spring.kafka.topic.registration-topic}")
+    @Value(value = "${spring.kafka.topic.registration}")
     private String registrationTopic;
 
-    @Value(value = "${spring.kafka.topic.request-topic}")
+    @Value(value = "${spring.kafka.topic.request}")
     private String requestTopic;
 
-    @Value(value = "${spring.kafka.topic.requestreply-topic}")
+    @Value(value = "${spring.kafka.topic.requestreply}")
     private String requestReplyTopic;
 
     @Autowired
@@ -44,6 +46,8 @@ public class ProducerService {
     public void sendUser(User user) {
         UserDto userDto = userMapper.mapToDto(user);
         userKafkaTemplate.send(registrationTopic, userDto);
+
+        log.info("KafkaProducer send user {}.", userDto.getId());
     }
 
     public NumbersRequest sendNumbers(NumbersRequest numbersRequest) throws InterruptedException, ExecutionException {

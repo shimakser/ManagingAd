@@ -29,7 +29,7 @@ public class KafkaRequestReplyConfig {
     @Value(value = "${spring.kafka.consumer.requestreply-group}")
     private String consumerRequestReplyGroup;
 
-    @Value(value = "${spring.kafka.topic.requestreply-topic}")
+    @Value(value = "${spring.kafka.topic.requestreply}")
     private String requestReplyTopic;
 
     @Bean

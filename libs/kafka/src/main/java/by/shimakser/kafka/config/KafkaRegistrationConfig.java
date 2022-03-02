@@ -9,8 +9,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 
+import java.util.Map;
+
 @Configuration
 public class KafkaRegistrationConfig {
+
+    @Value(value = "${spring.kafka.consumer.registration-group}")
+    private String consumerRegistrationGroup;
 
     private final KafkaConfig kafkaConfig;
 
@@ -39,6 +44,9 @@ public class KafkaRegistrationConfig {
 
     @Bean
     public ConsumerFactory<String, UserDto> registrationConsumerFactory() {
-        return new DefaultKafkaConsumerFactory<>(kafkaConfig.consumerConfigs());
+        Map<String, Object> userProps = kafkaConfig.consumerConfigs();
+        userProps.put(ConsumerConfig.GROUP_ID_CONFIG, consumerRegistrationGroup);
+
+        return new DefaultKafkaConsumerFactory<>(userProps);
     }
 }

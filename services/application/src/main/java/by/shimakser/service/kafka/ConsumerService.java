@@ -12,12 +12,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class ConsumerService {
 
-    @KafkaListener(topics = "${spring.kafka.topic.registration-topic}")
+    @KafkaListener(topics = "${spring.kafka.topic.registration}")
     public void registrationListener(ConsumerRecord<String, UserDto> consumerRecord) {
         log.info("KafkaListener consume new user: " + consumerRecord.value().toString());
     }
 
-    @KafkaListener(topics = "${spring.kafka.topic.request-topic}")
+    @KafkaListener(topics = "${spring.kafka.topic.request}")
     @SendTo
     public NumbersRequest requestListen(NumbersRequest request) {
         Integer sum = request.getFirstNumber() + request.getSecondNumber();

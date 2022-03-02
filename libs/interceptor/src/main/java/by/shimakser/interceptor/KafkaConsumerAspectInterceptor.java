@@ -1,4 +1,4 @@
-package by.shimakser.security.interceptor;
+package by.shimakser.interceptor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;

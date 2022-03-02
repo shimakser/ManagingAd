@@ -28,6 +28,7 @@
         <module>libs/rabbitmq</module>
         <module>libs/migration</module>
         <module>libs/security</module>
+        <module>libs/interceptor</module>
     </modules>
 
     <properties>

@@ -1,10 +1,10 @@
-package by.shimakser.security.config;
+package by.shimakser.interceptor.config;
 
-import by.shimakser.dto.UserDto;
+import by.shimakser.interceptor.FeignInterceptor;
+import by.shimakser.interceptor.HttpInterceptor;
+import by.shimakser.interceptor.KafkaProducerInterceptor;
+import by.shimakser.kafka.config.KafkaAutoConfig;
 import by.shimakser.kafka.config.KafkaConfig;
-import by.shimakser.security.interceptor.FeignInterceptor;
-import by.shimakser.security.interceptor.HttpInterceptor;
-import by.shimakser.security.interceptor.KafkaProducerInterceptor;
 import feign.RequestInterceptor;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +18,7 @@ import java.util.Map;
 
 @Configuration
 @EnableAspectJAutoProxy
+@Import(KafkaAutoConfig.class)
 @ComponentScan(basePackages = "by.shimakser.interceptor")
 public class InterceptorConfig extends WebMvcConfigurerAdapter {
 
@@ -36,7 +37,7 @@ public class InterceptorConfig extends WebMvcConfigurerAdapter {
 
     @Primary
     @Bean
-    public KafkaTemplate<String, UserDto> interceptorProducerKafkaTemplate() {
+    public KafkaTemplate<String, Object> interceptorUserKafkaTemplate() {
         Map<String, Object> props = kafkaConfig.producerConfigs();
         props.put(ProducerConfig.INTERCEPTOR_CLASSES_CONFIG, KafkaProducerInterceptor.class.getName());
 

@@ -227,6 +227,14 @@ services:
       RABBITMQ_PORT: 5672
       RABBITMQ_USERNAME: guest
       RABBITMQ_PASSWORD: guest
+      KAFKA_PORT: 29092
+      KAFKA_HOST: broker
+      KEYCLOAK_REALM: SpringBootKeycloak
+      KEYCLOAK_CLIENT: managingad-app
+      KEYCLOAK_SERVER: http://keycloak:8080/auth
+      KEYCLOAK_SECRET: LdZGY8o9hsVZ567Jeydo2LEjWDPEPB5o
+      KEYCLOAK_USERNAME: root
+      KEYCLOAK_PASSWORD: root
     volumes:
       - log:/log
     depends_on:
@@ -250,6 +258,14 @@ services:
       POSTGRES_HOST: postgresdb
       POSTGRES_PORT: 5432
       DB: offices
+      KAFKA_PORT: 29092
+      KAFKA_HOST: broker
+      KEYCLOAK_REALM: SpringBootKeycloak
+      KEYCLOAK_CLIENT: managingad-app
+      KEYCLOAK_SERVER: http://keycloak:8080/auth
+      KEYCLOAK_SECRET: LdZGY8o9hsVZ567Jeydo2LEjWDPEPB5o
+      KEYCLOAK_USERNAME: root
+      KEYCLOAK_PASSWORD: root
     volumes:
       - log:/log
     depends_on:
