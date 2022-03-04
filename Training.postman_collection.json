@@ -1,0 +1,318 @@
+{
+	"info": {
+		"_postman_id": "3aca443f-6a99-43c2-8879-aea973d79b86",
+		"name": "Training",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "application",
+			"item": [
+				{
+					"name": "8085/users",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "client_authentication",
+									"value": "body",
+									"type": "string"
+								},
+								{
+									"key": "tokenName",
+									"value": "token",
+									"type": "string"
+								},
+								{
+									"key": "accessTokenUrl",
+									"value": "http://localhost:8080/auth/realms/SpringBootKeycloak/protocol/openid-connect/token",
+									"type": "string"
+								},
+								{
+									"key": "tokenType",
+									"value": "Bearer",
+									"type": "string"
+								},
+								{
+									"key": "accessToken",
+									"value": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJmdG5aZWFyZW5JblVTRTI3OG5ocVl2ci1IZzJjeC0xTXJVLUdCTmFMeDl3In0.eyJleHAiOjE2NDYwMzI1NjEsImlhdCI6MTY0NjAzMjI2MSwianRpIjoiNjhhYzNhZTUtMWQzYS00ZmVjLWFmMTAtYTIzZGNlOTIyMDhkIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo5MDAwL2F1dGgvcmVhbG1zL1NwcmluZ0Jvb3RLZXljbG9hayIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiIwNjdhZGM1My0yMDc5LTQ1OGMtOWYwZi04Njc4OGY4Mjc4YzgiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJtYW5hZ2luZ2FkLWFwcCIsInNlc3Npb25fc3RhdGUiOiIyYjRkMjlkZi1jY2M5LTQ3ODUtYTc0Yy1lNTNhODlkNzg3OGUiLCJhY3IiOiIxIiwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbIm9mZmxpbmVfYWNjZXNzIiwiZGVmYXVsdC1yb2xlcy1zcHJpbmdib290a2V5Y2xvYWsiLCJ1bWFfYXV0aG9yaXphdGlvbiIsIkFETUlOIiwiVVNFUiJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoiZW1haWwgcHJvZmlsZSIsInNpZCI6IjJiNGQyOWRmLWNjYzktNDc4NS1hNzRjLWU1M2E4OWQ3ODc4ZSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4ifQ.bgxHK3keOOpoLp3m2Uxe3yXDP7AmOKe-rdIzbmxiYPuzWrDclmiZYs6xwRc2SdchzEkoctKK-Yuko2mKSTKftWkdn0-1rLAUvcCWwlzUSU8IDx1fAmT7OKIVmXb7SdAtiISgvH_9qDIiRE4der0Kn1OAHx6PHtkIUXnlITf86dj5WyX0AJf6jFYUSvzRzPIZEHQKgrkPuw8M-97J5wnFw7vf3KqXVIFBr7mtPIXGTxyE4ThQeoc1OUM0YcBhIe64h_Zb2H6nwWJECvDlGECNWnpf1fjNXrrXqcO6nxmbnLQ6ESvuZDf3ISXM6CW2Gx25mpj27n1BCdNtT3oC1hlFFA",
+									"type": "string"
+								},
+								{
+									"key": "clientSecret",
+									"value": "LdZGY8o9hsVZ567Jeydo2LEjWDPEPB5o",
+									"type": "string"
+								},
+								{
+									"key": "challengeAlgorithm",
+									"value": "S256",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "admin",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "admin",
+									"type": "string"
+								},
+								{
+									"key": "grant_type",
+									"value": "password_credentials",
+									"type": "string"
+								},
+								{
+									"key": "clientId",
+									"value": "managingad-app",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8085/managingad/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8085",
+							"path": [
+								"managingad",
+								"users"
+							]
+						},
+						"description": "Get All Users"
+					},
+					"response": []
+				},
+				{
+					"name": "8085/currency",
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8085/managingad/currency",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8085",
+							"path": [
+								"managingad",
+								"currency"
+							]
+						},
+						"description": "Request by feign to Currencies-service.\nGet List of Currency."
+					},
+					"response": []
+				},
+				{
+					"name": "8085/users",
+					"request": {
+						"auth": {
+							"type": "oauth2",
+							"oauth2": [
+								{
+									"key": "clientSecret",
+									"value": "LdZGY8o9hsVZ567Jeydo2LEjWDPEPB5o",
+									"type": "string"
+								},
+								{
+									"key": "accessTokenUrl",
+									"value": "http://localhost:8080/auth/realms/SpringBootKeycloak/protocol/openid-connect/token",
+									"type": "string"
+								},
+								{
+									"key": "tokenType",
+									"value": "Bearer",
+									"type": "string"
+								},
+								{
+									"key": "accessToken",
+									"value": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJhckNmYzBQc2FYODk3N1V5V0pNNjNZS0tMdWtrYU0wSXRfcjVsbkRsMy04In0.eyJleHAiOjE2NDU3NzMzMDUsImlhdCI6MTY0NTc3MzAwNSwianRpIjoiMjZjYzZlOGQtODk1NC00ZmQwLThjNTUtMDc1MTllZWUzZGVkIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo5MDAwL2F1dGgvcmVhbG1zL1NwcmluZ0Jvb3RLZXljbG9hayIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiI3OTU1NDM0YS0wNDRmLTQ1Y2UtYTkwYy1iMWExNjZmNTQ0YjMiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJtYW5hZ2luZ2FkLWFwcCIsInNlc3Npb25fc3RhdGUiOiJmNWQ3M2MxMy0zMTUxLTRkM2MtYTdkNC03MDc4Y2JiM2U3NmMiLCJhY3IiOiIxIiwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbImRlZmF1bHQtcm9sZXMtc3ByaW5nYm9vdGtleWNsb2FrIiwib2ZmbGluZV9hY2Nlc3MiLCJ1bWFfYXV0aG9yaXphdGlvbiIsIkFETUlOIiwiVVNFUiJdfSwicmVzb3VyY2VfYWNjZXNzIjp7ImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoiZW1haWwgcHJvZmlsZSIsInNpZCI6ImY1ZDczYzEzLTMxNTEtNGQzYy1hN2Q0LTcwNzhjYmIzZTc2YyIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwicHJlZmVycmVkX3VzZXJuYW1lIjoiYWRtaW4iLCJ1c2Vyc19hdHRyaWJ1dGUiOiJhZG1pbl92YWx1ZSJ9.ZYn4UuMKJgobZbD5LmXdHuCK6INdS8TWTloS1cJgqn-4jkneCsAIKSt-1ToccHsHaHdgaQavrL9CZs62zt_NI26oJhCJqaY1UqWj0d-jjpicT1Iji6UW9W9DAXY8F4_1HTTO9U8MS_epIWPdvCHAyydE2ExYcfuY-aOlTSls62_ndfJqGDFttuCwTQQXG0iJct0AX7DZG0rITOMbfITRB1Hphs19d56RS13-BrIT8q9ZGpEisvBlm6BMoueeB2h8boMHou_o75UFwypnRK10CVzSFbeIccAJ78FnkNxUYnugksnp4D0PbmJUuXza9toMa5qinK_KrOpIWz7W4eMhfg",
+									"type": "string"
+								},
+								{
+									"key": "client_authentication",
+									"value": "body",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "admin",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "admin",
+									"type": "string"
+								},
+								{
+									"key": "clientId",
+									"value": "managingad-app",
+									"type": "string"
+								},
+								{
+									"key": "grant_type",
+									"value": "password_credentials",
+									"type": "string"
+								},
+								{
+									"key": "addTokenTo",
+									"value": "header",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "    {\n        \"id\": 4,\n        \"username\": \"test\",\n        \"userEmail\": \"test\",\n        \"password\":\"test\"\n    }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8085/managingad/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8085",
+							"path": [
+								"managingad",
+								"users"
+							]
+						},
+						"description": "Create new User.\nSending created user to the kafka."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "currencies",
+			"item": [
+				{
+					"name": "8081/currencies",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8081/currencies",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"currencies"
+							]
+						},
+						"description": "Request by feign to external api, sending empty Currency-entity to the kafka.\nGet List of Currency."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "offices",
+			"item": []
+		},
+		{
+			"name": "8080/token",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "client_id",
+							"value": "managingad-app",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "admin",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "LdZGY8o9hsVZ567Jeydo2LEjWDPEPB5o",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/auth/realms/SpringBootKeycloak/protocol/openid-connect/token",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"auth",
+						"realms",
+						"SpringBootKeycloak",
+						"protocol",
+						"openid-connect",
+						"token"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
