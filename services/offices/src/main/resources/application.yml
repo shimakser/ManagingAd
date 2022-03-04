@@ -16,13 +16,3 @@ spring:
 
   jpa:
     open-in-view: true
-
-logging:
-  file:
-    name: log/offices.log
-  pattern:
-    file: "%level | %logger | %msg | %X{id} %X{username} %X{attribute} %X{X-REQUEST-ID} %X{operationId} %X{parentOperationId}%n"
-    console: "%level | %logger | %msg | %X{id} %X{username} %X{attribute} %X{X-REQUEST-ID} %X{operationId} %X{parentOperationId}%n"
-  level:
-    by.shimakser.office: debug
-    root: info

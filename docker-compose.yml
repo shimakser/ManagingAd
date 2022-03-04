@@ -203,8 +203,8 @@ services:
       - log:/log
     depends_on:
       - postgres
-      - keycloak
       - mongodb
+      - keycloak
       - broker
     networks:
       - network
@@ -240,6 +240,8 @@ services:
     depends_on:
       - rabbitmq
       - mongodb
+      - keycloak
+      - broker
     networks:
       - network
 
@@ -270,6 +272,8 @@ services:
       - log:/log
     depends_on:
       - postgres
+      - keycloak
+      - broker
     networks:
       - network
 

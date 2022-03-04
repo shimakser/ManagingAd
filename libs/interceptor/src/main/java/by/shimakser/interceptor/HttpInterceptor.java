@@ -1,5 +1,6 @@
 package by.shimakser.interceptor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,15 +14,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@Slf4j
 @Component
 public class HttpInterceptor extends BaseInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        String traceId = Optional.ofNullable(request.getHeader(TRACE_ID))
-                .orElseGet(super::getRandomNumber);
+        Map<String, String> attributeMap = new HashMap<>();
 
-        setMdc(traceId);
+        logPrincipal(request, attributeMap);
+        logOperationIds(request, attributeMap);
+
+        MDC.setContextMap(attributeMap);
+        log.info("Intercept http request.");
         return true;
     }
 
@@ -29,23 +34,34 @@ public class HttpInterceptor extends BaseInterceptor implements HandlerIntercept
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception exception) {
     }
 
-    public void setMdc(String traceId) {
-        Map<String, String> attributeMap = new HashMap<>();
+    private void logPrincipal(HttpServletRequest request, Map<String, String> map) {
+        if (request.getHeader(USER_ID) == null) {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            Jwt jwt = (Jwt) auth.getPrincipal();
 
-        attributeMap.put(USER_ID, getPrincipal().getId());
-        attributeMap.put(USERNAME, getPrincipal().getClaim(USERNAME_KEY));
-        attributeMap.put(USER_ATTRIBUTE, getPrincipal().getClaim(USER_ATTRIBUTE_KEY));
-
-        attributeMap.put(TRACE_ID, traceId);
-        attributeMap.put(OPERATION_ID, super.getRandomNumber());
-        attributeMap.put(PARENT_OPERATION_ID, "null");
-
-        MDC.setContextMap(attributeMap);
+            map.put(USER_ID, jwt.getId());
+            map.put(USERNAME, jwt.getClaim(USERNAME_KEY));
+            map.put(USER_ATTRIBUTE, jwt.getClaim(USER_ATTRIBUTE_KEY));
+        } else {
+            map.put(USER_ID, request.getHeader(USER_ID));
+            map.put(USERNAME, request.getHeader(USERNAME));
+            map.put(USER_ATTRIBUTE, request.getHeader(USER_ATTRIBUTE));
+        }
     }
 
-    private Jwt getPrincipal() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        return (Jwt) auth.getPrincipal();
+    private void logOperationIds(HttpServletRequest request, Map<String, String> map) {
+        String traceId = Optional.ofNullable(request.getHeader(TRACE_ID))
+                .orElseGet(super::getRandomNumber);
+
+        if (request.getHeader(OPERATION_ID) == null) {
+            map.put(TRACE_ID, traceId);
+            map.put(OPERATION_ID, super.getRandomNumber());
+            map.put(PARENT_OPERATION_ID, "null");
+        } else {
+            map.put(TRACE_ID, request.getHeader(TRACE_ID));
+            map.put(PARENT_OPERATION_ID, request.getHeader(OPERATION_ID));
+            map.put(OPERATION_ID, super.getRandomNumber());
+        }
     }
 
     public void clearMdc() {

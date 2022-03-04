@@ -41,17 +41,18 @@ public class CurrenciesService {
 
     @Transactional
     public List<Currency> getCurrencies() {
-        List<Currency> currencies = currenciesRepository.findAll();
+        List<Currency> currenciesFromDb = currenciesRepository.findAll();
 
-        currencyKafkaService.sendCurrencyToKafka();
-
-        log.info("Searched all currencies.");
-        return  !currencies.isEmpty()
-                ? currencies
+        List<Currency> currencies = !currenciesFromDb.isEmpty()
+                ? currenciesFromDb
                 : currenciesFeignClient.getCurrencies().getValute().values()
                 .stream()
                 .map(currencyMapper::mapToEntity)
                 .collect(Collectors.toList());
+        log.info("Searched all currencies.");
+
+        currencyKafkaService.sendCurrencyToKafka();
+        return currencies;
     }
 
     public Currency getCurrency(String id) {
