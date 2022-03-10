@@ -63,8 +63,8 @@ public class SecurityResourceConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests(authorizeRequests -> authorizeRequests
-                        .antMatchers("/currencies/**").permitAll()
-                        .antMatchers("/offices/**").permitAll()
+                        .antMatchers("/webjars/**", "/swagger-resources/**", "/swagger-ui.html", "/v2/api-docs").permitAll()
+                        .antMatchers("/currencies/**", "/offices/**").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(resourceServerConfigurer -> resourceServerConfigurer
                         .jwt(jwtConfigurer -> jwtConfigurer

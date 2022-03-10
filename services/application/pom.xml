@@ -25,6 +25,7 @@
         <org.flywaydb>8.0.3</org.flywaydb>
         <org.testcontainers>1.16.2</org.testcontainers>
         <org.mapstruct>1.4.2.Final</org.mapstruct>
+        <io.springfox>2.9.1</io.springfox>
     </properties>
 
     <dependencies>
@@ -107,6 +108,18 @@
             <version>5.4.27.Final</version>
         </dependency>
 
+        <!--Swagger-->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>${io.springfox}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>${io.springfox}</version>
+        </dependency>
+
         <!--Tests-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -132,6 +145,18 @@
             <version>4.3.1</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.22.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>eu.codearte.catch-exception</groupId>
+            <artifactId>catch-exception</artifactId>
+            <version>2.0</version>
+            <scope>test</scope>
+        </dependency>
         <!--TestContainer-->
         <dependency>
             <groupId>org.testcontainers</groupId>
@@ -145,25 +170,12 @@
             <version>${org.testcontainers}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
-            <version>3.22.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>eu.codearte.catch-exception</groupId>
-            <artifactId>catch-exception</artifactId>
-            <version>2.0</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
         <finalName>managingad</finalName>
 
         <plugins>
-
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>

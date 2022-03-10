@@ -37,11 +37,17 @@ public class HttpInterceptor extends BaseInterceptor implements HandlerIntercept
     private void logPrincipal(HttpServletRequest request, Map<String, String> map) {
         if (request.getHeader(USER_ID) == null) {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            Jwt jwt = (Jwt) auth.getPrincipal();
+            if (auth.getPrincipal().equals("anonymousUser")) {
+                map.put(USER_ID, "null");
+                map.put(USERNAME, "anonymousUser");
+                map.put(USER_ATTRIBUTE, "null");
+            } else {
+                Jwt jwt = (Jwt) auth.getPrincipal();
 
-            map.put(USER_ID, jwt.getId());
-            map.put(USERNAME, jwt.getClaim(USERNAME_KEY));
-            map.put(USER_ATTRIBUTE, jwt.getClaim(USER_ATTRIBUTE_KEY));
+                map.put(USER_ID, jwt.getId());
+                map.put(USERNAME, jwt.getClaim(USERNAME_KEY));
+                map.put(USER_ATTRIBUTE, jwt.getClaim(USER_ATTRIBUTE_KEY));
+            }
         } else {
             map.put(USER_ID, request.getHeader(USER_ID));
             map.put(USERNAME, request.getHeader(USERNAME));
