@@ -11,11 +11,7 @@ public class SecurityService {
     public boolean checkPrincipalAccess(String creator) {
         boolean isAdmin = getPrincipalRoles().contains("ADMIN");
 
-        if (isAdmin || creator.equals(getPrincipalName())) {
-            return true;
-        }
-
-        return false;
+        return isAdmin || creator.equals(getPrincipalName());
     }
 
     public String getPrincipalRoles() {

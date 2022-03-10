@@ -4,6 +4,7 @@ import by.shimakser.security.service.SecurityService;
 import by.shimakser.model.ad.Role;
 import by.shimakser.model.ad.User;
 import by.shimakser.repository.ad.UserRepository;
+import by.shimakser.service.kafka.ProducerService;
 import com.googlecode.catchexception.apis.BDDCatchException;
 import org.assertj.core.api.BDDAssertions;
 import org.junit.jupiter.api.*;
@@ -38,6 +39,8 @@ class UserServiceContainerTest {
     private PasswordEncoder bCryptPasswordEncoder;
     @Mock
     private SecurityService securityService;
+    @Mock
+    private ProducerService producerService;
 
     @InjectMocks
     private UserService userService;

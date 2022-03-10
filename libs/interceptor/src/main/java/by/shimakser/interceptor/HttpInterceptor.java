@@ -30,10 +30,6 @@ public class HttpInterceptor extends BaseInterceptor implements HandlerIntercept
         return true;
     }
 
-    @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception exception) {
-    }
-
     private void logPrincipal(HttpServletRequest request, Map<String, String> map) {
         if (request.getHeader(USER_ID) == null) {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();

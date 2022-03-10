@@ -3,6 +3,7 @@ package by.shimakser.currencies.service;
 import by.shimakser.currencies.mapper.CurrencyMapper;
 import by.shimakser.currencies.model.Currency;
 import by.shimakser.currencies.repository.CurrenciesRepository;
+import by.shimakser.currencies.service.kafka.CurrencyKafkaService;
 import by.shimakser.dto.Currencies;
 import by.shimakser.dto.CurrencyDto;
 import by.shimakser.feign.client.CurrenciesFeignClient;
@@ -30,12 +31,12 @@ class CurrenciesServiceTest {
 
     @Mock
     private CurrenciesRepository currenciesRepository;
-
     @Mock
     private CurrenciesFeignClient currenciesFeignClient;
-
     @Mock
     private CurrencyMapper currencyMapper;
+    @Mock
+    private CurrencyKafkaService currencyKafkaService;
 
     @InjectMocks
     private CurrenciesService currenciesService;
@@ -111,7 +112,7 @@ class CurrenciesServiceTest {
         Currency currency = currenciesService.getEntity(CURRENCIES, CURRENCY_ID);
 
         // then
-        assertEquals(currency, CURRENCY);
+        assertEquals(CURRENCY, currency);
     }
 
     /**
