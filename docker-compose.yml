@@ -196,7 +196,7 @@ services:
       KEYCLOAK_REALM: SpringBootKeycloak
       KEYCLOAK_CLIENT: managingad-app
       KEYCLOAK_SERVER: http://keycloak:8080/auth
-      KEYCLOAK_SECRET: LdZGY8o9hsVZ567Jeydo2LEjWDPEPB5o
+      KEYCLOAK_SECRET: UvNiBzOXvXzxrJZPmhiuVuXfPohvNalG
       KEYCLOAK_USERNAME: root
       KEYCLOAK_PASSWORD: root
     volumes:

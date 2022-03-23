@@ -1,11 +1,12 @@
 package by.shimakser.service.ad;
 
 import by.shimakser.exception.ExceptionText;
-import by.shimakser.security.service.SecurityService;
 import by.shimakser.model.ad.Role;
 import by.shimakser.model.ad.User;
 import by.shimakser.repository.ad.UserRepository;
+import by.shimakser.security.service.SecurityService;
 import by.shimakser.service.kafka.ProducerService;
+import com.gruelbox.transactionoutbox.TransactionOutbox;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -29,19 +30,19 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder bCryptPasswordEncoder;
     private final SecurityService securityService;
-    private final ProducerService producerService;
+    private final TransactionOutbox outbox;
 
     private static final int DEFAULT_PAGE = 0;
     private static final int DEFAULT_PAGE_SIZE = 3;
     private static final String DEFAULT_FIELD_SORT = "id";
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder bCryptPasswordEncoder,
-                       SecurityService securityService, ProducerService producerService) {
+    public UserService(UserRepository userRepository, PasswordEncoder bCryptPasswordEncoder, TransactionOutbox outbox,
+                       SecurityService securityService) {
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.securityService = securityService;
-        this.producerService = producerService;
+        this.outbox = outbox;
     }
 
     @Transactional(rollbackFor = EntityExistsException.class)
@@ -54,11 +55,11 @@ public class UserService {
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         user.setUserRole(Role.USER);
         user.setUserDeleted(Boolean.FALSE);
+
         userRepository.save(user);
+        outbox.schedule(ProducerService.class).sendUser(user);
 
-        producerService.sendUser(user);
-
-        log.info("User {} successfully registered with e-mail {}.", user.getId(), user.getUserEmail());
+        log.info("User {} successfully registered with email {}.", user.getId(), user.getUserEmail());
         return user;
     }
 

@@ -120,6 +120,13 @@
             <version>${io.springfox}</version>
         </dependency>
 
+        <!--transactionoutbox-->
+        <dependency>
+            <groupId>com.gruelbox</groupId>
+            <artifactId>transactionoutbox-spring</artifactId>
+            <version>4.2.268</version>
+        </dependency>
+
         <!--Tests-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
