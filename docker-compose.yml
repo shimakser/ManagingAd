@@ -124,7 +124,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: root
-      POSTGRES_MULTIPLE_DATABASES: managingad,offices,dictionary,keycloak_db
+      POSTGRES_MULTIPLE_DATABASES: managingad,offices,dictionary,keycloak_db,chat
     restart: always
     networks:
       - network

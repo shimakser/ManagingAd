@@ -21,6 +21,7 @@
         <module>services/offices</module>
         <module>services/listener</module>
         <module>services/dictionary</module>
+        <module>services/chat</module>
 
         <module>libs/dto</module>
         <module>libs/feign</module>
